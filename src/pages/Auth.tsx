@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -14,6 +14,7 @@ const Auth = () => {
   const [loading, setLoading] = useState(false);
   const [mode, setMode] = useState<"signin" | "signup">("signin");
   const navigate = useNavigate();
+  const isRedirecting = useRef(false);
 
   // Sign In form
   const [signInEmail, setSignInEmail] = useState("");
@@ -31,13 +32,15 @@ const Auth = () => {
       async (event, session) => {
         console.log('Auth event:', event, 'Session:', session);
         
-        if (event === 'SIGNED_IN' && session?.user) {
+        // Only handle NEW sign-ins from the form submission
+        if (event === 'SIGNED_IN' && session?.user && !isRedirecting.current) {
+          isRedirecting.current = true;
           await handleAuthRedirect(session.user);
         }
       }
     );
 
-    // Check current user
+    // Check for existing session only once on mount
     checkUser();
 
     return () => {
@@ -46,6 +49,12 @@ const Auth = () => {
   }, []);
 
   const handleAuthRedirect = async (user: any) => {
+    // Prevent duplicate calls
+    if (isRedirecting.current) {
+      return;
+    }
+    isRedirecting.current = true;
+    
     try {
       // Special case: bypass all verification for test account
       if (user.email === 'ambaheu@gmail.com') {
