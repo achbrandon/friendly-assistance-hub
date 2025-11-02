@@ -88,90 +88,186 @@ export default function AdminApplications() {
 
   const handleApproveAccount = async (appId: string) => {
     try {
+      const app = accountApps.find(a => a.id === appId);
+      if (!app) throw new Error("Application not found");
+
       const { error } = await supabase
         .from("account_applications")
         .update({ status: "approved" })
         .eq("id", appId);
 
       if (error) throw error;
-      toast.success("Account application approved!");
+
+      // Send approval email
+      await supabase.functions.invoke("send-application-decision", {
+        body: {
+          applicantName: app.full_name,
+          applicantEmail: app.email,
+          applicationType: "account",
+          decision: "approved",
+          accountType: app.account_type,
+        },
+      });
+
+      toast.success("Account application approved and email sent!");
       fetchApplications();
     } catch (error) {
+      console.error("Error approving application:", error);
       toast.error("Failed to approve application");
     }
   };
 
   const handleRejectAccount = async (appId: string) => {
     try {
+      const app = accountApps.find(a => a.id === appId);
+      if (!app) throw new Error("Application not found");
+
       const { error } = await supabase
         .from("account_applications")
         .update({ status: "rejected" })
         .eq("id", appId);
 
       if (error) throw error;
-      toast.success("Account application rejected");
+
+      // Send rejection email
+      await supabase.functions.invoke("send-application-decision", {
+        body: {
+          applicantName: app.full_name,
+          applicantEmail: app.email,
+          applicationType: "account",
+          decision: "rejected",
+          accountType: app.account_type,
+        },
+      });
+
+      toast.success("Account application rejected and email sent");
       fetchApplications();
     } catch (error) {
+      console.error("Error rejecting application:", error);
       toast.error("Failed to reject application");
     }
   };
 
   const handleApproveCard = async (appId: string) => {
     try {
+      const app = cardApps.find(a => a.id === appId);
+      if (!app) throw new Error("Application not found");
+
       const { error } = await supabase
         .from("card_applications")
         .update({ application_status: "approved" })
         .eq("id", appId);
 
       if (error) throw error;
-      toast.success("Card application approved!");
+
+      // Send approval email
+      await supabase.functions.invoke("send-application-decision", {
+        body: {
+          applicantName: app.profiles?.full_name || "Customer",
+          applicantEmail: app.profiles?.email || "",
+          applicationType: "card",
+          decision: "approved",
+          cardType: app.card_type,
+        },
+      });
+
+      toast.success("Card application approved and email sent!");
       fetchApplications();
     } catch (error) {
+      console.error("Error approving card application:", error);
       toast.error("Failed to approve card application");
     }
   };
 
   const handleRejectCard = async (appId: string) => {
     try {
+      const app = cardApps.find(a => a.id === appId);
+      if (!app) throw new Error("Application not found");
+
       const { error } = await supabase
         .from("card_applications")
         .update({ application_status: "rejected" })
         .eq("id", appId);
 
       if (error) throw error;
-      toast.success("Card application rejected");
+
+      // Send rejection email
+      await supabase.functions.invoke("send-application-decision", {
+        body: {
+          applicantName: app.profiles?.full_name || "Customer",
+          applicantEmail: app.profiles?.email || "",
+          applicationType: "card",
+          decision: "rejected",
+          cardType: app.card_type,
+        },
+      });
+
+      toast.success("Card application rejected and email sent");
       fetchApplications();
     } catch (error) {
+      console.error("Error rejecting card application:", error);
       toast.error("Failed to reject card application");
     }
   };
 
   const handleApproveLoan = async (appId: string) => {
     try {
+      const app = loanApps.find(a => a.id === appId);
+      if (!app) throw new Error("Application not found");
+
       const { error } = await supabase
         .from("loan_applications")
         .update({ status: "approved" })
         .eq("id", appId);
 
       if (error) throw error;
-      toast.success("Loan application approved!");
+
+      // Send approval email
+      await supabase.functions.invoke("send-application-decision", {
+        body: {
+          applicantName: app.profiles?.full_name || "Customer",
+          applicantEmail: app.profiles?.email || "",
+          applicationType: "loan",
+          decision: "approved",
+          loanAmount: app.loan_amount,
+        },
+      });
+
+      toast.success("Loan application approved and email sent!");
       fetchApplications();
     } catch (error) {
+      console.error("Error approving loan application:", error);
       toast.error("Failed to approve loan application");
     }
   };
 
   const handleRejectLoan = async (appId: string) => {
     try {
+      const app = loanApps.find(a => a.id === appId);
+      if (!app) throw new Error("Application not found");
+
       const { error } = await supabase
         .from("loan_applications")
         .update({ status: "rejected" })
         .eq("id", appId);
 
       if (error) throw error;
-      toast.success("Loan application rejected");
+
+      // Send rejection email
+      await supabase.functions.invoke("send-application-decision", {
+        body: {
+          applicantName: app.profiles?.full_name || "Customer",
+          applicantEmail: app.profiles?.email || "",
+          applicationType: "loan",
+          decision: "rejected",
+          loanAmount: app.loan_amount,
+        },
+      });
+
+      toast.success("Loan application rejected and email sent");
       fetchApplications();
     } catch (error) {
+      console.error("Error rejecting loan application:", error);
       toast.error("Failed to reject loan application");
     }
   };
