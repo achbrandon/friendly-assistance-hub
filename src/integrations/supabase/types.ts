@@ -232,6 +232,36 @@ export type Database = {
         }
         Relationships: []
       }
+      admin_settings: {
+        Row: {
+          created_at: string
+          id: string
+          setting_key: string
+          setting_type: string
+          setting_value: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          setting_key: string
+          setting_type: string
+          setting_value: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          setting_key?: string
+          setting_type?: string
+          setting_value?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
       alerts: {
         Row: {
           alert_message: string
@@ -720,6 +750,42 @@ export type Database = {
           origination_date?: string
           outstanding_balance?: number
           updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      manual_deposits: {
+        Row: {
+          account_id: string
+          amount: number
+          created_at: string
+          created_by: string
+          deposit_date: string
+          id: string
+          notes: string | null
+          status: string
+          user_id: string
+        }
+        Insert: {
+          account_id: string
+          amount: number
+          created_at?: string
+          created_by: string
+          deposit_date: string
+          id?: string
+          notes?: string | null
+          status?: string
+          user_id: string
+        }
+        Update: {
+          account_id?: string
+          amount?: number
+          created_at?: string
+          created_by?: string
+          deposit_date?: string
+          id?: string
+          notes?: string | null
+          status?: string
           user_id?: string
         }
         Relationships: []
@@ -1254,6 +1320,39 @@ export type Database = {
           created_at?: string | null
           id?: string
           role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_sessions: {
+        Row: {
+          created_at: string
+          id: string
+          is_online: boolean
+          last_activity: string
+          page_title: string | null
+          page_url: string
+          session_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_online?: boolean
+          last_activity?: string
+          page_title?: string | null
+          page_url: string
+          session_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_online?: boolean
+          last_activity?: string
+          page_title?: string | null
+          page_url?: string
+          session_id?: string
           user_id?: string
         }
         Relationships: []

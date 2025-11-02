@@ -52,6 +52,8 @@ import AdminSupportPage from "./pages/admin/Support";
 import AdminEmailSystem from "./pages/admin/EmailSystem";
 import AdminWalletSettings from "./pages/admin/WalletSettings";
 import AdminUserActivity from "./pages/admin/UserActivity";
+import AdminUserManagement from "./pages/admin/UserManagement";
+import AdminLiveMonitoring from "./pages/admin/LiveMonitoring";
 
 const queryClient = new QueryClient();
 
@@ -109,6 +111,8 @@ function AppRoutes() {
       {/* Admin Routes */}
       <Route path="/admin" element={<AdminDashboard />}>
         <Route path="users" element={<AdminUsers />} />
+        <Route path="user-management" element={<AdminUserManagement />} />
+        <Route path="live-monitoring" element={<AdminLiveMonitoring />} />
         <Route path="applications" element={<AdminApplications />} />
         <Route path="transactions" element={<AdminTransactions />} />
         <Route path="support" element={<AdminSupportPage />} />

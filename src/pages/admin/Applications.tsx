@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
-import { CheckCircle, XCircle, Clock, FileText, CreditCard } from "lucide-react";
+import { CheckCircle, XCircle, Clock, FileText, CreditCard, Eye } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -13,12 +13,16 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
 
 export default function AdminApplications() {
   const [accountApps, setAccountApps] = useState<any[]>([]);
   const [cardApps, setCardApps] = useState<any[]>([]);
   const [loanApps, setLoanApps] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedApp, setSelectedApp] = useState<any>(null);
+  const [appDialogOpen, setAppDialogOpen] = useState(false);
 
   useEffect(() => {
     fetchApplications();
@@ -240,6 +244,113 @@ export default function AdminApplications() {
                       {new Date(app.created_at).toLocaleDateString()}
                     </TableCell>
                     <TableCell className="text-right space-x-2">
+                      <Dialog open={appDialogOpen && selectedApp?.id === app.id} onOpenChange={(open) => {
+                        setAppDialogOpen(open);
+                        if (!open) setSelectedApp(null);
+                      }}>
+                        <DialogTrigger asChild>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="bg-blue-500/10 hover:bg-blue-500/20 text-blue-500 border-blue-500/50"
+                            onClick={() => {
+                              setSelectedApp(app);
+                              setAppDialogOpen(true);
+                            }}
+                          >
+                            <Eye className="h-4 w-4 mr-1" />
+                            View Details
+                          </Button>
+                        </DialogTrigger>
+                        <DialogContent className="bg-slate-900 border-slate-700 max-w-2xl max-h-[80vh] overflow-y-auto">
+                          <DialogHeader>
+                            <DialogTitle className="text-white">Application Details</DialogTitle>
+                          </DialogHeader>
+                          <div className="space-y-4">
+                            <div className="grid grid-cols-2 gap-4">
+                              <div>
+                                <Label className="text-slate-400">Full Name</Label>
+                                <p className="text-white font-medium">{app.full_name}</p>
+                              </div>
+                              <div>
+                                <Label className="text-slate-400">Email</Label>
+                                <p className="text-white font-medium">{app.email}</p>
+                              </div>
+                              <div>
+                                <Label className="text-slate-400">Phone</Label>
+                                <p className="text-white font-medium">{app.phone || "N/A"}</p>
+                              </div>
+                              <div>
+                                <Label className="text-slate-400">Date of Birth</Label>
+                                <p className="text-white font-medium">{app.date_of_birth ? new Date(app.date_of_birth).toLocaleDateString() : "N/A"}</p>
+                              </div>
+                              <div>
+                                <Label className="text-slate-400">SSN</Label>
+                                <p className="text-white font-medium">{app.ssn ? `***-**-${app.ssn.slice(-4)}` : "N/A"}</p>
+                              </div>
+                              <div>
+                                <Label className="text-slate-400">Account Type</Label>
+                                <p className="text-white font-medium">{app.account_type}</p>
+                              </div>
+                              <div className="col-span-2">
+                                <Label className="text-slate-400">Address</Label>
+                                <p className="text-white font-medium">{app.address || "N/A"}</p>
+                              </div>
+                              <div>
+                                <Label className="text-slate-400">City</Label>
+                                <p className="text-white font-medium">{app.city || "N/A"}</p>
+                              </div>
+                              <div>
+                                <Label className="text-slate-400">State</Label>
+                                <p className="text-white font-medium">{app.state || "N/A"}</p>
+                              </div>
+                              <div>
+                                <Label className="text-slate-400">Zip Code</Label>
+                                <p className="text-white font-medium">{app.zip_code || "N/A"}</p>
+                              </div>
+                              <div>
+                                <Label className="text-slate-400">Status</Label>
+                                <div className="mt-1">{getStatusBadge(app.status)}</div>
+                              </div>
+                              <div>
+                                <Label className="text-slate-400">Email Verified</Label>
+                                <p className="text-white font-medium">{app.email_verified ? "Yes" : "No"}</p>
+                              </div>
+                              <div>
+                                <Label className="text-slate-400">QR Verified</Label>
+                                <p className="text-white font-medium">{app.qr_code_verified ? "Yes" : "No"}</p>
+                              </div>
+                              <div className="col-span-2">
+                                <Label className="text-slate-400">Application Date</Label>
+                                <p className="text-white font-medium">{new Date(app.created_at).toLocaleString()}</p>
+                              </div>
+                            </div>
+                            {app.status === "pending" && (
+                              <div className="flex gap-2 pt-4">
+                                <Button
+                                  className="flex-1 bg-green-500 hover:bg-green-600"
+                                  onClick={() => {
+                                    handleApproveAccount(app.id);
+                                    setAppDialogOpen(false);
+                                  }}
+                                >
+                                  Approve Application
+                                </Button>
+                                <Button
+                                  variant="outline"
+                                  className="flex-1 bg-red-500/10 hover:bg-red-500/20 text-red-500 border-red-500/50"
+                                  onClick={() => {
+                                    handleRejectAccount(app.id);
+                                    setAppDialogOpen(false);
+                                  }}
+                                >
+                                  Reject Application
+                                </Button>
+                              </div>
+                            )}
+                          </div>
+                        </DialogContent>
+                      </Dialog>
                       {app.status === "pending" && (
                         <>
                           <Button

@@ -6,7 +6,9 @@ import {
   Settings,
   TrendingUp,
   Wallet,
-  FileText
+  FileText,
+  UserCog,
+  Activity
 } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import {
@@ -31,6 +33,16 @@ const menuItems = [
     title: "Users",
     url: "/admin/users",
     icon: Users,
+  },
+  {
+    title: "User Management",
+    url: "/admin/user-management",
+    icon: UserCog,
+  },
+  {
+    title: "Live Monitoring",
+    url: "/admin/live-monitoring",
+    icon: Activity,
   },
   {
     title: "Applications",
@@ -59,7 +71,7 @@ const menuItems = [
   },
   {
     title: "User Activity",
-    url: "/admin/activity",
+    url:"/admin/activity",
     icon: TrendingUp,
   },
 ];

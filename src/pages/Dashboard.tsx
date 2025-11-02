@@ -12,6 +12,7 @@ import { TransactionsList } from "@/components/dashboard/TransactionsList";
 import { QuickActions } from "@/components/dashboard/QuickActions";
 import { SpendingInsights } from "@/components/dashboard/SpendingInsights";
 import { useUserActivity } from "@/hooks/useUserActivity";
+import { useSessionTracking } from "@/hooks/useSessionTracking";
 import logo from "@/assets/vaultbank-logo.png";
 
 const Dashboard = () => {
@@ -26,6 +27,7 @@ const Dashboard = () => {
 
   // Track user activity
   useUserActivity();
+  useSessionTracking();
 
   useEffect(() => {
     checkAuth();
