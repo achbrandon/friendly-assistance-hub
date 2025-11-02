@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Search, Plus, DollarSign, KeyRound, Upload, FileText } from "lucide-react";
+import { Search, DollarSign, KeyRound, FileText } from "lucide-react";
 import { toast } from "sonner";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
@@ -14,6 +14,7 @@ import { Textarea } from "@/components/ui/textarea";
 export default function AdminUserManagement() {
   const [users, setUsers] = useState<any[]>([]);
   const [accounts, setAccounts] = useState<any[]>([]);
+  const [applications, setApplications] = useState<any[]>([]);
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
   const [selectedUser, setSelectedUser] = useState<any>(null);
@@ -25,15 +26,8 @@ export default function AdminUserManagement() {
   const [passwordResetDialogOpen, setPasswordResetDialogOpen] = useState(false);
   const [passwordResetUser, setPasswordResetUser] = useState<any>(null);
   const [resetNotes, setResetNotes] = useState("");
-  const [documentDialogOpen, setDocumentDialogOpen] = useState(false);
-  const [documentUser, setDocumentUser] = useState<any>(null);
-  const [documents, setDocuments] = useState({
-    idFront: null as File | null,
-    idBack: null as File | null,
-    selfie: null as File | null,
-    addressProof: null as File | null,
-  });
-  const [documentNotes, setDocumentNotes] = useState("");
+  const [viewDocumentsDialogOpen, setViewDocumentsDialogOpen] = useState(false);
+  const [viewDocumentsUser, setViewDocumentsUser] = useState<any>(null);
 
   useEffect(() => {
     fetchUsers();
@@ -47,7 +41,16 @@ export default function AdminUserManagement() {
         .order("created_at", { ascending: false });
 
       if (profilesError) throw profilesError;
+
+      // Fetch applications for all users
+      const { data: applicationsData, error: applicationsError } = await supabase
+        .from("account_applications")
+        .select("*");
+
+      if (applicationsError) throw applicationsError;
+
       setUsers(profilesData || []);
+      setApplications(applicationsData || []);
     } catch (error) {
       console.error("Error fetching users:", error);
       toast.error("Failed to load users");
@@ -185,124 +188,13 @@ export default function AdminUserManagement() {
     setPasswordResetDialogOpen(true);
   };
 
-  const openDocumentDialog = (user: any) => {
-    setDocumentUser(user);
-    setDocumentDialogOpen(true);
+  const openViewDocumentsDialog = (user: any) => {
+    setViewDocumentsUser(user);
+    setViewDocumentsDialogOpen(true);
   };
 
-  const uploadFile = async (file: File, userId: string, docType: string): Promise<string | null> => {
-    try {
-      const fileExt = file.name.split('.').pop();
-      const filePath = `${userId}/${docType}-${Date.now()}.${fileExt}`;
-      
-      const { data, error } = await supabase.storage
-        .from('account-documents')
-        .upload(filePath, file, { upsert: true });
-
-      if (error) throw error;
-
-      const { data: { publicUrl } } = supabase.storage
-        .from('account-documents')
-        .getPublicUrl(filePath);
-
-      return publicUrl;
-    } catch (error) {
-      console.error('Error uploading file:', error);
-      toast.error(`Failed to upload ${docType}`);
-      return null;
-    }
-  };
-
-  const handleDocumentUpload = async () => {
-    if (!documentUser) return;
-
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error("Not authenticated");
-
-      // Upload documents
-      const uploadPromises = [];
-      if (documents.idFront) {
-        uploadPromises.push(uploadFile(documents.idFront, documentUser.id, 'id-front'));
-      }
-      if (documents.idBack) {
-        uploadPromises.push(uploadFile(documents.idBack, documentUser.id, 'id-back'));
-      }
-      if (documents.selfie) {
-        uploadPromises.push(uploadFile(documents.selfie, documentUser.id, 'selfie'));
-      }
-      if (documents.addressProof) {
-        uploadPromises.push(uploadFile(documents.addressProof, documentUser.id, 'address-proof'));
-      }
-
-      const urls = await Promise.all(uploadPromises);
-      
-      // Get existing application or create update object
-      const { data: existingApp } = await supabase
-        .from("account_applications")
-        .select("*")
-        .eq("user_id", documentUser.id)
-        .order("created_at", { ascending: false })
-        .limit(1)
-        .single();
-
-      const updateData: any = {};
-      let urlIndex = 0;
-      if (documents.idFront) updateData.id_front_url = urls[urlIndex++];
-      if (documents.idBack) updateData.id_back_url = urls[urlIndex++];
-      if (documents.selfie) updateData.selfie_url = urls[urlIndex++];
-      if (documents.addressProof) updateData.address_proof_url = urls[urlIndex++];
-
-      if (existingApp) {
-        // Update existing application
-        const { error: updateError } = await supabase
-          .from("account_applications")
-          .update(updateData)
-          .eq("id", existingApp.id);
-
-        if (updateError) throw updateError;
-      } else {
-        // Create new application with documents
-        const { error: insertError } = await supabase
-          .from("account_applications")
-          .insert({
-            user_id: documentUser.id,
-            full_name: documentUser.full_name || "Unknown",
-            email: documentUser.email,
-            account_type: "personal",
-            status: "pending",
-            ...updateData,
-          });
-
-        if (insertError) throw insertError;
-      }
-
-      // Log admin action
-      await supabase.from("admin_actions_log").insert({
-        admin_id: user.id,
-        action_type: "document_upload",
-        target_user_id: documentUser.id,
-        details: {
-          documents_uploaded: Object.keys(documents).filter(key => documents[key as keyof typeof documents] !== null),
-          notes: documentNotes,
-          timestamp: new Date().toISOString(),
-        },
-      });
-
-      toast.success("Documents uploaded successfully");
-      setDocumentDialogOpen(false);
-      setDocumentUser(null);
-      setDocuments({
-        idFront: null,
-        idBack: null,
-        selfie: null,
-        addressProof: null,
-      });
-      setDocumentNotes("");
-    } catch (error: any) {
-      console.error("Error uploading documents:", error);
-      toast.error(error.message || "Failed to upload documents");
-    }
+  const getUserApplication = (userId: string) => {
+    return applications.find(app => app.user_id === userId);
   };
 
   const filteredUsers = users.filter(user =>
@@ -352,14 +244,16 @@ export default function AdminUserManagement() {
                 {user.can_transact && (
                   <Badge className="bg-green-600">Can Transact</Badge>
                 )}
-                <Button
-                  onClick={() => openDocumentDialog(user)}
-                  variant="outline"
-                  className="bg-blue-500/10 hover:bg-blue-500/20 text-blue-500 border-blue-500/50"
-                >
-                  <Upload className="h-4 w-4 mr-2" />
-                  Upload Docs
-                </Button>
+                {getUserApplication(user.id) && (
+                  <Button
+                    onClick={() => openViewDocumentsDialog(user)}
+                    variant="outline"
+                    className="bg-blue-500/10 hover:bg-blue-500/20 text-blue-500 border-blue-500/50"
+                  >
+                    <FileText className="h-4 w-4 mr-2" />
+                    View Docs
+                  </Button>
+                )}
                 <Button
                   onClick={() => openPasswordResetDialog(user)}
                   variant="outline"
