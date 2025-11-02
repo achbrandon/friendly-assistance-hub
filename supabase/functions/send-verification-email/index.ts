@@ -149,7 +149,7 @@ const handler = async (req: Request): Promise<Response> => {
     `;
 
     const emailResponse = await resend.emails.send({
-      from: "VaultBank Security <onboarding@resend.dev>",
+      from: "VaultBank Security <noreply@vaultbankonline.com>",
       to: [email],
       subject: "🔐 Verify Your VaultBank Account - Action Required",
       html: emailHtml,
