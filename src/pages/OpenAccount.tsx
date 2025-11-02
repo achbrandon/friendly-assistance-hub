@@ -106,7 +106,28 @@ const OpenAccount = () => {
 
   const nextStep = () => {
     if (!validateStep()) {
-      alert("Please fill in all required fields before proceeding.");
+      // Provide specific error messages for step 7
+      if (step === 7) {
+        if (!formData.username) {
+          alert("Please enter a username.");
+        } else if (!formData.password || !formData.confirmPassword) {
+          alert("Please enter and confirm your password.");
+        } else if (formData.password !== formData.confirmPassword) {
+          alert("Passwords do not match! Please make sure both password fields are identical.");
+        } else if (!formData.pin) {
+          alert("Please enter a PIN.");
+        } else if (!formData.securityQuestion) {
+          alert("Please select a security question.");
+        } else if (!formData.securityAnswer) {
+          alert("Please provide an answer to your security question.");
+        } else if (!formData.twoFactorMethod) {
+          alert("Please select a two-factor authentication method.");
+        } else {
+          alert("Please fill in all required fields before proceeding.");
+        }
+      } else {
+        alert("Please fill in all required fields before proceeding.");
+      }
       return;
     }
     if (step < totalSteps) setStep(step + 1);

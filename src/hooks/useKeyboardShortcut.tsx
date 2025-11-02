@@ -14,6 +14,9 @@ export function useKeyboardShortcut(
 ) {
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
+      // Guard against undefined key
+      if (!event.key) return;
+      
       const matchesKey = event.key.toLowerCase() === options.key.toLowerCase();
       const matchesCtrl = options.ctrlKey ? event.ctrlKey : !event.ctrlKey;
       const matchesShift = options.shiftKey ? event.shiftKey : !event.shiftKey;
