@@ -46,6 +46,7 @@ import LoanApplication from "./pages/dashboard/LoanApplication";
 import AdminSupport from "./pages/dashboard/AdminSupport";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminUsers from "./pages/admin/Users";
+import AdminApplications from "./pages/admin/Applications";
 import AdminTransactions from "./pages/admin/Transactions";
 import AdminSupportPage from "./pages/admin/Support";
 import AdminEmailSystem from "./pages/admin/EmailSystem";
@@ -108,6 +109,7 @@ function AppRoutes() {
       {/* Admin Routes */}
       <Route path="/admin" element={<AdminDashboard />}>
         <Route path="users" element={<AdminUsers />} />
+        <Route path="applications" element={<AdminApplications />} />
         <Route path="transactions" element={<AdminTransactions />} />
         <Route path="support" element={<AdminSupportPage />} />
         <Route path="email" element={<AdminEmailSystem />} />

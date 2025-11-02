@@ -5,7 +5,8 @@ import {
   MessageSquare, 
   Settings,
   TrendingUp,
-  Wallet
+  Wallet,
+  FileText
 } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import {
@@ -30,6 +31,11 @@ const menuItems = [
     title: "Users",
     url: "/admin/users",
     icon: Users,
+  },
+  {
+    title: "Applications",
+    url: "/admin/applications",
+    icon: FileText,
   },
   {
     title: "Transactions",
