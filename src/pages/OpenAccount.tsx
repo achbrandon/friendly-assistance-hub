@@ -188,6 +188,9 @@ const OpenAccount = () => {
     }
 
     try {
+      // Generate QR secret
+      const qrSecret = crypto.randomUUID();
+
       // Step 1: Create the user account
       const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
         email: formData.email,
@@ -201,7 +204,11 @@ const OpenAccount = () => {
       });
 
       if (signUpError) {
-        alert(`Error creating account: ${signUpError.message}`);
+        if (signUpError.message.includes("already registered") || signUpError.message.includes("already exists")) {
+          alert("This email is already registered. Please use a different email or sign in to your existing account.");
+        } else {
+          alert(`Error creating account: ${signUpError.message}`);
+        }
         return;
       }
 
@@ -261,6 +268,9 @@ const OpenAccount = () => {
         id_back_url: idBackUrl,
         selfie_url: selfieUrl,
         address_proof_url: addressProofUrl,
+        email_verified: false,
+        qr_code_secret: qrSecret,
+        verification_token: user.id,
       });
 
       if (error) {
@@ -268,6 +278,23 @@ const OpenAccount = () => {
         alert("There was an error submitting your application. Please try again.");
         return;
       }
+
+      // Step 5: Send verification email
+      try {
+        await supabase.functions.invoke("send-verification-email", {
+          body: {
+            email: formData.email,
+            fullName: formData.fullName,
+            verificationToken: user.id,
+            qrSecret: qrSecret,
+          },
+        });
+      } catch (emailError) {
+        console.error("Error sending verification email:", emailError);
+      }
+
+      // Sign out user until they verify email
+      await supabase.auth.signOut();
 
       setShowSuccessDialog(true);
     } catch (error) {
@@ -997,7 +1024,12 @@ const OpenAccount = () => {
             </div>
             <DialogTitle className="text-center text-2xl">Application Submitted Successfully!</DialogTitle>
             <DialogDescription className="text-center pt-2">
-              Thank you for choosing VaultBank. Your application is being processed.
+              <div className="bg-amber-50 border border-amber-200 p-3 rounded-lg mt-2">
+                <p className="font-semibold text-amber-900 mb-1">⚠️ IMPORTANT: Email Verification Required</p>
+                <p className="text-sm text-amber-800">
+                  You MUST verify your email address before you can sign in. Check your inbox (and spam folder) for the verification link.
+                </p>
+              </div>
             </DialogDescription>
           </DialogHeader>
           
@@ -1005,26 +1037,36 @@ const OpenAccount = () => {
             <h3 className="font-semibold text-sm">What Happens Next?</h3>
             <ul className="text-sm space-y-3">
               <li className="flex items-start gap-2">
-                <span className="text-primary mt-0.5">•</span>
-                <span>Your application will be reviewed by our team (typically 1-2 business days)</span>
+                <span className="text-red-600 mt-0.5 font-bold">1.</span>
+                <span className="font-semibold">Check your email NOW and click the verification link</span>
               </li>
               <li className="flex items-start gap-2">
-                <span className="text-primary mt-0.5">•</span>
+                <span className="text-primary mt-0.5">2.</span>
+                <span>After email verification, complete QR code authentication</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-primary mt-0.5">3.</span>
+                <span>Your application will be reviewed by our team (1-2 business days)</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-primary mt-0.5">4.</span>
                 <span>We may contact you for additional verification via phone or video call</span>
               </li>
               <li className="flex items-start gap-2">
-                <span className="text-primary mt-0.5">•</span>
-                <span>Once approved, you'll receive your account number and IBAN via email</span>
+                <span className="text-primary mt-0.5">5.</span>
+                <span>Once approved, you'll receive your account details via email</span>
               </li>
               <li className="flex items-start gap-2">
-                <span className="text-primary mt-0.5">•</span>
-                <span>Your debit card will be mailed within 5-7 business days</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="text-primary mt-0.5">•</span>
-                <span>Online banking access will be activated immediately upon approval</span>
+                <span className="text-primary mt-0.5">6.</span>
+                <span>Your debit card will be mailed within 5-7 business days after approval</span>
               </li>
             </ul>
+            
+            <div className="bg-blue-50 border border-blue-200 p-3 rounded-lg mt-4">
+              <p className="text-xs text-blue-900">
+                <strong>Note:</strong> You cannot sign in until your email is verified. Please check your inbox immediately!
+              </p>
+            </div>
           </div>
 
           <div className="flex flex-col gap-2">

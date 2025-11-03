@@ -96,16 +96,39 @@ const Auth = () => {
       });
 
       if (error) {
-        toast.error(error.message);
+        // Check if email not verified
+        if (error.message.includes("email not confirmed") || error.message.includes("Email not confirmed")) {
+          toast.error(
+            "⚠️ Please verify your email address first. Check your inbox for the verification link.",
+            { duration: 8000 }
+          );
+          toast.info(
+            "Didn't receive the email? Check your spam folder or contact support.",
+            { duration: 6000 }
+          );
+        } else {
+          toast.error(error.message);
+        }
         setLoading(false);
         return;
       }
 
       if (data.user) {
+        // Check if email is verified
+        if (!data.user.email_confirmed_at) {
+          toast.error(
+            "⚠️ Your email is not verified. Please check your inbox and verify your email before signing in.",
+            { duration: 8000 }
+          );
+          await supabase.auth.signOut();
+          setLoading(false);
+          return;
+        }
+
         // Verify PIN
         const { data: profile, error: profileError } = await supabase
           .from("profiles")
-          .select("pin")
+          .select("pin, email_verified")
           .eq("id", data.user.id)
           .single();
 
@@ -127,9 +150,9 @@ const Auth = () => {
         toast.success("Signed in successfully!");
         // The auth state listener will handle the redirect
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Sign in error:", error);
-      toast.error("An error occurred during sign in");
+      toast.error(error?.message || "An error occurred during sign in");
     } finally {
       setLoading(false);
     }
@@ -151,19 +174,6 @@ const Auth = () => {
     setLoading(true);
 
     try {
-      // Check if email already exists
-      const { data: existingProfile } = await supabase
-        .from("profiles")
-        .select("id")
-        .eq("email", signUpEmail)
-        .single();
-
-      if (existingProfile) {
-        toast.error("This email is already registered. Please sign in or use a different email.");
-        setLoading(false);
-        return;
-      }
-
       // Generate QR secret
       const qrSecret = crypto.randomUUID();
 
@@ -174,12 +184,17 @@ const Auth = () => {
           data: {
             full_name: signUpFullName,
           },
-          emailRedirectTo: `${window.location.origin}/verify-qr`,
+          emailRedirectTo: `${window.location.origin}/auth`,
         },
       });
 
       if (error) {
-        toast.error(error.message);
+        // Handle specific error cases
+        if (error.message.includes("already registered") || error.message.includes("already exists")) {
+          toast.error("This email is already registered. Please sign in instead.");
+        } else {
+          toast.error(error.message);
+        }
         setLoading(false);
         return;
       }
@@ -195,6 +210,7 @@ const Auth = () => {
             account_type: "personal",
             qr_code_secret: qrSecret,
             verification_token: data.user.id,
+            email_verified: false,
           });
 
         if (appError) {
@@ -217,23 +233,29 @@ const Auth = () => {
 
           if (emailError) {
             console.error("Error sending email:", emailError);
-            toast.warning("Account created but email sending failed. Please contact support.");
           }
         } catch (emailErr) {
           console.error("Email function error:", emailErr);
         }
 
+        // Show comprehensive verification instructions
         toast.success(
-          "Account created! Please check your email for verification instructions including your QR code."
+          "Account created successfully! 📧 Please check your email to verify your account before signing in.",
+          { duration: 8000 }
+        );
+        
+        toast.info(
+          "⚠️ You must verify your email address before you can sign in. Check your inbox and spam folder.",
+          { duration: 10000 }
         );
 
         // Sign out user until they verify
         await supabase.auth.signOut();
         setMode("signin");
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Sign up error:", error);
-      toast.error("An error occurred during sign up");
+      toast.error(error?.message || "An error occurred during sign up");
     } finally {
       setLoading(false);
     }
@@ -402,11 +424,12 @@ const Auth = () => {
                 />
               </div>
 
-              <div className="bg-muted p-3 sm:p-4 rounded-lg space-y-2">
-                <p className="text-xs sm:text-sm font-medium">Security Requirements:</p>
-                <ul className="text-xs text-muted-foreground space-y-1 list-disc list-inside">
-                  <li>Email verification required</li>
-                  <li>QR code authentication required</li>
+              <div className="bg-amber-50 border border-amber-200 p-3 sm:p-4 rounded-lg space-y-2">
+                <p className="text-xs sm:text-sm font-semibold text-amber-900">⚠️ Important: Email Verification Required</p>
+                <ul className="text-xs text-amber-800 space-y-1 list-disc list-inside">
+                  <li className="font-medium">You MUST verify your email before you can sign in</li>
+                  <li>Check your inbox (and spam folder) for verification link</li>
+                  <li>QR code authentication required after email verification</li>
                   <li>Account review: 2-3 business days</li>
                 </ul>
               </div>
