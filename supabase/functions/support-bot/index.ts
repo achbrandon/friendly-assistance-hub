@@ -28,7 +28,7 @@ serve(async (req) => {
     // Get ticket info and messages for context
     const { data: ticket, error: ticketError } = await supabase
       .from('support_tickets')
-      .select('*, profiles(full_name)')
+      .select('*')
       .eq('id', ticketId)
       .single();
 
@@ -36,6 +36,13 @@ serve(async (req) => {
       console.error('Error fetching ticket:', ticketError);
       throw new Error('Ticket not found');
     }
+
+    // Get user profile separately
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('full_name')
+      .eq('id', ticket.user_id)
+      .single();
 
     const { data: messages } = await supabase
       .from('support_messages')
@@ -72,7 +79,7 @@ ${hasOnlineAgents ? '- Live agents are currently available for immediate assista
 - When offering live agent, end your message with "Would you like me to connect you with a live agent?"
 
 Current ticket type: ${ticket?.ticket_type || 'general'}
-Customer name: ${ticket?.profiles?.full_name || 'Customer'}`;
+Customer name: ${profile?.full_name || 'Customer'}`;
 
     // Call Lovable AI
     const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
