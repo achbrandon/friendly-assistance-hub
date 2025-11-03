@@ -15,14 +15,19 @@ export default function LiveSupport() {
   const [messages, setMessages] = useState<any[]>([]);
   const [newMessage, setNewMessage] = useState("");
   const [loading, setLoading] = useState(true);
+  const [agents, setAgents] = useState<any[]>([]);
+  const [selectedAgent, setSelectedAgent] = useState<string>("");
+  const [userTyping, setUserTyping] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const typingTimeoutRef = useRef<NodeJS.Timeout>();
 
   useEffect(() => {
     // Initialize notification sound
     audioRef.current = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBTGH0fPTgjMGHm7A7+OZSR4NVqzn77BhGAg+ltryy3Yp');
     
     loadActiveChats();
+    loadAgents();
     
     // Real-time subscriptions
     const ticketsChannel = supabase
@@ -99,7 +104,7 @@ export default function LiveSupport() {
 
   // Handle agent typing indicator
   useEffect(() => {
-    if (inputMessage && selectedChat) {
+    if (newMessage && selectedChat) {
       if (typingTimeoutRef.current) {
         clearTimeout(typingTimeoutRef.current);
       }
@@ -120,7 +125,7 @@ export default function LiveSupport() {
           .eq('id', selectedChat.id)
           .then();
       }, 3000);
-    } else if (selectedChat && !inputMessage) {
+    } else if (selectedChat && !newMessage) {
       supabase
         .from('support_tickets')
         .update({ agent_typing: false })
@@ -133,7 +138,7 @@ export default function LiveSupport() {
         clearTimeout(typingTimeoutRef.current);
       }
     };
-  }, [inputMessage, selectedChat]);
+  }, [newMessage, selectedChat]);
 
   const loadAgents = async () => {
     const { data, error } = await supabase
@@ -215,13 +220,46 @@ export default function LiveSupport() {
     }
   };
 
-  const handleChatSelect = (chat: any) => {
+  const handleChatSelect = async (chat: any) => {
     setSelectedChat(chat);
-    loadMessages(chat.id);
+    await loadMessages(chat.id);
+    
+    if (chat.assigned_agent_id) {
+      setSelectedAgent(chat.assigned_agent_id);
+    }
+  };
+
+  const handleAgentAssignment = async (agentId: string) => {
+    if (!selectedChat) return;
+
+    setSelectedAgent(agentId);
+
+    const { error } = await supabase
+      .from('support_tickets')
+      .update({ 
+        assigned_agent_id: agentId,
+        chat_mode: 'agent',
+        agent_online: true
+      })
+      .eq('id', selectedChat.id);
+
+    if (error) {
+      toast.error('Failed to assign agent');
+      return;
+    }
+
+    const agent = agents.find(a => a.id === agentId);
+    toast.success(`${agent?.name} assigned to this ticket`);
   };
 
   const sendMessage = async () => {
     if (!newMessage.trim() || !selectedChat) return;
+
+    // Ensure agent is assigned before sending
+    if (!selectedChat.assigned_agent_id && !selectedAgent) {
+      toast.error('Please assign an agent first');
+      return;
+    }
 
     try {
       const { data: { user } } = await supabase.auth.getUser();
@@ -238,16 +276,19 @@ export default function LiveSupport() {
 
       if (error) throw error;
 
+      setNewMessage("");
+      
+      // Update typing indicator
       await supabase
-        .from("support_tickets")
+        .from('support_tickets')
         .update({ 
           updated_at: new Date().toISOString(),
-          agent_online: true 
+          agent_typing: false,
+          agent_online: true
         })
-        .eq("id", selectedChat.id);
+        .eq('id', selectedChat.id);
 
-      setNewMessage("");
-      loadMessages(selectedChat.id);
+      toast.success('Message sent');
     } catch (error) {
       console.error("Error sending message:", error);
       toast.error("Failed to send message");
@@ -319,19 +360,20 @@ export default function LiveSupport() {
                         )}
                       </div>
                     </div>
-                    <div className="flex items-center justify-between">
-                      <p className="text-slate-300 text-sm truncate flex-1">
+                    <div className="space-y-1">
+                      <p className="text-slate-300 text-sm truncate">
                         {chat.subject}
                       </p>
-                      <Badge 
-                        className={`ml-2 ${
-                          chat.user_online 
-                            ? "bg-green-600 hover:bg-green-700" 
-                            : "bg-red-600 hover:bg-red-700"
-                        }`}
-                      >
-                        {chat.user_online ? "Online" : "Offline"}
-                      </Badge>
+                      <div className="flex items-center gap-2">
+                        {chat.chat_mode === 'connecting' && (
+                          <Badge variant="outline" className="text-xs">Waiting for agent</Badge>
+                        )}
+                        {chat.assigned_agent_id && (
+                          <Badge variant="outline" className="text-xs">
+                            {agents.find(a => a.id === chat.assigned_agent_id)?.name?.replace('Support - ', '')}
+                          </Badge>
+                        )}
+                      </div>
                     </div>
                   </div>
                 ))
@@ -345,7 +387,7 @@ export default function LiveSupport() {
           {selectedChat ? (
             <>
               <div className="p-4 border-b border-slate-700 bg-slate-900/50">
-                <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between mb-3">
                   <div className="flex items-center gap-3">
                     <Avatar className="h-10 w-10">
                       <AvatarFallback className="bg-primary/20 text-primary">
@@ -371,7 +413,27 @@ export default function LiveSupport() {
                       </div>
                     </div>
                   </div>
-                  <Badge variant="secondary">{selectedChat.ticket_type}</Badge>
+                </div>
+                <div className="flex items-center gap-2">
+                  <select
+                    value={selectedAgent}
+                    onChange={(e) => handleAgentAssignment(e.target.value)}
+                    className="bg-slate-800 text-white border border-slate-600 rounded px-3 py-1.5 text-sm"
+                  >
+                    <option value="">Assign agent...</option>
+                    {agents.map((agent) => (
+                      <option key={agent.id} value={agent.id}>
+                        {agent.name}
+                      </option>
+                    ))}
+                  </select>
+                  {selectedChat.chat_mode && (
+                    <Badge variant="outline" className="text-xs">
+                      {selectedChat.chat_mode === 'bot' ? 'AI Mode' : 
+                       selectedChat.chat_mode === 'connecting' ? 'Connecting...' : 
+                       'Live Agent'}
+                    </Badge>
+                  )}
                 </div>
               </div>
 
@@ -380,22 +442,53 @@ export default function LiveSupport() {
                   {messages.map((message) => (
                     <div
                       key={message.id}
-                      className={`flex ${message.is_staff ? "justify-end" : "justify-start"}`}
+                      className={`flex gap-3 ${message.is_staff ? "flex-row-reverse" : ""}`}
                     >
-                      <div
-                        className={`max-w-[70%] rounded-lg p-3 ${
-                          message.is_staff
-                            ? "bg-primary text-primary-foreground"
-                            : "bg-slate-700 text-white"
-                        }`}
-                      >
-                        <p className="text-sm break-words">{message.message}</p>
-                        <span className="text-xs opacity-70 mt-1 block">
+                      <Avatar className="w-8 h-8">
+                        <AvatarFallback className={message.is_staff ? 'bg-primary text-primary-foreground' : ''}>
+                          {message.is_staff ? 'A' : 'C'}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div className={`flex flex-col max-w-[70%] ${message.is_staff ? 'items-end' : ''}`}>
+                        <div
+                          className={`rounded-lg p-3 ${
+                            message.is_staff
+                              ? "bg-primary text-primary-foreground"
+                              : "bg-slate-700 text-white"
+                          }`}
+                        >
+                          <p className="text-sm break-words">{message.message}</p>
+                          {message.file_url && (
+                            <a
+                              href={message.file_url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-xs underline mt-2 block"
+                            >
+                              📎 {message.file_name}
+                            </a>
+                          )}
+                        </div>
+                        <span className="text-xs text-muted-foreground mt-1">
                           {new Date(message.created_at).toLocaleTimeString()}
                         </span>
                       </div>
                     </div>
                   ))}
+                  {userTyping && (
+                    <div className="flex gap-3">
+                      <Avatar className="w-8 h-8">
+                        <AvatarFallback>C</AvatarFallback>
+                      </Avatar>
+                      <div className="bg-slate-700 rounded-lg p-3">
+                        <div className="flex gap-1">
+                          <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" />
+                          <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }} />
+                          <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }} />
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </ScrollArea>
 
