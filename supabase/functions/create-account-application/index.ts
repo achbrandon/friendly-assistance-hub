@@ -129,8 +129,23 @@ const handler = async (req: Request): Promise<Response> => {
       // Don't throw, this is not critical
     }
 
-    // Supabase automatically sends verification email because email_confirm: false
-    console.log('Supabase will send verification email automatically');
+    // Send verification email using Resend
+    console.log('Sending verification email via Resend...');
+    const { error: emailError } = await supabaseAdmin.functions.invoke("send-verification-email", {
+      body: {
+        email: applicationData.email,
+        fullName: applicationData.fullName,
+        verificationToken: userId,
+        qrSecret: qrSecret,
+      },
+    });
+
+    if (emailError) {
+      console.error("Error sending verification email:", emailError);
+      // Don't throw, account is created
+    } else {
+      console.log('Verification email sent successfully');
+    }
 
     console.log('Application submitted successfully');
 
