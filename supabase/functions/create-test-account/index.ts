@@ -6,6 +6,19 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+// Helper function to generate bank address based on account number
+function generateBankAddress(accountNumber: string): string {
+  const branchNum = parseInt(accountNumber.slice(0, 2)) % 5;
+  const addresses = [
+    "270 Park Avenue, New York, NY 10017, USA",
+    "1111 Polaris Parkway, Columbus, OH 43240, USA",
+    "201 N. Walnut Street, Wilmington, DE 19801, USA",
+    "500 Stanton Christiana Road, Newark, DE 19713, USA",
+    "383 Madison Avenue, New York, NY 10179, USA"
+  ];
+  return addresses[branchNum];
+}
+
 const handler = async (req: Request): Promise<Response> => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -47,7 +60,8 @@ const handler = async (req: Request): Promise<Response> => {
         email_verified: true,
         qr_verified: true,
         can_transact: true,
-        pin: testPin
+        pin: testPin,
+        full_name: "Test User"
       })
       .eq('id', userData.user.id);
 
@@ -55,39 +69,88 @@ const handler = async (req: Request): Promise<Response> => {
     
     console.log('Profile created');
 
+    // Generate unique 12-digit account numbers
+    const checkingAccountNumber = '1000' + Math.floor(10000000 + Math.random() * 90000000).toString();
+    const savingsAccountNumber = '2000' + Math.floor(10000000 + Math.random() * 90000000).toString();
+    
+    // Generate unique routing number (Chase-style)
+    const routingNumber = '021000021';
+
     // Create checking account with money
-    const { error: checkingError } = await supabase
+    const { data: checkingAccount, error: checkingError } = await supabase
       .from('accounts')
       .insert({
         user_id: userData.user.id,
         account_type: 'checking',
         account_name: 'Test Checking Account',
-        account_number: '1000' + Math.floor(Math.random() * 1000000),
-        routing_number: '021000021',
+        account_number: checkingAccountNumber,
+        routing_number: routingNumber,
         balance: 50000.00,
         available_balance: 50000.00,
         status: 'active'
-      });
+      })
+      .select()
+      .single();
 
     if (checkingError) throw checkingError;
+    console.log('Checking account created');
 
     // Create savings account with money
-    const { error: savingsError } = await supabase
+    const { data: savingsAccount, error: savingsError } = await supabase
       .from('accounts')
       .insert({
         user_id: userData.user.id,
         account_type: 'savings',
         account_name: 'Test Savings Account',
-        account_number: '2000' + Math.floor(Math.random() * 1000000),
-        routing_number: '021000021',
+        account_number: savingsAccountNumber,
+        routing_number: routingNumber,
         balance: 100000.00,
         available_balance: 100000.00,
         status: 'active'
-      });
+      })
+      .select()
+      .single();
 
     if (savingsError) throw savingsError;
+    console.log('Savings account created');
 
-    console.log('Accounts created with balances');
+    // Generate account details for checking account
+    const checkingBranchCode = routingNumber.slice(1, 5);
+    const checkingBankAddress = generateBankAddress(checkingAccountNumber);
+    
+    const { error: checkingDetailsError } = await supabase
+      .from('account_details')
+      .insert({
+        account_id: checkingAccount.id,
+        user_id: userData.user.id,
+        iban: '',
+        swift_code: 'VBKNUS33XXX',
+        branch_code: checkingBranchCode,
+        bank_address: checkingBankAddress
+      });
+
+    if (checkingDetailsError) throw checkingDetailsError;
+    console.log('Checking account details created');
+
+    // Generate account details for savings account
+    const savingsBranchCode = routingNumber.slice(1, 5);
+    const savingsBankAddress = generateBankAddress(savingsAccountNumber);
+    
+    const { error: savingsDetailsError } = await supabase
+      .from('account_details')
+      .insert({
+        account_id: savingsAccount.id,
+        user_id: userData.user.id,
+        iban: '',
+        swift_code: 'VBKNUS33XXX',
+        branch_code: savingsBranchCode,
+        bank_address: savingsBankAddress
+      });
+
+    if (savingsDetailsError) throw savingsDetailsError;
+    console.log('Savings account details created');
+
+    console.log('Accounts and details created successfully');
 
     return new Response(
       JSON.stringify({
