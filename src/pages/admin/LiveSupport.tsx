@@ -61,7 +61,11 @@ export default function LiveSupport() {
             if (prev.some(msg => msg.id === payload.new.id)) {
               return prev;
             }
-            return [...prev, payload.new];
+            // Insert message in correct chronological order
+            const newMessages = [...prev, payload.new];
+            return newMessages.sort((a, b) => 
+              new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
+            );
           });
           
           // Mark customer messages as read immediately
