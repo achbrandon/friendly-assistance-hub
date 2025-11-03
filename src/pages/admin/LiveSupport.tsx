@@ -72,19 +72,35 @@ export default function LiveSupport() {
 
   const loadActiveChats = async () => {
     try {
-      const { data, error } = await supabase
+      const { data: tickets, error } = await supabase
         .from("support_tickets")
-        .select(`
-          *,
-          profiles!support_tickets_user_id_fkey(full_name, email)
-        `)
+        .select("*")
         .eq("status", "open")
         .order("updated_at", { ascending: false });
 
       if (error) throw error;
-      setActiveChats(data || []);
+
+      // Fetch profiles separately
+      if (tickets && tickets.length > 0) {
+        const userIds = tickets.map(t => t.user_id);
+        const { data: profiles } = await supabase
+          .from("profiles")
+          .select("id, full_name, email")
+          .in("id", userIds);
+
+        // Merge profiles with tickets
+        const chatsWithProfiles = tickets.map(ticket => ({
+          ...ticket,
+          profiles: profiles?.find(p => p.id === ticket.user_id)
+        }));
+
+        setActiveChats(chatsWithProfiles);
+      } else {
+        setActiveChats([]);
+      }
     } catch (error) {
       console.error("Error loading chats:", error);
+      toast.error("Failed to load conversations");
     } finally {
       setLoading(false);
     }
