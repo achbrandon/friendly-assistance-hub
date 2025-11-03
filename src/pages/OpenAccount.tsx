@@ -259,79 +259,34 @@ const OpenAccount = () => {
       const user = signUpData.user;
       console.log('User created successfully:', user.id);
 
-      // CRITICAL: Wait for Supabase to establish the new session
-      // The client needs to switch from any old session to the new user's session
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      // NOTE: No session is created until email is verified
+      // We'll save the application without files for now
+      console.log('Account created, no session yet (email not verified)');
 
-      // Verify we have an active session for the NEW user
-      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-      
-      if (sessionError) {
-        console.error('Session error after signup:', sessionError);
-      }
+      // Save application to database WITHOUT file uploads
+      const { error: appError } = await supabase.from("account_applications").insert({
+        user_id: user.id,
+        full_name: formData.fullName,
+        date_of_birth: formData.dateOfBirth,
+        email: formData.email,
+        phone: formData.phoneNumber,
+        address: formData.residentialAddress,
+        account_type: formData.accountType,
+        ssn: formData.ssn,
+        status: 'pending',
+        email_verified: false,
+        qr_code_secret: qrSecret,
+        verification_token: user.id,
+      });
 
-      if (!session) {
-        console.error('No session found after signup - files cannot be uploaded');
-        alert("Account created but session not established. Please sign in at /auth with your email and password to complete your application.");
+      if (appError) {
+        console.error("Error submitting application:", appError);
+        alert(`Error submitting application: ${appError.message || 'Please try again'}`);
         setIsSubmitting(false);
         return;
       }
 
-      if (session.user.id !== user.id) {
-        console.error('Session user mismatch!', {
-          signUpUserId: user.id,
-          sessionUserId: session.user.id
-        });
-        alert("Account created but there's a session conflict. Please sign out completely, refresh the page, then sign in at /auth with your new credentials.");
-        setIsSubmitting(false);
-        return;
-      }
-
-      console.log('Session verified for user:', session.user.id);
-
-      // Wait a moment for session to stabilize
-      await new Promise(resolve => setTimeout(resolve, 1500));
-
-      // Upload documents to storage
-      let idFrontUrl = null;
-      let idBackUrl = null;
-      let selfieUrl = null;
-      let addressProofUrl = null;
-
-      if (formData.idFront) {
-        console.log('Uploading ID front...');
-        idFrontUrl = await uploadFile(formData.idFront, `${user.id}/id-front-${Date.now()}.${formData.idFront.name.split('.').pop()}`);
-        if (!idFrontUrl) {
-          alert('Failed to upload ID front document. Please try again.');
-          return;
-        }
-      }
-      if (formData.idBack) {
-        console.log('Uploading ID back...');
-        idBackUrl = await uploadFile(formData.idBack, `${user.id}/id-back-${Date.now()}.${formData.idBack.name.split('.').pop()}`);
-        if (!idBackUrl) {
-          alert('Failed to upload ID back document. Please try again.');
-          return;
-        }
-      }
-      if (formData.selfie) {
-        console.log('Uploading selfie...');
-        selfieUrl = await uploadFile(formData.selfie, `${user.id}/selfie-${Date.now()}.${formData.selfie.name.split('.').pop()}`);
-        if (!idBackUrl) {
-          alert('Failed to upload selfie. Please try again.');
-          return;
-        }
-      }
-      if (formData.addressProof) {
-        console.log('Uploading address proof...');
-        addressProofUrl = await uploadFile(formData.addressProof, `${user.id}/address-proof-${Date.now()}.${formData.addressProof.name.split('.').pop()}`);
-        if (!addressProofUrl) {
-          alert('Failed to upload address proof document. Please try again.');
-          return;
-        }
-      }
-
-      // Update profile with security info
+      // Update profile with security info (no auth required for own profile during signup)
       const { error: profileError } = await supabase
         .from("profiles")
         .update({
@@ -344,32 +299,6 @@ const OpenAccount = () => {
 
       if (profileError) {
         console.error("Error updating profile:", profileError);
-      }
-
-      // Save application to database
-      const { error } = await supabase.from("account_applications").insert({
-        user_id: user.id,
-        full_name: formData.fullName,
-        date_of_birth: formData.dateOfBirth,
-        email: formData.email,
-        phone: formData.phoneNumber,
-        address: formData.residentialAddress,
-        account_type: formData.accountType,
-        ssn: formData.ssn,
-        status: 'pending',
-        id_front_url: idFrontUrl,
-        id_back_url: idBackUrl,
-        selfie_url: selfieUrl,
-        address_proof_url: addressProofUrl,
-        email_verified: false,
-        qr_code_secret: qrSecret,
-        verification_token: user.id,
-      });
-
-      if (error) {
-        console.error("Error submitting application:", error);
-        alert(`Error submitting application: ${error.message || 'Please try again'}`);
-        return;
       }
 
       // Send verification email
@@ -1139,29 +1068,29 @@ const OpenAccount = () => {
               </li>
               <li className="flex items-start gap-2">
                 <span className="text-primary mt-0.5">2.</span>
-                <span>After email verification, you can sign in at /auth</span>
+                <span>After verification, sign in at /auth with your email and password</span>
               </li>
               <li className="flex items-start gap-2">
                 <span className="text-primary mt-0.5">3.</span>
-                <span>Complete QR code authentication on first login</span>
+                <span className="font-semibold">Upload your documents (ID, selfie, address proof) from your dashboard</span>
               </li>
               <li className="flex items-start gap-2">
                 <span className="text-primary mt-0.5">4.</span>
-                <span>Our admin team will review your application (1-2 business days)</span>
+                <span>Complete QR code authentication</span>
               </li>
               <li className="flex items-start gap-2">
                 <span className="text-primary mt-0.5">5.</span>
-                <span>Once approved, full account access will be granted</span>
+                <span>Our admin team will review your complete application (1-2 business days)</span>
               </li>
               <li className="flex items-start gap-2">
                 <span className="text-primary mt-0.5">6.</span>
-                <span>Your debit card will be mailed within 5-7 business days after approval</span>
+                <span>Once approved, full account access will be granted and your debit card will be mailed</span>
               </li>
             </ul>
             
             <div className="bg-blue-50 border border-blue-200 p-3 rounded-lg mt-4">
               <p className="text-xs text-blue-900">
-                <strong>Important:</strong> You must verify your email before you can sign in. The verification link expires in 24 hours.
+                <strong>Note:</strong> Your application is saved but documents must be uploaded after you verify your email and sign in. The verification link expires in 24 hours.
               </p>
             </div>
           </div>
