@@ -315,7 +315,7 @@ export default function CryptoWallet() {
                       </Button>
                     </div>
                     <p className="text-xs text-muted-foreground">
-                      Send your {depositData.currency} to this address, then upload proof of payment below.
+                      Deposit using your {depositData.currency} wallet to VaultBank crypto address above, then upload proof of payment below.
                     </p>
                   </div>
                 )}
