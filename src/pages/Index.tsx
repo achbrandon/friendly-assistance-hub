@@ -13,6 +13,9 @@ import vaultBankLogo from "@/assets/vaultbank-logo.png";
 import promoCheckingBonus from "@/assets/promo-checking-bonus.jpg";
 import promoCreditCard from "@/assets/promo-credit-card.jpg";
 import promoAdvisor from "@/assets/promo-advisor.jpg";
+import bankExterior from "@/assets/bank-exterior.png";
+import bankLobby from "@/assets/bank-lobby.png";
+import bankInterior from "@/assets/bank-interior.png";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -586,6 +589,77 @@ const Index = () => {
                 <Link to="/crypto">Learn More →</Link>
               </Button>
             </Card>
+          </div>
+        </div>
+      </section>
+
+      {/* Branch Location Showcase */}
+      <section className="py-16 bg-background">
+        <div className="container mx-auto px-4">
+          <div className="max-w-6xl mx-auto">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl font-bold mb-4">Visit Our Brodhead Branch</h2>
+              <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
+                Experience personalized banking at our modern facility located in the heart of Brodhead, Wisconsin
+              </p>
+              <div className="flex items-center justify-center gap-2 mt-4 text-muted-foreground">
+                <MapPin className="h-5 w-5" />
+                <span className="text-lg">806 E Exchange St, Brodhead, WI 53520-0108</span>
+              </div>
+            </div>
+            
+            {/* Image Grid */}
+            <div className="grid md:grid-cols-3 gap-6">
+              <div className="md:col-span-2 group relative overflow-hidden rounded-lg shadow-lg">
+                <img 
+                  src={bankExterior} 
+                  alt="VaultBank Brodhead Branch Exterior" 
+                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                  <div className="absolute bottom-4 left-4 text-white">
+                    <p className="font-semibold text-lg">Modern Banking Facility</p>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="md:col-span-1 flex flex-col gap-6">
+                <div className="group relative overflow-hidden rounded-lg shadow-lg">
+                  <img 
+                    src={bankLobby} 
+                    alt="VaultBank Brodhead Branch Lobby" 
+                    className="w-full h-48 object-cover transition-transform duration-500 group-hover:scale-105"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                    <div className="absolute bottom-4 left-4 text-white">
+                      <p className="font-semibold">Welcoming Lobby</p>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="group relative overflow-hidden rounded-lg shadow-lg">
+                  <img 
+                    src={bankInterior} 
+                    alt="VaultBank Brodhead Branch Interior" 
+                    className="w-full h-48 object-cover transition-transform duration-500 group-hover:scale-105"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                    <div className="absolute bottom-4 left-4 text-white">
+                      <p className="font-semibold">Comfortable Banking</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-8 text-center">
+              <Button size="lg" asChild>
+                <Link to="/locations">
+                  <MapPin className="mr-2 h-5 w-5" />
+                  Get Directions
+                </Link>
+              </Button>
+            </div>
           </div>
         </div>
       </section>

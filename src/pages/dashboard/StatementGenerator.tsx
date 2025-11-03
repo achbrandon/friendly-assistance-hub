@@ -274,7 +274,7 @@ export default function StatementGenerator() {
   </div>
 
   <div style="margin-top: 40px; padding-top: 20px; border-top: 1px solid #ddd; text-align: center; color: #666; font-size: 12px;">
-    <p>VaultBank Financial, N.A. | 270 Park Avenue, New York, NY 10017</p>
+    <p>VaultBank Financial, N.A. | 806 E Exchange St, Brodhead, WI 53520-0108, US</p>
     <p>Member FDIC | Equal Housing Lender</p>
   </div>
 </body>

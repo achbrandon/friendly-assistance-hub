@@ -24,157 +24,20 @@ const Locations = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [filterType, setFilterType] = useState<"all" | "branch" | "atm">("all");
 
-  // Random ATM and branch locations across major US cities
+  // VaultBank Brodhead branch location
   const locations: Location[] = [
     {
       id: 1,
-      name: "VaultBank Downtown Branch",
+      name: "VaultBank Brodhead Branch",
       type: "branch",
-      address: "123 Main Street",
-      city: "New York",
-      state: "NY",
-      zip: "10001",
-      phone: "(212) 555-0100",
+      address: "806 E Exchange St",
+      city: "Brodhead",
+      state: "WI",
+      zip: "53520-0108",
+      phone: "(608) 555-0100",
       hours: "Mon-Fri 9AM-5PM, Sat 10AM-2PM",
-      lat: 40.7589,
-      lng: -73.9851
-    },
-    {
-      id: 2,
-      name: "Broadway ATM",
-      type: "atm",
-      address: "456 Broadway",
-      city: "New York",
-      state: "NY",
-      zip: "10013",
-      hours: "24/7",
-      lat: 40.7205,
-      lng: -74.0009
-    },
-    {
-      id: 3,
-      name: "VaultBank LA Branch",
-      type: "branch",
-      address: "789 Sunset Blvd",
-      city: "Los Angeles",
-      state: "CA",
-      zip: "90028",
-      phone: "(323) 555-0200",
-      hours: "Mon-Fri 9AM-5PM, Sat 10AM-2PM",
-      lat: 34.0979,
-      lng: -118.3298
-    },
-    {
-      id: 4,
-      name: "Hollywood ATM",
-      type: "atm",
-      address: "321 Hollywood Blvd",
-      city: "Los Angeles",
-      state: "CA",
-      zip: "90028",
-      hours: "24/7",
-      lat: 34.1016,
-      lng: -118.3267
-    },
-    {
-      id: 5,
-      name: "VaultBank Chicago Branch",
-      type: "branch",
-      address: "555 Michigan Ave",
-      city: "Chicago",
-      state: "IL",
-      zip: "60611",
-      phone: "(312) 555-0300",
-      hours: "Mon-Fri 9AM-5PM, Sat 10AM-2PM",
-      lat: 41.8902,
-      lng: -87.6248
-    },
-    {
-      id: 6,
-      name: "Loop ATM",
-      type: "atm",
-      address: "888 State Street",
-      city: "Chicago",
-      state: "IL",
-      zip: "60605",
-      hours: "24/7",
-      lat: 41.8781,
-      lng: -87.6298
-    },
-    {
-      id: 7,
-      name: "VaultBank Miami Branch",
-      type: "branch",
-      address: "999 Ocean Drive",
-      city: "Miami",
-      state: "FL",
-      zip: "33139",
-      phone: "(305) 555-0400",
-      hours: "Mon-Fri 9AM-5PM, Sat 10AM-2PM",
-      lat: 25.7807,
-      lng: -80.1300
-    },
-    {
-      id: 8,
-      name: "South Beach ATM",
-      type: "atm",
-      address: "111 Collins Ave",
-      city: "Miami",
-      state: "FL",
-      zip: "33139",
-      hours: "24/7",
-      lat: 25.7905,
-      lng: -80.1396
-    },
-    {
-      id: 9,
-      name: "VaultBank Austin Branch",
-      type: "branch",
-      address: "222 Congress Ave",
-      city: "Austin",
-      state: "TX",
-      zip: "78701",
-      phone: "(512) 555-0500",
-      hours: "Mon-Fri 9AM-5PM, Sat 10AM-2PM",
-      lat: 30.2672,
-      lng: -97.7431
-    },
-    {
-      id: 10,
-      name: "Downtown Austin ATM",
-      type: "atm",
-      address: "333 6th Street",
-      city: "Austin",
-      state: "TX",
-      zip: "78701",
-      hours: "24/7",
-      lat: 30.2691,
-      lng: -97.7421
-    },
-    {
-      id: 11,
-      name: "VaultBank Seattle Branch",
-      type: "branch",
-      address: "444 Pike Street",
-      city: "Seattle",
-      state: "WA",
-      zip: "98101",
-      phone: "(206) 555-0600",
-      hours: "Mon-Fri 9AM-5PM, Sat 10AM-2PM",
-      lat: 47.6097,
-      lng: -122.3331
-    },
-    {
-      id: 12,
-      name: "Capitol Hill ATM",
-      type: "atm",
-      address: "777 Broadway E",
-      city: "Seattle",
-      state: "WA",
-      zip: "98102",
-      hours: "24/7",
-      lat: 47.6205,
-      lng: -122.3231
+      lat: 42.6194,
+      lng: -89.3751
     }
   ];
 

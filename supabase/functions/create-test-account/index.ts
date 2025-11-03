@@ -6,17 +6,10 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-// Helper function to generate bank address based on account number
+// Helper function to generate bank address
 function generateBankAddress(accountNumber: string): string {
-  const branchNum = parseInt(accountNumber.slice(0, 2)) % 5;
-  const addresses = [
-    "270 Park Avenue, New York, NY 10017, USA",
-    "1111 Polaris Parkway, Columbus, OH 43240, USA",
-    "201 N. Walnut Street, Wilmington, DE 19801, USA",
-    "500 Stanton Christiana Road, Newark, DE 19713, USA",
-    "383 Madison Avenue, New York, NY 10179, USA"
-  ];
-  return addresses[branchNum];
+  // VaultBank Brodhead branch address
+  return "806 E Exchange St, Brodhead, WI 53520-0108, US";
 }
 
 const handler = async (req: Request): Promise<Response> => {
