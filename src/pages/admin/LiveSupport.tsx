@@ -144,14 +144,14 @@ export default function LiveSupport() {
         .eq('id', selectedChat.id)
         .then();
 
-      // Auto-clear after 2 seconds of no typing
+      // Auto-clear after 500ms of no typing (faster response)
       typingTimeoutRef.current = setTimeout(() => {
         supabase
           .from('support_tickets')
           .update({ agent_typing: false })
           .eq('id', selectedChat.id)
           .then();
-      }, 2000);
+      }, 500);
     } else {
       // Clear immediately when message is empty
       supabase

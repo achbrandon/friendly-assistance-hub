@@ -117,14 +117,14 @@ export function EnhancedSupportChat({ userId, onClose }: EnhancedSupportChatProp
         .eq('id', ticketId)
         .then();
 
-      // Auto-clear after 2 seconds of no typing
+      // Auto-clear after 500ms of no typing (faster response)
       typingTimeoutRef.current = setTimeout(() => {
         supabase
           .from('support_tickets')
           .update({ user_typing: false })
           .eq('id', ticketId)
           .then();
-      }, 2000);
+      }, 500);
     } else {
       // Clear immediately when message is empty
       supabase
@@ -153,22 +153,23 @@ export function EnhancedSupportChat({ userId, onClose }: EnhancedSupportChatProp
           filter: `ticket_id=eq.${ticketId}`
         },
         (payload) => {
+          console.log('USER SIDE: New message received via realtime:', payload.new);
           setMessages(prev => {
             // Prevent duplicate messages
             if (prev.some(msg => msg.id === payload.new.id)) {
+              console.log('Duplicate message, skipping');
               return prev;
             }
-            // Remove optimistic message (temp ID) and add real message
-            const filtered = prev.filter(msg => 
-              !msg.id.toString().startsWith('temp-') || 
-              msg.message !== payload.new.message ||
-              msg.sender_id !== payload.new.sender_id
-            );
-            return [...filtered, payload.new];
+            // Add the new message immediately
+            const newMessages = [...prev, payload.new];
+            console.log('Updated messages array:', newMessages.length);
+            return newMessages;
           });
         }
       )
-      .subscribe();
+      .subscribe((status) => {
+        console.log('Message subscription status:', status);
+      });
 
     return () => {
       supabase.removeChannel(channel);
