@@ -69,6 +69,7 @@ export function EnhancedSupportChat({ userId, onClose }: EnhancedSupportChatProp
           filter: `id=eq.${ticketId}`
         },
         async (payload) => {
+          console.log('Ticket update received:', payload.new);
           setAgentOnline(payload.new.agent_online || false);
           setAgentTyping(payload.new.agent_typing || false);
           setTicket(payload.new);
@@ -84,7 +85,9 @@ export function EnhancedSupportChat({ userId, onClose }: EnhancedSupportChatProp
           }
         }
       )
-      .subscribe();
+      .subscribe((status) => {
+        console.log('Ticket subscription status:', status);
+      });
 
     return () => {
       supabase.removeChannel(channel);
