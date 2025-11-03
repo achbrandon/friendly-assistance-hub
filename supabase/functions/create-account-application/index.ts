@@ -56,7 +56,31 @@ const handler = async (req: Request): Promise<Response> => {
 
     if (signUpError) {
       console.error('SignUp error:', signUpError);
-      throw new Error(signUpError.message);
+      
+      // Handle specific error cases with appropriate status codes
+      if (signUpError.message.includes('already been registered')) {
+        return new Response(
+          JSON.stringify({ 
+            success: false, 
+            error: "An account with this email already exists. Please sign in instead." 
+          }),
+          {
+            status: 409,
+            headers: { "Content-Type": "application/json", ...corsHeaders },
+          }
+        );
+      }
+      
+      return new Response(
+        JSON.stringify({ 
+          success: false, 
+          error: signUpError.message 
+        }),
+        {
+          status: 400,
+          headers: { "Content-Type": "application/json", ...corsHeaders },
+        }
+      );
     }
 
     if (!signUpData.user) {
