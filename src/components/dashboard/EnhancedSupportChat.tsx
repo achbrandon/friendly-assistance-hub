@@ -95,7 +95,13 @@ export function EnhancedSupportChat({ userId, onClose }: EnhancedSupportChatProp
           filter: `ticket_id=eq.${ticketId}`
         },
         (payload) => {
-          setMessages(prev => [...prev, payload.new]);
+          setMessages(prev => {
+            // Prevent duplicate messages
+            if (prev.some(msg => msg.id === payload.new.id)) {
+              return prev;
+            }
+            return [...prev, payload.new];
+          });
         }
       )
       .subscribe();

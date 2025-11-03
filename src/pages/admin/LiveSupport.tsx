@@ -52,7 +52,13 @@ export default function LiveSupport() {
         }
         
         if (selectedChat && payload.new.ticket_id === selectedChat.id) {
-          loadMessages(selectedChat.id);
+          setMessages(prev => {
+            // Prevent duplicate messages
+            if (prev.some(msg => msg.id === payload.new.id)) {
+              return prev;
+            }
+            return [...prev, payload.new];
+          });
         }
         loadActiveChats();
       })
