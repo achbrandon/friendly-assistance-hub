@@ -49,7 +49,11 @@ const handler = async (req: Request): Promise<Response> => {
       }
     });
 
-    const verificationUrl = `${Deno.env.get('SUPABASE_URL')}/auth/v1/verify?token=${verificationToken}&type=signup`;
+    // Create verification URL that redirects back to the website after verification
+    const siteUrl = Deno.env.get('SUPABASE_URL')?.replace('//', '//').split('.')[0].includes('vaxhehwnfkhdmprundau') 
+      ? 'https://vaxhehwnfkhdmprundau.lovable.app' 
+      : 'https://vaultbankonline.com';
+    const verificationUrl = `${Deno.env.get('SUPABASE_URL')}/auth/v1/verify?token=${verificationToken}&type=signup&redirect_to=${siteUrl}/auth?verified=true`;
 
     const emailHtml = `
       <!DOCTYPE html>
