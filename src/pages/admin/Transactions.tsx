@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Check, X, Clock, TrendingUp, CreditCard } from "lucide-react";
+import { Check, X, Clock, TrendingUp, CreditCard, ExternalLink } from "lucide-react";
 import { toast } from "sonner";
 
 export default function AdminTransactions() {
@@ -168,6 +168,31 @@ export default function AdminTransactions() {
                       <p className="text-slate-400">Description</p>
                       <p className="text-white">{transaction.description}</p>
                     </div>
+                    {transaction.crypto_currency && (
+                      <div>
+                        <p className="text-slate-400">Crypto Currency</p>
+                        <p className="text-white font-medium">{transaction.crypto_currency}</p>
+                      </div>
+                    )}
+                    {transaction.destination_wallet_address && (
+                      <div className="col-span-2">
+                        <p className="text-slate-400">Destination Wallet</p>
+                        <p className="text-white text-xs font-mono break-all">{transaction.destination_wallet_address}</p>
+                      </div>
+                    )}
+                    {transaction.proof_of_payment_url && (
+                      <div className="col-span-2">
+                        <p className="text-slate-400 mb-2">Proof of Payment</p>
+                        <a 
+                          href={transaction.proof_of_payment_url} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="text-blue-400 hover:text-blue-300 flex items-center gap-2 text-sm"
+                        >
+                          View Proof <ExternalLink className="h-3 w-3" />
+                        </a>
+                      </div>
+                    )}
                   </div>
                   <div className="flex gap-2 pt-4">
                     <Button

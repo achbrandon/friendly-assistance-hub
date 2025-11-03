@@ -1282,9 +1282,12 @@ export type Database = {
           amount: number
           category: string | null
           created_at: string | null
+          crypto_currency: string | null
           description: string
+          destination_wallet_address: string | null
           id: string
           merchant: string | null
+          proof_of_payment_url: string | null
           status: string | null
           transaction_date: string | null
           transaction_type: string
@@ -1295,9 +1298,12 @@ export type Database = {
           amount: number
           category?: string | null
           created_at?: string | null
+          crypto_currency?: string | null
           description: string
+          destination_wallet_address?: string | null
           id?: string
           merchant?: string | null
+          proof_of_payment_url?: string | null
           status?: string | null
           transaction_date?: string | null
           transaction_type: string
@@ -1308,9 +1314,12 @@ export type Database = {
           amount?: number
           category?: string | null
           created_at?: string | null
+          crypto_currency?: string | null
           description?: string
+          destination_wallet_address?: string | null
           id?: string
           merchant?: string | null
+          proof_of_payment_url?: string | null
           status?: string | null
           transaction_date?: string | null
           transaction_type?: string

@@ -10,7 +10,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
 import { Bitcoin, ArrowDownToLine, ArrowUpFromLine, Copy, Wallet } from "lucide-react";
 import { OTPVerificationModal } from "@/components/dashboard/OTPVerificationModal";
-import { Progress } from "@/components/ui/progress";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 export default function CryptoWallet() {
@@ -23,18 +22,20 @@ export default function CryptoWallet() {
   const [showOTP, setShowOTP] = useState(false);
   const [pendingTransaction, setPendingTransaction] = useState<any>(null);
   const [processingTransaction, setProcessingTransaction] = useState(false);
-  const [transactionProgress, setTransactionProgress] = useState(0);
 
   const [depositData, setDepositData] = useState({
     currency: "USDT-TRC20",
-    amount: ""
+    amount: "",
+    proofFile: null as File | null
   });
 
   const [withdrawData, setWithdrawData] = useState({
-    walletId: "",
+    currency: "",
     amount: "",
     destinationAddress: ""
   });
+  
+  const [depositAddress, setDepositAddress] = useState("");
 
   useEffect(() => {
     checkAuth();
@@ -60,23 +61,13 @@ export default function CryptoWallet() {
 
   const fetchData = async (userId: string) => {
     try {
-      const [walletsRes, accountsRes, addressesRes] = await Promise.all([
+      const [walletsRes, accountsRes] = await Promise.all([
         supabase.from("crypto_wallets").select("*").eq("user_id", userId),
-        supabase.from("accounts").select("*").eq("user_id", userId).eq("status", "active"),
-        supabase.from("crypto_deposit_addresses").select("*").eq("is_active", true)
+        supabase.from("accounts").select("*").eq("user_id", userId).eq("status", "active")
       ]);
 
       if (walletsRes.data) setWallets(walletsRes.data);
       if (accountsRes.data) setAccounts(accountsRes.data);
-      
-      // Use admin-managed addresses for display
-      if (addressesRes.data && addressesRes.data.length > 0) {
-        const adminAddresses = addressesRes.data;
-        setWallets(prev => prev.map(w => {
-          const adminAddr = adminAddresses.find(a => a.currency === w.currency);
-          return adminAddr ? { ...w, wallet_address: adminAddr.wallet_address } : w;
-        }));
-      }
     } catch (error) {
       console.error("Error fetching data:", error);
       toast.error("Failed to load data");
@@ -85,133 +76,74 @@ export default function CryptoWallet() {
     }
   };
 
-  const generateWalletAddress = (currency: string) => {
-    // Generate a realistic-looking wallet address based on currency type
-    const chars = "abcdefghijklmnopqrstuvwxyz0123456789";
-    const upperChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-    
-    let address = "";
-    
-    if (currency === "BTC") {
-      address = "bc1";
-      for (let i = 0; i < 40; i++) {
-        address += chars[Math.floor(Math.random() * chars.length)];
+  const fetchDepositAddress = async (currency: string) => {
+    try {
+      const { data } = await supabase
+        .from("crypto_deposit_addresses")
+        .select("*")
+        .eq("currency", currency)
+        .eq("is_active", true)
+        .single();
+      
+      if (data) {
+        setDepositAddress(data.wallet_address);
+      } else {
+        setDepositAddress("");
+        toast.error("No deposit address available for this currency");
       }
-    } else if (currency === "ETH" || currency === "USDT-ERC20" || currency === "USDC-ERC20") {
-      address = "0x";
-      for (let i = 0; i < 40; i++) {
-        address += chars[Math.floor(Math.random() * chars.length)];
-      }
-    } else if (currency === "USDT-TRC20") {
-      address = "T";
-      for (let i = 0; i < 33; i++) {
-        address += upperChars[Math.floor(Math.random() * upperChars.length)];
-      }
-    } else if (currency === "BNB") {
-      address = "bnb";
-      for (let i = 0; i < 39; i++) {
-        address += chars[Math.floor(Math.random() * chars.length)];
-      }
-    } else if (currency === "LTC") {
-      address = "ltc1";
-      for (let i = 0; i < 39; i++) {
-        address += chars[Math.floor(Math.random() * chars.length)];
-      }
-    } else if (currency === "XRP") {
-      address = "r";
-      for (let i = 0; i < 33; i++) {
-        address += upperChars[Math.floor(Math.random() * upperChars.length)];
-      }
-    } else if (currency === "ADA") {
-      address = "addr1";
-      for (let i = 0; i < 98; i++) {
-        address += chars[Math.floor(Math.random() * chars.length)];
-      }
-    } else if (currency === "SOL") {
-      for (let i = 0; i < 44; i++) {
-        address += upperChars[Math.floor(Math.random() * upperChars.length)];
-      }
-    } else {
-      address = "0x";
-      for (let i = 0; i < 40; i++) {
-        address += chars[Math.floor(Math.random() * chars.length)];
-      }
+    } catch (error) {
+      console.error("Error fetching deposit address:", error);
+      setDepositAddress("");
     }
-    
-    return address;
   };
 
   const handleDeposit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!user) return;
-
-    setPendingTransaction({
-      type: "deposit",
-      currency: depositData.currency,
-      amount: parseFloat(depositData.amount)
-    });
-    setShowOTP(true);
-  };
-
-  const processDeposit = async () => {
-    if (!user || !pendingTransaction) return;
+    if (!user || !depositData.proofFile) {
+      toast.error("Please upload proof of payment");
+      return;
+    }
 
     setProcessingTransaction(true);
-    setTransactionProgress(0);
-
+    
     try {
-      // Find or create wallet for this currency
-      let wallet = wallets.find(w => w.currency === pendingTransaction.currency);
+      // Upload proof of payment
+      const fileExt = depositData.proofFile.name.split('.').pop();
+      const fileName = `${user.id}/${Date.now()}.${fileExt}`;
       
-      if (!wallet) {
-        const walletAddress = generateWalletAddress(pendingTransaction.currency);
-        const { data: newWallet, error } = await supabase
-          .from("crypto_wallets")
-          .insert({
-            user_id: user.id,
-            wallet_address: walletAddress,
-            wallet_type: pendingTransaction.currency,
-            currency: pendingTransaction.currency,
-            balance: 0
-          })
-          .select()
-          .single();
-
-        if (error) throw error;
-        wallet = newWallet;
-      }
-
-      // Simulate processing with progress
-      toast.info("Processing your crypto deposit...");
+      const { error: uploadError } = await supabase.storage
+        .from('account-documents')
+        .upload(fileName, depositData.proofFile);
       
-      for (let i = 0; i <= 100; i += 10) {
-        await new Promise(resolve => setTimeout(resolve, 500));
-        setTransactionProgress(i);
-      }
+      if (uploadError) throw uploadError;
+      
+      const { data: { publicUrl } } = supabase.storage
+        .from('account-documents')
+        .getPublicUrl(fileName);
 
-      // Create completed transaction
+      // Create pending transaction
       if (accounts[0]) {
         await supabase.from("transactions").insert({
           user_id: user.id,
           account_id: accounts[0].id,
           transaction_type: "credit",
-          amount: pendingTransaction.amount,
-          description: `Crypto Deposit - ${pendingTransaction.currency}`,
+          amount: parseFloat(depositData.amount),
+          description: `Crypto Deposit - ${depositData.currency}`,
           category: "Crypto",
-          status: "completed"
+          status: "pending",
+          crypto_currency: depositData.currency,
+          proof_of_payment_url: publicUrl
         });
       }
 
-      toast.success("Crypto deposit completed successfully!");
-      setDepositData({ currency: "BTC", amount: "" });
-      fetchData(user.id);
+      toast.success("Deposit request submitted! Waiting for admin approval.");
+      setDepositData({ currency: "USDT-TRC20", amount: "", proofFile: null });
+      setDepositAddress("");
     } catch (error) {
       console.error("Error processing deposit:", error);
-      toast.error("Failed to process deposit");
+      toast.error("Failed to submit deposit request");
     } finally {
       setProcessingTransaction(false);
-      setTransactionProgress(0);
-      setPendingTransaction(null);
     }
   };
 
@@ -219,23 +151,10 @@ export default function CryptoWallet() {
     e.preventDefault();
     if (!user) return;
 
-    const wallet = wallets.find(w => w.id === withdrawData.walletId);
-    if (!wallet) {
-      toast.error("Wallet not found");
-      return;
-    }
-
-    const amount = parseFloat(withdrawData.amount);
-    if (amount > parseFloat(wallet.balance)) {
-      toast.error("Insufficient balance");
-      return;
-    }
-
     setPendingTransaction({
       type: "withdrawal",
-      currency: wallet.currency,
-      amount: amount,
-      walletId: withdrawData.walletId,
+      currency: withdrawData.currency,
+      amount: parseFloat(withdrawData.amount),
       destinationAddress: withdrawData.destinationAddress
     });
     setShowOTP(true);
@@ -245,17 +164,9 @@ export default function CryptoWallet() {
     if (!user || !pendingTransaction) return;
 
     setProcessingTransaction(true);
-    setTransactionProgress(0);
 
     try {
-      toast.info("Processing your crypto withdrawal...");
-      
-      for (let i = 0; i <= 100; i += 10) {
-        await new Promise(resolve => setTimeout(resolve, 500));
-        setTransactionProgress(i);
-      }
-
-      // Create completed withdrawal transaction
+      // Create pending withdrawal transaction
       if (accounts[0]) {
         await supabase.from("transactions").insert({
           user_id: user.id,
@@ -264,30 +175,26 @@ export default function CryptoWallet() {
           amount: pendingTransaction.amount,
           description: `Crypto Withdrawal - ${pendingTransaction.currency}`,
           category: "Crypto",
-          status: "completed"
+          status: "pending",
+          crypto_currency: pendingTransaction.currency,
+          destination_wallet_address: pendingTransaction.destinationAddress
         });
       }
 
-      toast.success("Withdrawal completed successfully!");
-      setWithdrawData({ walletId: "", amount: "", destinationAddress: "" });
-      fetchData(user.id);
+      toast.success("Withdrawal request submitted! Waiting for admin approval.");
+      setWithdrawData({ currency: "", amount: "", destinationAddress: "" });
     } catch (error) {
       console.error("Error processing withdrawal:", error);
-      toast.error("Failed to process withdrawal");
+      toast.error("Failed to submit withdrawal request");
     } finally {
       setProcessingTransaction(false);
-      setTransactionProgress(0);
       setPendingTransaction(null);
     }
   };
 
   const handleOTPVerified = () => {
     setShowOTP(false);
-    if (pendingTransaction?.type === "deposit") {
-      processDeposit();
-    } else {
-      processWithdrawal();
-    }
+    processWithdrawal();
   };
 
   const copyToClipboard = (text: string) => {
@@ -368,24 +275,50 @@ export default function CryptoWallet() {
               <form onSubmit={handleDeposit} className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="currency">Cryptocurrency</Label>
-                  <Select value={depositData.currency} onValueChange={(value) => setDepositData({ ...depositData, currency: value })}>
+                  <Select 
+                    value={depositData.currency} 
+                    onValueChange={(value) => {
+                      setDepositData({ ...depositData, currency: value });
+                      fetchDepositAddress(value);
+                    }}
+                  >
                     <SelectTrigger>
                       <SelectValue placeholder="Select currency" />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="BTC">Bitcoin (BTC)</SelectItem>
                       <SelectItem value="ETH">Ethereum (ETH)</SelectItem>
-                      <SelectItem value="USDT-TRC20">Tether USDT (TRC-20)</SelectItem>
-                      <SelectItem value="USDT-ERC20">Tether USDT (ERC-20)</SelectItem>
-                      <SelectItem value="USDC-ERC20">USD Coin (ERC-20)</SelectItem>
+                      <SelectItem value="USDT">Tether USDT</SelectItem>
+                      <SelectItem value="USDC">USD Coin</SelectItem>
                       <SelectItem value="BNB">Binance Coin (BNB)</SelectItem>
-                      <SelectItem value="LTC">Litecoin (LTC)</SelectItem>
+                      <SelectItem value="SOL">Solana (SOL)</SelectItem>
                       <SelectItem value="XRP">Ripple (XRP)</SelectItem>
                       <SelectItem value="ADA">Cardano (ADA)</SelectItem>
-                      <SelectItem value="SOL">Solana (SOL)</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
+
+                {depositAddress && (
+                  <div className="space-y-2 p-4 bg-primary/5 rounded-lg border border-primary/20">
+                    <Label>Deposit Address</Label>
+                    <div className="flex items-center gap-2">
+                      <code className="text-xs bg-background p-2 rounded flex-1 break-all">
+                        {depositAddress}
+                      </code>
+                      <Button
+                        type="button"
+                        size="icon"
+                        variant="ghost"
+                        onClick={() => copyToClipboard(depositAddress)}
+                      >
+                        <Copy className="h-4 w-4" />
+                      </Button>
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      Send your {depositData.currency} to this address, then upload proof of payment below.
+                    </p>
+                  </div>
+                )}
 
                 <div className="space-y-2">
                   <Label htmlFor="depositAmount">Amount (USD)</Label>
@@ -400,9 +333,27 @@ export default function CryptoWallet() {
                   />
                 </div>
 
-                <Button type="submit" className="w-full bg-gradient-to-r from-orange-500 to-yellow-500 hover:from-orange-600 hover:to-yellow-600">
+                <div className="space-y-2">
+                  <Label htmlFor="proofFile">Proof of Payment</Label>
+                  <Input
+                    id="proofFile"
+                    type="file"
+                    accept="image/*,.pdf"
+                    onChange={(e) => setDepositData({ ...depositData, proofFile: e.target.files?.[0] || null })}
+                    required
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Upload a screenshot or receipt of your transaction
+                  </p>
+                </div>
+
+                <Button 
+                  type="submit" 
+                  className="w-full bg-gradient-to-r from-orange-500 to-yellow-500 hover:from-orange-600 hover:to-yellow-600"
+                  disabled={!depositAddress || processingTransaction}
+                >
                   <ArrowDownToLine className="h-4 w-4 mr-2" />
-                  Initiate Deposit
+                  Submit Deposit Request
                 </Button>
               </form>
             </TabsContent>
@@ -410,17 +361,20 @@ export default function CryptoWallet() {
             <TabsContent value="withdraw" className="space-y-4 mt-6">
               <form onSubmit={handleWithdraw} className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="walletId">From Wallet</Label>
-                  <Select value={withdrawData.walletId} onValueChange={(value) => setWithdrawData({ ...withdrawData, walletId: value })}>
+                  <Label htmlFor="currency">Cryptocurrency</Label>
+                  <Select value={withdrawData.currency} onValueChange={(value) => setWithdrawData({ ...withdrawData, currency: value })}>
                     <SelectTrigger>
-                      <SelectValue placeholder="Select wallet" />
+                      <SelectValue placeholder="Select currency" />
                     </SelectTrigger>
                     <SelectContent>
-                      {wallets.map((wallet) => (
-                        <SelectItem key={wallet.id} value={wallet.id}>
-                          {wallet.currency} - ${parseFloat(wallet.balance || 0).toFixed(2)}
-                        </SelectItem>
-                      ))}
+                      <SelectItem value="BTC">Bitcoin (BTC)</SelectItem>
+                      <SelectItem value="ETH">Ethereum (ETH)</SelectItem>
+                      <SelectItem value="USDT">Tether USDT</SelectItem>
+                      <SelectItem value="USDC">USD Coin</SelectItem>
+                      <SelectItem value="BNB">Binance Coin (BNB)</SelectItem>
+                      <SelectItem value="SOL">Solana (SOL)</SelectItem>
+                      <SelectItem value="XRP">Ripple (XRP)</SelectItem>
+                      <SelectItem value="ADA">Cardano (ADA)</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -439,23 +393,26 @@ export default function CryptoWallet() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="destinationAddress">Destination Wallet Address</Label>
+                  <Label htmlFor="destinationAddress">Your Wallet Address</Label>
                   <Input
                     id="destinationAddress"
-                    placeholder="Enter wallet address"
+                    placeholder="Paste your wallet address"
                     value={withdrawData.destinationAddress}
                     onChange={(e) => setWithdrawData({ ...withdrawData, destinationAddress: e.target.value })}
                     required
                   />
+                  <p className="text-xs text-muted-foreground">
+                    Enter the wallet address where you want to receive your crypto
+                  </p>
                 </div>
 
                 <Button 
                   type="submit" 
                   className="w-full bg-gradient-to-r from-red-500 to-orange-500 hover:from-red-600 hover:to-orange-600"
-                  disabled={wallets.length === 0}
+                  disabled={processingTransaction}
                 >
                   <ArrowUpFromLine className="h-4 w-4 mr-2" />
-                  Initiate Withdrawal
+                  Submit Withdrawal Request
                 </Button>
               </form>
             </TabsContent>
@@ -493,17 +450,11 @@ export default function CryptoWallet() {
         <Dialog open={true}>
           <DialogContent className="sm:max-w-md">
             <DialogHeader>
-              <DialogTitle>Processing Transaction</DialogTitle>
+              <DialogTitle>Submitting Request</DialogTitle>
               <DialogDescription>
-                Please wait while we process your {pendingTransaction?.type}...
+                Please wait while we submit your request to the admin...
               </DialogDescription>
             </DialogHeader>
-            <div className="space-y-4 py-4">
-              <Progress value={transactionProgress} className="w-full" />
-              <p className="text-center text-sm text-muted-foreground">
-                {transactionProgress}% Complete
-              </p>
-            </div>
           </DialogContent>
         </Dialog>
       )}
