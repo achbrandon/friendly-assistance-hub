@@ -204,6 +204,10 @@ const OpenAccount = () => {
     }
 
     try {
+      // Sign out any existing session first
+      await supabase.auth.signOut();
+      console.log('Cleared any existing sessions');
+
       // Generate QR secret
       const qrSecret = crypto.randomUUID();
 
@@ -237,17 +241,23 @@ const OpenAccount = () => {
       console.log('User created:', user.id);
 
       // Wait for session to be fully established
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await new Promise(resolve => setTimeout(resolve, 2000));
 
-      // Verify session is active
+      // Verify session is active and matches the new user
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) {
         console.error('No active session after signup');
-        alert("Session error. Please try signing in with your credentials.");
+        alert("Session error. Please reload the page and try again.");
         return;
       }
 
-      console.log('Session established, proceeding with uploads');
+      if (session.user.id !== user.id) {
+        console.error('Session user mismatch', { sessionUserId: session.user.id, newUserId: user.id });
+        alert("Session mismatch. Please reload the page and try again.");
+        return;
+      }
+
+      console.log('Session established for user:', session.user.id);
 
       // Step 2: Upload documents to storage
       let idFrontUrl = null;
@@ -325,7 +335,7 @@ const OpenAccount = () => {
 
       if (error) {
         console.error("Error submitting application:", error);
-        alert("There was an error submitting your application. Please try again.");
+        alert(`Error submitting application: ${error.message || 'Please try again'}`);
         return;
       }
 
