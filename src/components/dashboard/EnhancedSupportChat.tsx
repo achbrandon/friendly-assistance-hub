@@ -505,7 +505,7 @@ export function EnhancedSupportChat({ userId, onClose }: EnhancedSupportChatProp
                   >
                     <Avatar className="h-10 w-10 border-2">
                       <AvatarFallback className={message.is_staff ? "bg-primary text-primary-foreground" : "bg-secondary"}>
-                        {message.is_staff ? "VB" : "You"}
+                        {message.is_staff ? (agentName ? agentName.charAt(0) : "A") : "You"}
                       </AvatarFallback>
                     </Avatar>
                     <div className={`flex-1 ${message.is_staff ? "" : "text-right"}`}>
@@ -540,10 +540,12 @@ export function EnhancedSupportChat({ userId, onClose }: EnhancedSupportChatProp
                      </div>
                    </div>
                  ))}
-                 {agentTyping && (
+                  {agentTyping && (
                    <div className="flex gap-3">
                      <Avatar className="h-10 w-10 border-2">
-                       <AvatarFallback className="bg-primary text-primary-foreground">VB</AvatarFallback>
+                       <AvatarFallback className="bg-primary text-primary-foreground">
+                         {agentName ? agentName.charAt(0) : "A"}
+                       </AvatarFallback>
                      </Avatar>
                      <div className="flex-1">
                        <div className="inline-block rounded-2xl px-4 py-3 bg-muted rounded-tl-none">
@@ -553,11 +555,9 @@ export function EnhancedSupportChat({ userId, onClose }: EnhancedSupportChatProp
                              <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }} />
                              <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }} />
                            </div>
-                           {agentName && (
-                             <span className="text-xs text-muted-foreground ml-2">
-                               {agentName.replace('Support - ', '')} is typing...
-                             </span>
-                           )}
+                           <span className="text-xs text-muted-foreground ml-2">
+                             {agentName ? `${agentName.replace('Support - ', '')} is typing...` : 'Agent is typing...'}
+                           </span>
                          </div>
                        </div>
                      </div>
