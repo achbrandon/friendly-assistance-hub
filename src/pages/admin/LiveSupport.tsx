@@ -441,21 +441,21 @@ export default function LiveSupport() {
                   {messages.map((message) => (
                     <div
                       key={message.id}
-                      className={`flex gap-3 ${message.is_staff ? "flex-row-reverse" : ""}`}
+                      className={`flex gap-3 ${!message.is_staff ? "flex-row-reverse" : ""}`}
                     >
                       <Avatar className="w-8 h-8">
-                        <AvatarFallback className={message.is_staff ? (message.is_agent ? 'bg-green-600 text-white' : 'bg-blue-600 text-white') : 'bg-slate-600 text-white'}>
-                          {message.is_staff ? (message.is_agent ? 'S' : 'AI') : 'C'}
+                        <AvatarFallback className={!message.is_staff ? 'bg-slate-600 text-white' : (message.is_agent ? 'bg-green-600 text-white' : 'bg-blue-600 text-white')}>
+                          {!message.is_staff ? 'C' : (message.is_agent ? 'S' : 'AI')}
                         </AvatarFallback>
                       </Avatar>
-                      <div className={`flex flex-col max-w-[70%] ${message.is_staff ? 'items-end' : ''}`}>
+                      <div className={`flex flex-col max-w-[70%] ${!message.is_staff ? 'items-end' : ''}`}>
                         <div
                           className={`rounded-lg p-3 ${
-                            message.is_staff
-                              ? message.is_agent 
+                            !message.is_staff
+                              ? "bg-slate-700 text-white"
+                              : message.is_agent 
                                 ? "bg-green-600 text-white"
                                 : "bg-blue-600 text-white"
-                              : "bg-slate-700 text-white"
                           }`}
                         >
                           <p className="text-sm break-words">{message.message}</p>
