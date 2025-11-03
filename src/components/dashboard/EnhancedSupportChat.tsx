@@ -152,7 +152,13 @@ export function EnhancedSupportChat({ userId, onClose }: EnhancedSupportChatProp
             if (prev.some(msg => msg.id === payload.new.id)) {
               return prev;
             }
-            return [...prev, payload.new];
+            // Remove optimistic message (temp ID) and add real message
+            const filtered = prev.filter(msg => 
+              !msg.id.toString().startsWith('temp-') || 
+              msg.message !== payload.new.message ||
+              msg.sender_id !== payload.new.sender_id
+            );
+            return [...filtered, payload.new];
           });
         }
       )
