@@ -79,19 +79,7 @@ export function TransferModal({ onClose, onSuccess }: TransferModalProps) {
       return;
     }
 
-    // Store transfer data and show OTP
-    setPendingTransfer({
-      fromAccount,
-      toAccount,
-      amount: transferAmount,
-      notes
-    });
-    setShowOTP(true);
-  };
-
-  const processTransfer = async () => {
-    if (!pendingTransfer) return;
-    
+    // Internal transfers are instant - no OTP needed
     setLoading(true);
     try {
       const { data: { user } } = await supabase.auth.getUser();
@@ -103,81 +91,67 @@ export function TransferModal({ onClose, onSuccess }: TransferModalProps) {
         .from("transfers")
         .insert({
           user_id: user.id,
-          from_account_id: pendingTransfer.fromAccount,
-          to_account_id: pendingTransfer.toAccount,
-          amount: pendingTransfer.amount,
+          from_account_id: fromAccount,
+          to_account_id: toAccount,
+          amount: transferAmount,
           transfer_type: "internal",
-          status: "pending",
-          notes: pendingTransfer.notes || null
+          status: "completed",
+          notes: notes || null,
+          completed_date: new Date().toISOString()
         });
 
       if (transferError) throw transferError;
 
-      // Create transaction records for both accounts
-      const fromAcc = accounts.find(a => a.id === pendingTransfer.fromAccount);
-      const toAcc = accounts.find(a => a.id === pendingTransfer.toAccount);
+      // Create transaction records for both accounts as completed
+      const fromAcc = accounts.find(a => a.id === fromAccount);
+      const toAcc = accounts.find(a => a.id === toAccount);
 
       await supabase.from("transactions").insert([
         {
           user_id: user.id,
-          account_id: pendingTransfer.fromAccount,
+          account_id: fromAccount,
           transaction_type: "debit",
-          amount: pendingTransfer.amount,
+          amount: transferAmount,
           description: `Transfer to ${toAcc?.account_name}`,
           category: "Transfer",
-          status: "pending"
+          status: "completed"
         },
         {
           user_id: user.id,
-          account_id: pendingTransfer.toAccount,
+          account_id: toAccount,
           transaction_type: "credit",
-          amount: pendingTransfer.amount,
+          amount: transferAmount,
           description: `Transfer from ${fromAcc?.account_name}`,
           category: "Transfer",
-          status: "pending"
+          status: "completed"
         }
       ]);
-
-      // Create admin notification
-      await supabase.from("admin_notifications").insert({
-        notification_type: "internal_transfer",
-        message: `Internal transfer: $${pendingTransfer.amount.toLocaleString()} from ${fromAcc?.account_name} to ${toAcc?.account_name}`,
-        user_id: user.id
-      });
 
       setReceiptData({
         type: 'internal',
         fromAccount: fromAcc?.account_name || '',
         toAccount: toAcc?.account_name || '',
-        amount: pendingTransfer.amount.toFixed(2),
+        amount: transferAmount.toFixed(2),
         currency: '$',
         reference,
         date: new Date(),
-        status: 'pending'
+        status: 'completed'
       });
 
       setShowReceipt(true);
       onSuccess();
-      toast.success("Transfer submitted! Pending admin approval - your balance will not be affected until completion.", {
-        duration: 5000
-      });
+      toast.success("Transfer completed successfully!");
     } catch (error: any) {
       console.error("Transfer error:", error);
       toast.error(error.message || "Failed to complete transfer");
     } finally {
       setLoading(false);
-      setPendingTransfer(null);
     }
-  };
-
-  const handleOTPVerified = () => {
-    setShowOTP(false);
-    processTransfer();
   };
 
   return (
     <>
-      <Dialog open={!showReceipt && !showOTP} onOpenChange={onClose}>
+      <Dialog open={!showReceipt} onOpenChange={onClose}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>Internal Transfer</DialogTitle>
@@ -245,21 +219,11 @@ export function TransferModal({ onClose, onSuccess }: TransferModalProps) {
               Cancel
             </Button>
             <Button onClick={handleTransfer} disabled={loading} className="flex-1">
-              {loading ? "Processing..." : "Continue"}
+              {loading ? "Processing..." : "Transfer Now"}
             </Button>
           </div>
         </DialogContent>
       </Dialog>
-
-      <OTPVerificationModal
-        open={showOTP}
-        onClose={() => {
-          setShowOTP(false);
-          setPendingTransfer(null);
-        }}
-        onVerify={handleOTPVerified}
-        email={profile?.email || ""}
-      />
 
       {showReceipt && receiptData && (
         <TransferReceipt

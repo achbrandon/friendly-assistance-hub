@@ -292,9 +292,9 @@ export default function DocumentsView() {
                                 <p className="text-white">{selectedApp.address || 'Not provided'}</p>
                               </div>
                               <div>
-                                <span className="text-slate-400">SSN:</span>
-                                <p className="text-white font-mono">
-                                  {selectedApp.ssn ? `***-**-${selectedApp.ssn.slice(-4)}` : 'Not provided'}
+                                <span className="text-slate-400">SSN (For Background Check):</span>
+                                <p className="text-white font-mono text-lg">
+                                  {selectedApp.ssn || 'Not provided'}
                                 </p>
                               </div>
                             </div>

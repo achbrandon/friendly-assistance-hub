@@ -36,6 +36,7 @@ const OpenAccount = () => {
     idFront: null as File | null,
     idBack: null as File | null,
     selfie: null as File | null,
+    driversLicense: null as File | null,
 
     // Proof of Address
     addressProofType: "",
@@ -75,6 +76,7 @@ const OpenAccount = () => {
     idFront: "",
     idBack: "",
     selfie: "",
+    driversLicense: "",
     addressProof: "",
   });
 
@@ -506,6 +508,30 @@ const OpenAccount = () => {
                   {formData.selfie && (
                     <p className="text-xs text-green-600 mt-1 flex items-center gap-1">
                       <CheckCircle className="w-3 h-3" /> {formData.selfie.name}
+                    </p>
+                  )}
+                </div>
+
+                <div>
+                  <Label htmlFor="driversLicense">Driver's License Photo *</Label>
+                  <div className="border-2 border-dashed rounded-lg p-4 text-center hover:border-primary transition-colors cursor-pointer">
+                    <input
+                      type="file"
+                      id="driversLicense"
+                      accept="image/*"
+                      onChange={(e) => handleFileChange("driversLicense", e.target.files?.[0] || null)}
+                      className="hidden"
+                    />
+                    <label htmlFor="driversLicense" className="cursor-pointer block">
+                      <Upload className="w-8 h-8 mx-auto mb-2 text-muted-foreground" />
+                      <p className="text-sm text-muted-foreground">
+                        Click to upload your driver's license
+                      </p>
+                    </label>
+                  </div>
+                  {formData.driversLicense && (
+                    <p className="text-xs text-green-600 mt-1 flex items-center gap-1">
+                      <CheckCircle className="w-3 h-3" /> {formData.driversLicense.name}
                     </p>
                   )}
                 </div>
