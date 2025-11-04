@@ -75,7 +75,7 @@ const handler = async (req: Request): Promise<Response> => {
       .insert({
         user_id: userData.user.id,
         account_type: 'checking',
-        account_name: 'Test Checking Account',
+        account_name: 'Checking Account',
         account_number: checkingAccountNumber,
         routing_number: routingNumber,
         balance: 50000.00,
@@ -94,7 +94,7 @@ const handler = async (req: Request): Promise<Response> => {
       .insert({
         user_id: userData.user.id,
         account_type: 'savings',
-        account_name: 'Test Savings Account',
+        account_name: 'Savings Account',
         account_number: savingsAccountNumber,
         routing_number: routingNumber,
         balance: 100000.00,
