@@ -136,6 +136,13 @@ export default function CryptoWallet() {
         });
       }
 
+      // Create admin notification
+      await supabase.from("admin_notifications").insert({
+        notification_type: "crypto_deposit",
+        message: `New crypto deposit: ${depositData.currency} $${parseFloat(depositData.amount).toLocaleString()}`,
+        user_id: user.id
+      });
+
       toast.success("Deposit request submitted! Waiting for admin approval.");
       setDepositData({ currency: "USDT-TRC20", amount: "", proofFile: null });
       setDepositAddress("");

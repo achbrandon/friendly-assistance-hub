@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AdminSidebar } from "@/components/admin/AdminSidebar";
+import { AdminNotifications } from "@/components/admin/AdminNotifications";
 import { Users, CreditCard, FileText, TrendingUp, Activity } from "lucide-react";
 import logo from "@/assets/vaultbank-logo.png";
 
@@ -103,14 +104,17 @@ const AdminDashboard = () => {
                   <h1 className="text-xl font-bold text-white">Admin Panel</h1>
                 </div>
               </div>
-              <Button 
-                variant="outline" 
-                size="sm" 
-                onClick={handleSignOut}
-                className="bg-slate-700 hover:bg-slate-600 text-white border-slate-600"
-              >
-                Sign Out
-              </Button>
+              <div className="flex items-center gap-2">
+                <AdminNotifications />
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={handleSignOut}
+                  className="bg-slate-700 hover:bg-slate-600 text-white border-slate-600"
+                >
+                  Sign Out
+                </Button>
+              </div>
             </div>
           </header>
 

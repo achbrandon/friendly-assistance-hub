@@ -2,6 +2,8 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { AccountCard } from "@/components/dashboard/AccountCard";
+import { Button } from "@/components/ui/button";
+import { Plus } from "lucide-react";
 
 export default function Accounts() {
   const navigate = useNavigate();
@@ -50,6 +52,10 @@ export default function Accounts() {
           <h1 className="text-3xl font-bold">My Accounts</h1>
           <p className="text-muted-foreground">Overview of all your accounts</p>
         </div>
+        <Button onClick={() => navigate("/dashboard/request-account")} className="flex items-center gap-2">
+          <Plus className="h-4 w-4" />
+          Request New Account
+        </Button>
       </div>
 
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
