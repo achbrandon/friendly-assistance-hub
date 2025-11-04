@@ -86,6 +86,13 @@ export default function LoanApplication() {
 
       if (error) throw error;
 
+      // Create admin notification
+      await supabase.from("admin_notifications").insert({
+        notification_type: "loan_application",
+        message: `New loan application: $${parseFloat(loanData.amount).toLocaleString()} for ${loanData.purpose.substring(0, 30)}`,
+        user_id: user.id
+      });
+
       // Get user's first active account for transaction record
       const { data: accounts } = await supabase
         .from("accounts")

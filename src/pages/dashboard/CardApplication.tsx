@@ -72,6 +72,13 @@ export default function CardApplication() {
 
       if (error) throw error;
 
+      // Create admin notification
+      await supabase.from("admin_notifications").insert({
+        notification_type: "card_application",
+        message: `New card application: ${formData.cardType} card`,
+        user_id: user.id
+      });
+
       toast.success("Card application submitted successfully!");
       setShowForm(false);
       setFormData({

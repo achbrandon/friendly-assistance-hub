@@ -427,11 +427,11 @@ export default function CryptoWallet() {
             Important Information
           </h3>
           <ul className="text-sm text-muted-foreground space-y-2">
-            <li>• All crypto transactions require OTP verification</li>
+            <li>• Deposits are reviewed and approved by admin - no OTP required</li>
+            <li>• Withdrawals require OTP verification for security</li>
             <li>• BTC/ETH deposits: 3-10 minutes | USDT/USDC (TRC-20): 1-3 minutes | BNB: 2-5 minutes</li>
             <li>• Network fees may apply for blockchain transactions</li>
             <li>• Always verify wallet addresses before withdrawal</li>
-            <li>• OTP verification will be sent to your email for each transaction</li>
           </ul>
         </CardContent>
       </Card>
