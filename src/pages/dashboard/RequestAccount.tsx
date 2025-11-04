@@ -32,7 +32,7 @@ export default function RequestAccount() {
         user_id: user.id
       });
 
-      toast.success("Account request submitted! An admin will review your request.");
+      toast.success("Pending request");
       setTimeout(() => navigate("/dashboard/accounts"), 2000);
     } catch (error: any) {
       console.error("Error submitting request:", error);
