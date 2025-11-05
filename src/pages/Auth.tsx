@@ -92,6 +92,9 @@ const Auth = () => {
     setLoading(true);
     setShowLoadingSpinner(true);
 
+    // Ensure spinner shows for at least 2 seconds
+    const minSpinnerTime = new Promise(resolve => setTimeout(resolve, 2000));
+
     try {
       const { data, error } = await supabase.auth.signInWithPassword({
         email: signInEmail,
@@ -154,6 +157,9 @@ const Auth = () => {
           return;
         }
 
+        // Wait for minimum spinner time before proceeding
+        await minSpinnerTime;
+        
         toast.success("Signed in successfully!");
         // The auth state listener will handle the redirect
         // Keep spinner visible during redirect
