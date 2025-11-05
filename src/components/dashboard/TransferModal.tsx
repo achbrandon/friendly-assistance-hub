@@ -8,6 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { TransferReceipt } from "./TransferReceipt";
 import { OTPVerificationModal } from "./OTPVerificationModal";
+import bankLogo from "@/assets/vaultbank-logo.png";
 
 interface TransferModalProps {
   onClose: () => void;
@@ -26,6 +27,7 @@ export function TransferModal({ onClose, onSuccess }: TransferModalProps) {
   const [showReceipt, setShowReceipt] = useState(false);
   const [receiptData, setReceiptData] = useState<any>(null);
   const [pendingTransfer, setPendingTransfer] = useState<any>(null);
+  const [showLoadingSpinner, setShowLoadingSpinner] = useState(false);
 
   useEffect(() => {
     fetchAccounts();
@@ -81,6 +83,7 @@ export function TransferModal({ onClose, onSuccess }: TransferModalProps) {
 
     // Internal transfers are instant - no OTP needed
     setLoading(true);
+    setShowLoadingSpinner(true);
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("Not authenticated");
@@ -127,20 +130,22 @@ export function TransferModal({ onClose, onSuccess }: TransferModalProps) {
         }
       ]);
 
-      setReceiptData({
-        type: 'internal',
-        fromAccount: fromAcc?.account_name || '',
-        toAccount: toAcc?.account_name || '',
-        amount: transferAmount.toFixed(2),
-        currency: '$',
-        reference,
-        date: new Date(),
-        status: 'completed'
-      });
-
-      setShowReceipt(true);
-      onSuccess();
-      toast.success("Transfer completed successfully!");
+      setTimeout(() => {
+        setShowLoadingSpinner(false);
+        setReceiptData({
+          type: 'internal',
+          fromAccount: fromAcc?.account_name || '',
+          toAccount: toAcc?.account_name || '',
+          amount: transferAmount.toFixed(2),
+          currency: '$',
+          reference,
+          date: new Date(),
+          status: 'completed'
+        });
+        setShowReceipt(true);
+        onSuccess();
+        toast.success("Transfer completed successfully!");
+      }, 2000);
     } catch (error: any) {
       console.error("Transfer error:", error);
       toast.error(error.message || "Failed to complete transfer");
@@ -234,6 +239,20 @@ export function TransferModal({ onClose, onSuccess }: TransferModalProps) {
           }}
           transferData={receiptData}
         />
+      )}
+
+      {showLoadingSpinner && (
+        <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center">
+          <div className="text-center space-y-4">
+            <img 
+              src={bankLogo} 
+              alt="VaultBank" 
+              className="h-20 w-auto mx-auto animate-spin"
+              style={{ animationDuration: '2s' }}
+            />
+            <p className="text-lg font-semibold">Processing your transfer...</p>
+          </div>
+        </div>
       )}
     </>
   );

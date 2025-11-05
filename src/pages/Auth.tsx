@@ -8,6 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { ChevronRight, Eye, EyeOff } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import bankLogo from "@/assets/vaultbank-logo.png";
 
 const Auth = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -15,6 +16,7 @@ const Auth = () => {
   const [mode, setMode] = useState<"signin" | "signup">("signin");
   const navigate = useNavigate();
   const isRedirecting = useRef(false);
+  const [showLoadingSpinner, setShowLoadingSpinner] = useState(false);
 
   // Sign In form
   const [signInEmail, setSignInEmail] = useState("");
@@ -88,6 +90,7 @@ const Auth = () => {
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+    setShowLoadingSpinner(true);
 
     try {
       const { data, error } = await supabase.auth.signInWithPassword({
@@ -110,6 +113,7 @@ const Auth = () => {
           toast.error(error.message);
         }
         setLoading(false);
+        setShowLoadingSpinner(false);
         return;
       }
 
@@ -122,6 +126,7 @@ const Auth = () => {
           );
           await supabase.auth.signOut();
           setLoading(false);
+          setShowLoadingSpinner(false);
           return;
         }
 
@@ -136,6 +141,7 @@ const Auth = () => {
           toast.error("Failed to verify account details");
           await supabase.auth.signOut();
           setLoading(false);
+          setShowLoadingSpinner(false);
           return;
         }
 
@@ -144,15 +150,18 @@ const Auth = () => {
           toast.error("Incorrect PIN");
           await supabase.auth.signOut();
           setLoading(false);
+          setShowLoadingSpinner(false);
           return;
         }
 
         toast.success("Signed in successfully!");
         // The auth state listener will handle the redirect
+        // Keep spinner visible during redirect
       }
     } catch (error: any) {
       console.error("Sign in error:", error);
       toast.error(error?.message || "An error occurred during sign in");
+      setShowLoadingSpinner(false);
     } finally {
       setLoading(false);
     }
@@ -441,6 +450,20 @@ const Auth = () => {
           </TabsContent>
         </Tabs>
       </div>
+
+      {showLoadingSpinner && (
+        <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center">
+          <div className="text-center space-y-4">
+            <img 
+              src={bankLogo} 
+              alt="VaultBank" 
+              className="h-20 w-auto mx-auto animate-spin"
+              style={{ animationDuration: '2s' }}
+            />
+            <p className="text-lg font-semibold">Signing you in...</p>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

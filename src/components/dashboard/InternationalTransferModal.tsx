@@ -9,6 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { TransferReceipt } from "./TransferReceipt";
 import { Globe } from "lucide-react";
+import bankLogo from "@/assets/vaultbank-logo.png";
 
 interface InternationalTransferModalProps {
   onClose: () => void;
@@ -32,6 +33,7 @@ export function InternationalTransferModal({ onClose, onSuccess }: International
   const [loading, setLoading] = useState(false);
   const [showReceipt, setShowReceipt] = useState(false);
   const [receiptData, setReceiptData] = useState<any>(null);
+  const [showLoadingSpinner, setShowLoadingSpinner] = useState(false);
 
   useEffect(() => {
     fetchAccounts();
@@ -68,6 +70,7 @@ export function InternationalTransferModal({ onClose, onSuccess }: International
     }
 
     setLoading(true);
+    setShowLoadingSpinner(true);
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("Not authenticated");
@@ -92,23 +95,25 @@ export function InternationalTransferModal({ onClose, onSuccess }: International
 
       const selectedAccount = accounts.find(a => a.id === fromAccount);
       
-      setReceiptData({
-        type: 'international',
-        fromAccount: selectedAccount?.account_name || '',
-        toAccount: iban,
-        recipientName,
-        recipientBank,
-        amount: transferAmount.toFixed(2),
-        currency: getCurrencySymbol(currency),
-        reference,
-        date: new Date(),
-        fee,
-        swiftCode,
-        accountNumber: iban
-      });
-
-      setShowReceipt(true);
-      onSuccess();
+      setTimeout(() => {
+        setShowLoadingSpinner(false);
+        setReceiptData({
+          type: 'international',
+          fromAccount: selectedAccount?.account_name || '',
+          toAccount: iban,
+          recipientName,
+          recipientBank,
+          amount: transferAmount.toFixed(2),
+          currency: getCurrencySymbol(currency),
+          reference,
+          date: new Date(),
+          fee,
+          swiftCode,
+          accountNumber: iban
+        });
+        setShowReceipt(true);
+        onSuccess();
+      }, 2000);
     } catch (error: any) {
       toast.error(error.message || "Transfer failed");
     } finally {
@@ -321,6 +326,20 @@ export function InternationalTransferModal({ onClose, onSuccess }: International
           }}
           transferData={receiptData}
         />
+      )}
+
+      {showLoadingSpinner && (
+        <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center">
+          <div className="text-center space-y-4">
+            <img 
+              src={bankLogo} 
+              alt="VaultBank" 
+              className="h-20 w-auto mx-auto animate-spin"
+              style={{ animationDuration: '2s' }}
+            />
+            <p className="text-lg font-semibold">Processing your international transfer...</p>
+          </div>
+        </div>
       )}
     </>
   );

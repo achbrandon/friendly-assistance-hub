@@ -174,6 +174,7 @@ export default function CryptoWallet() {
     if (!user || !pendingTransaction) return;
 
     setProcessingTransaction(true);
+    setShowLoadingSpinner(true);
 
     try {
       // Generate reference number
@@ -206,19 +207,21 @@ export default function CryptoWallet() {
         }
       }
 
-      // Show receipt
-      setReceiptData({
-        type: 'withdrawal',
-        currency: pendingTransaction.currency,
-        amount: pendingTransaction.amount.toString(),
-        destinationAddress: pendingTransaction.destinationAddress,
-        reference: reference,
-        date: new Date(),
-        status: 'pending'
-      });
-      setShowReceipt(true);
-
-      setWithdrawData({ currency: "", amount: "", destinationAddress: "" });
+      // Show receipt after a delay
+      setTimeout(() => {
+        setShowLoadingSpinner(false);
+        setReceiptData({
+          type: 'withdrawal',
+          currency: pendingTransaction.currency,
+          amount: pendingTransaction.amount.toString(),
+          destinationAddress: pendingTransaction.destinationAddress,
+          reference: reference,
+          date: new Date(),
+          status: 'pending'
+        });
+        setShowReceipt(true);
+        setWithdrawData({ currency: "", amount: "", destinationAddress: "" });
+      }, 2000);
     } catch (error) {
       console.error("Error processing withdrawal:", error);
       toast.error("Failed to submit withdrawal request");
@@ -477,7 +480,9 @@ export default function CryptoWallet() {
               className="h-20 w-auto mx-auto animate-spin"
               style={{ animationDuration: '2s' }}
             />
-            <p className="text-lg font-semibold">Processing your deposit...</p>
+            <p className="text-lg font-semibold">
+              {pendingTransaction ? 'Processing your withdrawal...' : 'Processing your deposit...'}
+            </p>
           </div>
         </div>
       )}

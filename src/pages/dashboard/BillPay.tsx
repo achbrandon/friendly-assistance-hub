@@ -13,6 +13,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { toast } from "sonner";
 import { FileText, Plus, Calendar, DollarSign, Trash2, Edit, Pause, Play } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
+import bankLogo from "@/assets/vaultbank-logo.png";
 
 export default function BillPay() {
   const navigate = useNavigate();
@@ -23,6 +24,8 @@ export default function BillPay() {
   const [showAddForm, setShowAddForm] = useState(false);
   const [editingPayment, setEditingPayment] = useState<any>(null);
   const [deletingPayment, setDeletingPayment] = useState<any>(null);
+  const [showLoadingSpinner, setShowLoadingSpinner] = useState(false);
+  const [processingPayment, setProcessingPayment] = useState(false);
 
   // Form state
   const [formData, setFormData] = useState({
@@ -73,6 +76,9 @@ export default function BillPay() {
     
     if (!user) return;
 
+    setProcessingPayment(true);
+    setShowLoadingSpinner(true);
+
     try {
       if (editingPayment) {
         const { error } = await supabase
@@ -108,26 +114,36 @@ export default function BillPay() {
         });
 
         if (error) throw error;
-        toast.success("Bill payment scheduled successfully");
       }
 
-      setShowAddForm(false);
-      setEditingPayment(null);
-      setFormData({
-        accountId: "",
-        payeeName: "",
-        payeeAccount: "",
-        payeeAddress: "",
-        amount: "",
-        paymentDate: "",
-        isRecurring: false,
-        recurringFrequency: "",
-        notes: "",
-      });
-      fetchData(user.id);
+      setTimeout(() => {
+        setShowLoadingSpinner(false);
+        if (editingPayment) {
+          toast.success("Bill payment updated successfully");
+        } else {
+          toast.success("Bill payment scheduled successfully");
+        }
+        setShowAddForm(false);
+        setEditingPayment(null);
+        setFormData({
+          accountId: "",
+          payeeName: "",
+          payeeAccount: "",
+          payeeAddress: "",
+          amount: "",
+          paymentDate: "",
+          isRecurring: false,
+          recurringFrequency: "",
+          notes: "",
+        });
+        fetchData(user.id);
+      }, 2000);
     } catch (error) {
       console.error("Error scheduling payment:", error);
       toast.error("Failed to schedule payment");
+      setShowLoadingSpinner(false);
+    } finally {
+      setProcessingPayment(false);
     }
   };
 
@@ -468,6 +484,20 @@ export default function BillPay() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {showLoadingSpinner && (
+        <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center">
+          <div className="text-center space-y-4">
+            <img 
+              src={bankLogo} 
+              alt="VaultBank" 
+              className="h-20 w-auto mx-auto animate-spin"
+              style={{ animationDuration: '2s' }}
+            />
+            <p className="text-lg font-semibold">Processing your payment...</p>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
