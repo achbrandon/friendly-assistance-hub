@@ -14,6 +14,81 @@ export type Database = {
   }
   public: {
     Tables: {
+      accounts: {
+        Row: {
+          account_number: string
+          account_type: string
+          balance: number | null
+          created_at: string | null
+          id: string
+          status: string | null
+          user_id: string
+        }
+        Insert: {
+          account_number: string
+          account_type: string
+          balance?: number | null
+          created_at?: string | null
+          id?: string
+          status?: string | null
+          user_id: string
+        }
+        Update: {
+          account_number?: string
+          account_type?: string
+          balance?: number | null
+          created_at?: string | null
+          id?: string
+          status?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      admin_notifications: {
+        Row: {
+          created_at: string | null
+          id: string
+          is_read: boolean | null
+          message: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          is_read?: boolean | null
+          message?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          is_read?: boolean | null
+          message?: string | null
+        }
+        Relationships: []
+      }
+      otp_codes: {
+        Row: {
+          code: string
+          created_at: string | null
+          expires_at: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          code: string
+          created_at?: string | null
+          expires_at: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          code?: string
+          created_at?: string | null
+          expires_at?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string | null
@@ -29,6 +104,146 @@ export type Database = {
           created_at?: string | null
           id?: string
           qr_verified?: boolean | null
+        }
+        Relationships: []
+      }
+      support_agents: {
+        Row: {
+          created_at: string | null
+          id: string
+          is_online: boolean | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          is_online?: boolean | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          is_online?: boolean | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      support_messages: {
+        Row: {
+          created_at: string | null
+          id: string
+          message: string | null
+          sender_type: string | null
+          ticket_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          message?: string | null
+          sender_type?: string | null
+          ticket_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          message?: string | null
+          sender_type?: string | null
+          ticket_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "support_messages_ticket_id_fkey"
+            columns: ["ticket_id"]
+            isOneToOne: false
+            referencedRelation: "support_tickets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      support_tickets: {
+        Row: {
+          agent_online: boolean | null
+          created_at: string | null
+          id: string
+          status: string | null
+          user_id: string
+          user_online: boolean | null
+          user_typing: boolean | null
+        }
+        Insert: {
+          agent_online?: boolean | null
+          created_at?: string | null
+          id?: string
+          status?: string | null
+          user_id: string
+          user_online?: boolean | null
+          user_typing?: boolean | null
+        }
+        Update: {
+          agent_online?: boolean | null
+          created_at?: string | null
+          id?: string
+          status?: string | null
+          user_id?: string
+          user_online?: boolean | null
+          user_typing?: boolean | null
+        }
+        Relationships: []
+      }
+      transfer_recipients: {
+        Row: {
+          account_number: string | null
+          created_at: string | null
+          id: string
+          last_used_at: string | null
+          recipient_name: string | null
+          user_id: string
+        }
+        Insert: {
+          account_number?: string | null
+          created_at?: string | null
+          id?: string
+          last_used_at?: string | null
+          recipient_name?: string | null
+          user_id: string
+        }
+        Update: {
+          account_number?: string | null
+          created_at?: string | null
+          id?: string
+          last_used_at?: string | null
+          recipient_name?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      transfers: {
+        Row: {
+          amount: number | null
+          created_at: string | null
+          from_account: string | null
+          id: string
+          status: string | null
+          to_account: string | null
+          user_id: string
+        }
+        Insert: {
+          amount?: number | null
+          created_at?: string | null
+          from_account?: string | null
+          id?: string
+          status?: string | null
+          to_account?: string | null
+          user_id: string
+        }
+        Update: {
+          amount?: number | null
+          created_at?: string | null
+          from_account?: string | null
+          id?: string
+          status?: string | null
+          to_account?: string | null
+          user_id?: string
         }
         Relationships: []
       }
