@@ -63,6 +63,7 @@ import AdminSettings from "./pages/admin/AdminSettings";
 import ResendEmails from "./pages/ResendEmails";
 import CreateTestAccount from "./pages/CreateTestAccount";
 import CreateAdminAccount from "./pages/CreateAdminAccount";
+import ActivityLogs from "./pages/admin/ActivityLogs";
 import { useState } from "react";
 
 const queryClient = new QueryClient();
@@ -146,6 +147,7 @@ function AppRoutes() {
         <Route path="wallets" element={<AdminWalletSettings />} />
         <Route path="settings" element={<AdminSettings />} />
         <Route path="activity" element={<AdminUserActivity />} />
+        <Route path="activity-logs" element={<ActivityLogs />} />
       </Route>
       
       {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

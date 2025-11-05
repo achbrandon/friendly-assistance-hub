@@ -85,6 +85,11 @@ const menuItems = [
     url:"/admin/activity",
     icon: TrendingUp,
   },
+  {
+    title: "Activity Logs",
+    url: "/admin/activity-logs",
+    icon: FileText,
+  },
 ];
 
 export function AdminSidebar() {
