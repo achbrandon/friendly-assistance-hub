@@ -62,6 +62,7 @@ import AdminLiveMonitoring from "./pages/admin/LiveMonitoring";
 import AdminSettings from "./pages/admin/AdminSettings";
 import ResendEmails from "./pages/ResendEmails";
 import CreateTestAccount from "./pages/CreateTestAccount";
+import CreateAdminAccount from "./pages/CreateAdminAccount";
 import { useState } from "react";
 
 const queryClient = new QueryClient();
@@ -107,7 +108,8 @@ function AppRoutes() {
       <Route path="/mortgage-calculator" element={<MortgageCalculator />} />
       <Route path="/verify-qr" element={<VerifyQR />} />
       <Route path="/resend-emails" element={<ResendEmails />} />
-      <Route path="/create-test-account" element={<CreateTestAccount />} />
+          <Route path="/create-test-account" element={<CreateTestAccount />} />
+          <Route path="/create-admin-account" element={<CreateAdminAccount />} />
       <Route path="/dashboard" element={<Dashboard />} />
       <Route path="/dashboard/accounts" element={<Accounts />} />
       <Route path="/dashboard/transfers" element={<DashboardTransfers />} />
