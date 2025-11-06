@@ -249,7 +249,7 @@ const handler = async (req: Request): Promise<Response> => {
           subject: "✉️ Verify Your VaultBank Account - Action Required"
         }],
         from: {
-          email: "no-reply@vaultbankonline.com",
+          email: "info@vaulteonline.com",
           name: "VaultBank"
         },
         content: [{
