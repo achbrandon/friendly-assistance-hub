@@ -77,11 +77,13 @@ const ForgotPassword = () => {
 
     try {
       // Verify security answer
-      const { data: request, error } = await supabase
+      const result: any = await (supabase as any)
         .from("password_reset_requests")
         .select("*")
         .eq("reset_token", resetToken)
         .single();
+      
+      const { data: request, error } = result;
 
       if (error || !request) {
         toast.error("Invalid or expired reset request");
@@ -105,7 +107,7 @@ const ForgotPassword = () => {
       }
 
       // Mark as verified
-      await supabase
+      await (supabase as any)
         .from("password_reset_requests")
         .update({ verified: true })
         .eq("reset_token", resetToken);
@@ -137,12 +139,14 @@ const ForgotPassword = () => {
 
     try {
       // Verify reset request is still valid and verified
-      const { data: request, error: requestError } = await supabase
+      const result: any = await (supabase as any)
         .from("password_reset_requests")
         .select("*")
         .eq("reset_token", resetToken)
         .eq("verified", true)
         .single();
+      
+      const { data: request, error: requestError } = result;
 
       if (requestError || !request) {
         toast.error("Invalid or unverified reset request");
@@ -168,7 +172,7 @@ const ForgotPassword = () => {
       toast.success("Password reset email sent! Check your inbox to complete the process.");
       
       // Clean up used reset request
-      await supabase
+      await (supabase as any)
         .from("password_reset_requests")
         .delete()
         .eq("reset_token", resetToken);

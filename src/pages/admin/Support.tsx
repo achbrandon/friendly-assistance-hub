@@ -118,11 +118,13 @@ export default function AdminSupportPage() {
       setMessages(data || []);
 
       // Mark messages as read
-      await supabase
+      const updateQuery: any = (supabase as any)
         .from("support_messages")
         .update({ is_read: true })
         .eq("ticket_id", ticketId)
         .eq("is_staff", false);
+      
+      await updateQuery;
     } catch (error) {
       console.error("Error fetching messages:", error);
     }

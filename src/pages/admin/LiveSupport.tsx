@@ -34,12 +34,14 @@ export default function LiveSupport() {
       setMessages(data || []);
 
       // Mark as read
-      await supabase
+      const updateQuery: any = (supabase as any)
         .from("support_messages")
         .update({ is_read: true })
         .eq("ticket_id", ticketId)
         .eq("is_staff", false)
         .eq("is_read", false);
+      
+      await updateQuery;
     } catch (error) {
       console.error("Error loading messages:", error);
     }
@@ -169,11 +171,13 @@ export default function LiveSupport() {
   }, [newMessage, selectedChat]);
 
   const loadAgents = async () => {
-    const { data, error } = await supabase
+    const result: any = await (supabase as any)
       .from('support_agents')
       .select('*')
       .eq('is_available', true)
       .order('name');
+    
+    const { data, error } = result;
 
     if (error) {
       console.error('Error loading agents:', error);
