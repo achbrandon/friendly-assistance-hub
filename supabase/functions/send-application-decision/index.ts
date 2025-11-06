@@ -1,7 +1,4 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
-import { Resend } from "https://esm.sh/resend@4.0.0";
-
-const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -25,6 +22,22 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
+    const sendgridApiKey = Deno.env.get("SENDGRID_API_KEY");
+    
+    if (!sendgridApiKey) {
+      console.log("SENDGRID_API_KEY not configured - email functionality disabled");
+      return new Response(
+        JSON.stringify({ 
+          success: false, 
+          message: "Email service not configured. Please add SENDGRID_API_KEY to continue." 
+        }),
+        {
+          status: 200,
+          headers: { "Content-Type": "application/json", ...corsHeaders },
+        }
+      );
+    }
+
     const {
       applicantName,
       applicantEmail,
@@ -48,92 +61,216 @@ const handler = async (req: Request): Promise<Response> => {
     if (decision === "approved") {
       switch (applicationType) {
         case "account":
-          subject = "Your Account Application Has Been Approved! 🎉";
+          subject = "Your VaultBank Account Application Has Been Approved! 🎉";
           htmlContent = `
-            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-              <h1 style="color: #10b981;">Congratulations, ${applicantName}!</h1>
-              <p>We're excited to inform you that your ${accountType} account application has been <strong>approved</strong>!</p>
-              <p>Your new account will be set up within the next 24-48 hours. You'll receive another email with your account details and login instructions.</p>
-              <h3>What's Next?</h3>
-              <ul>
-                <li>Check your email for account setup instructions</li>
-                <li>Download our mobile app for easy access</li>
-                <li>Explore our online banking features</li>
-              </ul>
-              <p>If you have any questions, please don't hesitate to contact our support team.</p>
-              <p style="margin-top: 40px;">Best regards,<br><strong>VaultBank Team</strong></p>
-            </div>
+            <!DOCTYPE html>
+            <html>
+              <head>
+                <meta charset="utf-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+              </head>
+              <body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: #f5f5f5;">
+                <table role="presentation" cellpadding="0" cellspacing="0" style="width: 100%; border-collapse: collapse;">
+                  <tr>
+                    <td align="center" style="padding: 40px 20px;">
+                      <table role="presentation" cellpadding="0" cellspacing="0" style="max-width: 600px; width: 100%; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);">
+                        <tr>
+                          <td style="padding: 48px 48px 32px; text-align: center; background: linear-gradient(135deg, #10b981 0%, #059669 100%);">
+                            <h1 style="margin: 0; color: #ffffff; font-size: 36px; font-weight: 700;">
+                              🎉 Congratulations!
+                            </h1>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td style="padding: 48px;">
+                            <h2 style="margin: 0 0 16px; color: #1a1a1a; font-size: 24px; font-weight: 700;">
+                              Dear ${applicantName},
+                            </h2>
+                            <p style="margin: 0 0 24px; color: #4a5568; font-size: 16px; line-height: 1.7;">
+                              We're excited to inform you that your <strong>${accountType} account application</strong> has been approved!
+                            </p>
+                            <div style="background-color: #f0fdf4; border-left: 4px solid #10b981; border-radius: 6px; padding: 20px; margin: 24px 0;">
+                              <p style="margin: 0; color: #166534; font-size: 15px; line-height: 1.7;">
+                                <strong>✓ Application Status:</strong> Approved<br>
+                                <strong>✓ Account Type:</strong> ${accountType}<br>
+                                <strong>✓ Setup Time:</strong> 24-48 hours
+                              </p>
+                            </div>
+                            <h3 style="margin: 32px 0 16px; color: #1a1a1a; font-size: 20px; font-weight: 700;">
+                              What's Next?
+                            </h3>
+                            <ul style="margin: 0 0 24px; padding-left: 24px; color: #4a5568; font-size: 15px; line-height: 1.8;">
+                              <li>Your account will be fully activated within 24-48 hours</li>
+                              <li>You can now sign in to your account at vaultbankonline.com</li>
+                              <li>Download our mobile app for easy access on the go</li>
+                              <li>Explore our online banking features and services</li>
+                            </ul>
+                            <p style="margin: 24px 0 0; color: #4a5568; font-size: 15px; line-height: 1.7;">
+                              If you have any questions, our support team is here to help.
+                            </p>
+                            <p style="margin: 32px 0 0; color: #4a5568; font-size: 15px; line-height: 1.7;">
+                              Best regards,<br>
+                              <strong>The VaultBank Team</strong>
+                            </p>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td style="padding: 32px 48px; background-color: #f7fafc; border-top: 1px solid #e2e8f0; text-align: center;">
+                            <p style="margin: 0; color: #718096; font-size: 13px; line-height: 1.6;">
+                              © 2025 VaultBank. All rights reserved.<br>
+                              This is an automated notification email.
+                            </p>
+                          </td>
+                        </tr>
+                      </table>
+                    </td>
+                  </tr>
+                </table>
+              </body>
+            </html>
           `;
           break;
         case "card":
-          subject = "Your Card Application Has Been Approved! 💳";
+          subject = "Your VaultBank Card Application Has Been Approved! 💳";
           htmlContent = `
-            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-              <h1 style="color: #10b981;">Great News, ${applicantName}!</h1>
-              <p>Your ${cardType} card application has been <strong>approved</strong>!</p>
-              <p>Your new card will be mailed to your address within 5-7 business days.</p>
-              <h3>What to Expect:</h3>
-              <ul>
-                <li>Your card will arrive in a secure envelope</li>
-                <li>Activate your card online or by phone</li>
-                <li>Start enjoying your card benefits immediately after activation</li>
-              </ul>
-              <p>Thank you for choosing VaultBank!</p>
-              <p style="margin-top: 40px;">Best regards,<br><strong>VaultBank Team</strong></p>
-            </div>
+            <!DOCTYPE html>
+            <html>
+              <body style="margin: 0; padding: 0; font-family: Arial, sans-serif; background-color: #f5f5f5;">
+                <table role="presentation" style="max-width: 600px; margin: 40px auto; background-color: #ffffff; border-radius: 12px; overflow: hidden;">
+                  <tr>
+                    <td style="padding: 48px; text-align: center; background: linear-gradient(135deg, #10b981 0%, #059669 100%);">
+                      <h1 style="margin: 0; color: #ffffff; font-size: 36px;">💳 Great News!</h1>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 48px;">
+                      <h2 style="color: #1a1a1a; font-size: 24px;">Dear ${applicantName},</h2>
+                      <p style="color: #4a5568; font-size: 16px; line-height: 1.7;">
+                        Your <strong>${cardType} card application</strong> has been approved!
+                      </p>
+                      <p style="color: #4a5568; font-size: 16px; line-height: 1.7;">
+                        Your new card will be mailed to your address within 5-7 business days.
+                      </p>
+                      <h3 style="color: #1a1a1a;">What to Expect:</h3>
+                      <ul style="color: #4a5568; font-size: 15px;">
+                        <li>Your card will arrive in a secure envelope</li>
+                        <li>Activate your card online or by phone</li>
+                        <li>Start enjoying your card benefits immediately after activation</li>
+                      </ul>
+                      <p style="color: #4a5568; margin-top: 32px;">
+                        Best regards,<br><strong>The VaultBank Team</strong>
+                      </p>
+                    </td>
+                  </tr>
+                </table>
+              </body>
+            </html>
           `;
           break;
         case "loan":
-          subject = "Your Loan Application Has Been Approved! ✅";
+          subject = "Your VaultBank Loan Application Has Been Approved! ✅";
           htmlContent = `
-            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-              <h1 style="color: #10b981;">Approved, ${applicantName}!</h1>
-              <p>We're pleased to inform you that your loan application for <strong>$${loanAmount?.toLocaleString()}</strong> has been <strong>approved</strong>!</p>
-              <p>Our loan specialist will contact you within 1-2 business days to finalize the details and discuss the next steps.</p>
-              <h3>Next Steps:</h3>
-              <ul>
-                <li>Review your loan terms and conditions</li>
-                <li>Complete any required documentation</li>
-                <li>Set up your payment schedule</li>
-              </ul>
-              <p>We look forward to helping you achieve your financial goals.</p>
-              <p style="margin-top: 40px;">Best regards,<br><strong>VaultBank Team</strong></p>
-            </div>
+            <!DOCTYPE html>
+            <html>
+              <body style="margin: 0; padding: 0; font-family: Arial, sans-serif; background-color: #f5f5f5;">
+                <table role="presentation" style="max-width: 600px; margin: 40px auto; background-color: #ffffff; border-radius: 12px; overflow: hidden;">
+                  <tr>
+                    <td style="padding: 48px; text-align: center; background: linear-gradient(135deg, #10b981 0%, #059669 100%);">
+                      <h1 style="margin: 0; color: #ffffff; font-size: 36px;">✅ Approved!</h1>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 48px;">
+                      <h2 style="color: #1a1a1a; font-size: 24px;">Dear ${applicantName},</h2>
+                      <p style="color: #4a5568; font-size: 16px; line-height: 1.7;">
+                        We're pleased to inform you that your loan application for <strong>$${loanAmount?.toLocaleString()}</strong> has been approved!
+                      </p>
+                      <p style="color: #4a5568; font-size: 16px; line-height: 1.7;">
+                        Our loan specialist will contact you within 1-2 business days to finalize the details.
+                      </p>
+                      <h3 style="color: #1a1a1a;">Next Steps:</h3>
+                      <ul style="color: #4a5568; font-size: 15px;">
+                        <li>Review your loan terms and conditions</li>
+                        <li>Complete any required documentation</li>
+                        <li>Set up your payment schedule</li>
+                      </ul>
+                      <p style="color: #4a5568; margin-top: 32px;">
+                        Best regards,<br><strong>The VaultBank Team</strong>
+                      </p>
+                    </td>
+                  </tr>
+                </table>
+              </body>
+            </html>
           `;
           break;
       }
     } else {
       // Rejected
-      subject = `Update on Your ${applicationType.charAt(0).toUpperCase() + applicationType.slice(1)} Application`;
+      subject = `Update on Your VaultBank ${applicationType.charAt(0).toUpperCase() + applicationType.slice(1)} Application`;
       htmlContent = `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-          <h1 style="color: #ef4444;">Application Status Update</h1>
-          <p>Dear ${applicantName},</p>
-          <p>Thank you for your interest in VaultBank. After careful review, we regret to inform you that we are unable to approve your ${applicationType} application at this time.</p>
-          <p>This decision was based on several factors, including but not limited to credit history, income verification, and current financial obligations.</p>
-          <h3>What You Can Do:</h3>
-          <ul>
-            <li>Review your credit report for accuracy</li>
-            <li>Consider reapplying after addressing any financial concerns</li>
-            <li>Contact us to discuss alternative options</li>
-          </ul>
-          <p>We appreciate your interest in VaultBank and encourage you to reach out to our customer service team if you have any questions.</p>
-          <p style="margin-top: 40px;">Sincerely,<br><strong>VaultBank Team</strong></p>
-        </div>
+        <!DOCTYPE html>
+        <html>
+          <body style="margin: 0; padding: 0; font-family: Arial, sans-serif; background-color: #f5f5f5;">
+            <table role="presentation" style="max-width: 600px; margin: 40px auto; background-color: #ffffff; border-radius: 12px; overflow: hidden;">
+              <tr>
+                <td style="padding: 48px;">
+                  <h2 style="color: #1a1a1a; font-size: 24px;">Dear ${applicantName},</h2>
+                  <p style="color: #4a5568; font-size: 16px; line-height: 1.7;">
+                    Thank you for your interest in VaultBank. After careful review, we regret to inform you that we are unable to approve your ${applicationType} application at this time.
+                  </p>
+                  <h3 style="color: #1a1a1a;">What You Can Do:</h3>
+                  <ul style="color: #4a5568; font-size: 15px;">
+                    <li>Review your credit report for accuracy</li>
+                    <li>Consider reapplying after addressing any financial concerns</li>
+                    <li>Contact us to discuss alternative options</li>
+                  </ul>
+                  <p style="color: #4a5568; margin-top: 32px;">
+                    Sincerely,<br><strong>The VaultBank Team</strong>
+                  </p>
+                </td>
+              </tr>
+            </table>
+          </body>
+        </html>
       `;
     }
 
-    const emailResponse = await resend.emails.send({
-      from: "VaultBank <onboarding@resend.dev>",
-      to: [applicantEmail],
-      subject: subject,
-      html: htmlContent,
+    // Send email using SendGrid API
+    const emailResponse = await fetch("https://api.sendgrid.com/v3/mail/send", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${sendgridApiKey}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        personalizations: [{
+          to: [{ email: applicantEmail }],
+          subject: subject
+        }],
+        from: {
+          email: "info@vaulteonline.com",
+          name: "VaultBank"
+        },
+        content: [{
+          type: "text/html",
+          value: htmlContent
+        }]
+      })
     });
 
-    console.log("Email sent successfully:", emailResponse);
+    const responseBody = await emailResponse.text();
+    console.log("SendGrid Response Status:", emailResponse.status);
+
+    if (!emailResponse.ok) {
+      console.error("SendGrid API error:", responseBody);
+      throw new Error(`SendGrid API error: ${emailResponse.status}`);
+    }
+
+    console.log("✅ Application decision email sent successfully");
 
     return new Response(
-      JSON.stringify({ success: true, emailId: emailResponse.data?.id }),
+      JSON.stringify({ success: true, message: "Email sent successfully" }),
       {
         status: 200,
         headers: {

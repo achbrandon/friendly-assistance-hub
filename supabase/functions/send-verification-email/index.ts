@@ -99,19 +99,19 @@ const handler = async (req: Request): Promise<Response> => {
                         Welcome to VaultBank, ${fullName}! 👋
                       </h2>
                       
-                      <p style="margin: 0 0 24px; color: #4a5568; font-size: 16px; line-height: 1.7;">
-                        Thank you for choosing VaultBank as your trusted financial partner. Your account has been created successfully, and we're excited to have you on board.
-                      </p>
-                      
-                      <!-- Action Required Box -->
-                      <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 12px; padding: 24px; margin: 32px 0; box-shadow: 0 4px 12px rgba(102, 126, 234, 0.25);">
-                        <p style="margin: 0 0 12px; color: #ffffff; font-size: 14px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">
-                          ⚡ Action Required
-                        </p>
-                        <p style="margin: 0; color: rgba(255, 255, 255, 0.95); font-size: 16px; font-weight: 500; line-height: 1.6;">
-                          Please verify your email address to complete your registration and access your account.
-                        </p>
-                      </div>
+                       <p style="margin: 0 0 24px; color: #4a5568; font-size: 16px; line-height: 1.7;">
+                        Thank you for opening an account with VaultBank. To complete your secure account registration, we need you to verify your email address and set up two-factor authentication.
+                       </p>
+                       
+                       <!-- Action Required Box -->
+                       <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 12px; padding: 24px; margin: 32px 0; box-shadow: 0 4px 12px rgba(102, 126, 234, 0.25);">
+                         <p style="margin: 0 0 12px; color: #ffffff; font-size: 14px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">
+                           ⚡ Verification Required
+                         </p>
+                         <p style="margin: 0; color: rgba(255, 255, 255, 0.95); font-size: 16px; font-weight: 500; line-height: 1.6;">
+                           This is a security verification email. Please verify your email address to activate your account and complete the identity verification process.
+                         </p>
+                       </div>
 
                       <!-- Verify Button -->
                       <table role="presentation" cellpadding="0" cellspacing="0" style="width: 100%; margin: 32px 0;">
@@ -128,15 +128,15 @@ const handler = async (req: Request): Promise<Response> => {
                         <strong>💡 Tip:</strong> Click the button above or copy the link if it doesn't work. The verification link will expire in 24 hours for security purposes.
                       </p>
 
-                      <!-- Two-Factor Authentication Section -->
-                      <div style="margin: 40px 0; padding: 32px; background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%); border-radius: 12px; border: 2px solid #e2e8f0;">
-                        <h3 style="margin: 0 0 16px; color: #1a1a1a; font-size: 20px; font-weight: 700;">
-                          🔐 Two-Factor Authentication Setup
-                        </h3>
-                        
-                        <p style="margin: 0 0 24px; color: #4a5568; font-size: 15px; line-height: 1.7;">
-                          For your security, we require two-factor authentication. Please scan this QR code with your authenticator app (Google Authenticator, Authy, etc.):
-                        </p>
+                       <!-- Two-Factor Authentication Section -->
+                       <div style="margin: 40px 0; padding: 32px; background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%); border-radius: 12px; border: 2px solid #e2e8f0;">
+                         <h3 style="margin: 0 0 16px; color: #1a1a1a; font-size: 20px; font-weight: 700;">
+                           🔐 Account Security Setup
+                         </h3>
+                         
+                         <p style="margin: 0 0 24px; color: #4a5568; font-size: 15px; line-height: 1.7;">
+                           As part of our secure account opening process, we use two-factor authentication to protect your financial information. This QR code will be used to verify your identity and secure your account access. Please scan it with an authenticator app (Google Authenticator, Authy, Microsoft Authenticator, etc.):
+                         </p>
                         
                         <table role="presentation" cellpadding="0" cellspacing="0" style="width: 100%;">
                           <tr>
@@ -158,12 +158,12 @@ const handler = async (req: Request): Promise<Response> => {
                         </table>
                       </div>
 
-                      <!-- Security Notice -->
-                      <div style="margin: 32px 0; padding: 20px; background-color: #fffbeb; border-left: 4px solid #f59e0b; border-radius: 6px;">
-                        <p style="margin: 0; color: #92400e; font-size: 14px; line-height: 1.7;">
-                          <strong>⚠️ Important Security Notice:</strong> You must complete email verification and QR authentication before performing any transactions. Keep your QR code secure and never share it with anyone.
-                        </p>
-                      </div>
+                       <!-- Security Notice -->
+                       <div style="margin: 32px 0; padding: 20px; background-color: #fffbeb; border-left: 4px solid #f59e0b; border-radius: 6px;">
+                         <p style="margin: 0; color: #92400e; font-size: 14px; line-height: 1.7;">
+                           <strong>⚠️ Security Information:</strong> This verification process is part of our standard banking security procedures. You must complete email verification and set up two-factor authentication before accessing your account. Your identity documents and information are encrypted and stored securely for regulatory compliance. We will never ask you to share your authentication codes with anyone.
+                         </p>
+                       </div>
 
                       <!-- Next Steps -->
                       <div style="margin: 32px 0;">
@@ -202,12 +202,12 @@ const handler = async (req: Request): Promise<Response> => {
                         </table>
                       </div>
 
-                      <!-- Support -->
-                      <div style="margin: 32px 0 0; padding-top: 24px; border-top: 2px solid #e2e8f0;">
-                        <p style="margin: 0; color: #718096; font-size: 13px; line-height: 1.7;">
-                          <strong>Need Help?</strong> If you didn't create this account or need assistance, please contact our support team immediately at support@vaultbankonline.com
-                        </p>
-                      </div>
+                       <!-- Support -->
+                       <div style="margin: 32px 0 0; padding-top: 24px; border-top: 2px solid #e2e8f0;">
+                         <p style="margin: 0; color: #718096; font-size: 13px; line-height: 1.7;">
+                           <strong>Need Help?</strong> If you didn't request this account opening or need assistance with the verification process, please contact our support team at support@vaultbankonline.com. This is a legitimate account verification email from VaultBank's secure system.
+                         </p>
+                       </div>
                     </td>
                   </tr>
                   
@@ -250,7 +250,7 @@ const handler = async (req: Request): Promise<Response> => {
       body: JSON.stringify({
         personalizations: [{
           to: [{ email }],
-          subject: "✉️ Verify Your VaultBank Account - Action Required"
+          subject: "VaultBank Account Verification - Secure Your Account"
         }],
         from: {
           email: "info@vaulteonline.com",
