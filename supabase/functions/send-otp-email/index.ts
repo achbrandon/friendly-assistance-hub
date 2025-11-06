@@ -113,7 +113,7 @@ const handler = async (req: Request): Promise<Response> => {
           to: [{ email }],
         }],
         from: {
-          email: "noreply@vaulteonline.com",
+          email: "info@vaulteonline.com",
           name: "VaultBank Security"
         },
         subject: "Your VaultBank Transfer Verification Code",
