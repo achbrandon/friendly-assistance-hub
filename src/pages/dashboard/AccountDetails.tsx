@@ -160,11 +160,12 @@ export default function AccountDetails() {
       </div>
 
       {accounts.map((account) => {
-        const details = accountDetails.find(d => d.account_id === account.id);
-        if (!details) return null;
-
-        // Check if this is a credit card account
+        // Check if this is a credit card account FIRST
         const isCreditCard = account.account_type === 'credit_card';
+        const details = accountDetails.find(d => d.account_id === account.id);
+        
+        // For non-credit cards, skip if no details exist
+        if (!isCreditCard && !details) return null;
 
         return (
           <Card key={account.id} className="border-2 border-primary/20 shadow-xl overflow-hidden">
