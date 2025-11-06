@@ -17,6 +17,7 @@ import {
   Bitcoin,
   Link,
   Download,
+  BarChart3,
 } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import {
@@ -35,6 +36,7 @@ const menuItems = [
   { title: "Overview", url: "/dashboard", icon: Home },
   { title: "Accounts", url: "/dashboard/accounts", icon: Wallet },
   { title: "Account Details", url: "/dashboard/account-details", icon: FileText },
+  { title: "Analytics", url: "/dashboard/analytics", icon: BarChart3 },
   { title: "Transfers", url: "/dashboard/transfers", icon: ArrowLeftRight },
   { title: "Bill Pay", url: "/dashboard/bill-pay", icon: FileText },
   { title: "Mobile Deposit", url: "/dashboard/mobile-deposit", icon: Smartphone },
