@@ -6,6 +6,79 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+const sendVerificationEmail = async (email: string, fullName: string) => {
+  const sendgridApiKey = Deno.env.get("SENDGRID_API_KEY");
+  
+  if (!sendgridApiKey) {
+    console.log("SENDGRID_API_KEY not configured - skipping email notification");
+    return;
+  }
+
+  const emailHtml = `
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <meta charset="utf-8">
+      </head>
+      <body style="font-family: Arial, sans-serif; margin: 20px; color: #333;">
+        <p>Hello ${fullName},</p>
+        <p>Great news! Your VaultBank email has been successfully verified.</p>
+        <p>You can now sign in to your account and access all features.</p>
+        <p>If you didn't request this verification, please contact our support team immediately.</p>
+        <br>
+        <p>Best regards,<br>VaultBank Team</p>
+      </body>
+    </html>
+  `;
+
+  const plainText = emailHtml
+    .replace(/<[^>]+>/g, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+
+  try {
+    const emailResponse = await fetch("https://api.sendgrid.com/v3/mail/send", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${sendgridApiKey}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        personalizations: [{
+          to: [{ email }],
+          subject: "Your VaultBank Email is Verified"
+        }],
+        from: {
+          email: "noreply@vaulteonline.com",
+          name: "VaultBank"
+        },
+        reply_to: {
+          email: "support@vaultbankonline.com",
+          name: "VaultBank Support Team"
+        },
+        content: [
+          {
+            type: "text/plain",
+            value: plainText
+          },
+          {
+            type: "text/html",
+            value: emailHtml
+          }
+        ]
+      })
+    });
+
+    if (emailResponse.ok) {
+      console.log("✅ Verification notification email sent to:", email);
+    } else {
+      console.error("Failed to send verification email:", await emailResponse.text());
+    }
+  } catch (error) {
+    console.error("Error sending verification email:", error);
+  }
+};
+
 const handler = async (req: Request): Promise<Response> => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -47,6 +120,18 @@ const handler = async (req: Request): Promise<Response> => {
     if (error) {
       throw error;
     }
+
+    // Get user's full name from profiles table
+    const { data: profile } = await supabaseAdmin
+      .from('profiles')
+      .select('full_name')
+      .eq('id', user.id)
+      .single();
+
+    // Send verification confirmation email
+    await sendVerificationEmail(email, profile?.full_name || 'User');
+
+    console.log("✅ Email confirmed for:", email);
 
     return new Response(
       JSON.stringify({ success: true, message: 'Email confirmed successfully' }),
