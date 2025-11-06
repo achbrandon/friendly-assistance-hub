@@ -416,16 +416,6 @@ const Auth = () => {
                 />
               </div>
 
-              <div className="bg-amber-50 border border-amber-200 p-3 sm:p-4 rounded-lg space-y-2">
-                <p className="text-xs sm:text-sm font-semibold text-amber-900">⚠️ Important: Email Verification Required</p>
-                <ul className="text-xs text-amber-800 space-y-1 list-disc list-inside">
-                  <li className="font-medium">You MUST verify your email before you can sign in</li>
-                  <li>Check your inbox (and spam folder) for verification link</li>
-                  <li>QR code authentication required after email verification</li>
-                  <li>Account review: 2-3 business days</li>
-                </ul>
-              </div>
-
               <Button type="submit" className="w-full h-11 sm:h-12 text-base touch-manipulation" disabled={loading}>
                 {loading ? "Creating account..." : "Create Account"}
               </Button>
