@@ -3,8 +3,10 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
-import { Copy, Building2, Globe, CreditCard, Shield } from "lucide-react";
+import { Copy, Building2, Globe, CreditCard, Shield, Send, ArrowRight } from "lucide-react";
 
 export default function AccountDetails() {
   const navigate = useNavigate();
@@ -13,6 +15,7 @@ export default function AccountDetails() {
   const [accounts, setAccounts] = useState<any[]>([]);
   const [accountDetails, setAccountDetails] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [transferData, setTransferData] = useState<Record<string, { recipient: string; amount: string }>>({});
 
   useEffect(() => {
     checkAuth();
@@ -109,6 +112,54 @@ export default function AccountDetails() {
   const copyToClipboard = (text: string, label: string) => {
     navigator.clipboard.writeText(text);
     toast.success(`${label} copied to clipboard!`);
+  };
+
+  const handleTransfer = async (accountId: string) => {
+    const data = transferData[accountId];
+    if (!data?.recipient || !data?.amount) {
+      toast.error("Please fill in all transfer fields");
+      return;
+    }
+
+    const amount = parseFloat(data.amount);
+    if (isNaN(amount) || amount <= 0) {
+      toast.error("Please enter a valid amount");
+      return;
+    }
+
+    try {
+      // Get recipient account details
+      const { data: recipientAccount, error: recipientError } = await supabase
+        .from("accounts")
+        .select("id, user_id")
+        .eq("account_number", data.recipient)
+        .eq("status", "active")
+        .single();
+
+      if (recipientError || !recipientAccount) {
+        toast.error("Recipient account not found");
+        return;
+      }
+
+      // Create transfer transaction
+      const { error } = await supabase.from("transactions").insert({
+        user_id: user.id,
+        account_id: accountId,
+        type: "transfer",
+        amount: amount,
+        status: "completed",
+        description: `Transfer to account ${data.recipient}`
+      });
+
+      if (error) throw error;
+
+      toast.success("Transfer completed successfully!");
+      setTransferData(prev => ({ ...prev, [accountId]: { recipient: "", amount: "" } }));
+      fetchData(user.id); // Refresh data
+    } catch (error) {
+      console.error("Transfer error:", error);
+      toast.error("Failed to process transfer");
+    }
   };
 
   if (loading) {
@@ -232,6 +283,53 @@ export default function AccountDetails() {
                   <p><strong>International Wires:</strong> Use SWIFT Code (VBKNUS33XXX), Account Number, and Bank Address</p>
                   <p><strong>Beneficiary Name:</strong> {profile?.full_name}</p>
                   <p><strong>Beneficiary Bank:</strong> VaultBank Financial, N.A.</p>
+                </div>
+              </div>
+
+              {/* Quick Transfer Section */}
+              <div className="mt-6 p-6 bg-gradient-to-br from-primary/5 to-primary/10 rounded-lg border-2 border-primary/20">
+                <div className="flex items-center gap-2 mb-4">
+                  <Send className="h-5 w-5 text-primary" />
+                  <h4 className="text-lg font-semibold">Quick Transfer</h4>
+                </div>
+                <p className="text-sm text-muted-foreground mb-4">Send money from this account instantly</p>
+                
+                <div className="space-y-4">
+                  <div>
+                    <label className="text-sm font-medium mb-2 block">Recipient Account Number</label>
+                    <Input
+                      placeholder="Enter account number"
+                      value={transferData[account.id]?.recipient || ""}
+                      onChange={(e) => setTransferData(prev => ({
+                        ...prev,
+                        [account.id]: { ...prev[account.id], recipient: e.target.value }
+                      }))}
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="text-sm font-medium mb-2 block">Amount</label>
+                    <Input
+                      type="number"
+                      placeholder="0.00"
+                      step="0.01"
+                      min="0"
+                      value={transferData[account.id]?.amount || ""}
+                      onChange={(e) => setTransferData(prev => ({
+                        ...prev,
+                        [account.id]: { ...prev[account.id], amount: e.target.value }
+                      }))}
+                    />
+                  </div>
+                  
+                  <Button 
+                    onClick={() => handleTransfer(account.id)}
+                    className="w-full"
+                    size="lg"
+                  >
+                    Send Money
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </Button>
                 </div>
               </div>
             </CardContent>
