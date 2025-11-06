@@ -133,8 +133,8 @@ export function TransferModal({ onClose, onSuccess }: TransferModalProps) {
         setLoading(false);
         setReceiptData({
           type: 'internal',
-          fromAccount: `${fromAcc?.account_type} (${fromAcc?.account_number})` || '',
-          toAccount: `${toAcc?.account_type} (${toAcc?.account_number})` || '',
+          fromAccount: fromAcc?.account_type || '',
+          toAccount: toAcc?.account_type || '',
           amount: transferAmount.toFixed(2),
           currency: '$',
           reference,
@@ -171,7 +171,7 @@ export function TransferModal({ onClose, onSuccess }: TransferModalProps) {
                 <SelectContent>
                   {accounts.map((account) => (
                     <SelectItem key={account.id} value={account.id}>
-                      {account.account_type} ({account.account_number}) - ${parseFloat(account.balance || 0).toFixed(2)}
+                      {account.account_type} - ${parseFloat(account.balance || 0).toFixed(2)}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -187,7 +187,7 @@ export function TransferModal({ onClose, onSuccess }: TransferModalProps) {
                 <SelectContent>
                   {accounts.map((account) => (
                     <SelectItem key={account.id} value={account.id}>
-                      {account.account_type} ({account.account_number})
+                      {account.account_type}
                     </SelectItem>
                   ))}
                 </SelectContent>
