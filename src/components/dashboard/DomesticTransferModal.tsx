@@ -8,6 +8,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { TransferReceipt } from "./TransferReceipt";
+import { OTPVerificationModal } from "./OTPVerificationModal";
 import bankLogo from "@/assets/vaultbank-logo.png";
 
 interface DomesticTransferModalProps {
@@ -17,6 +18,7 @@ interface DomesticTransferModalProps {
 
 export function DomesticTransferModal({ onClose, onSuccess }: DomesticTransferModalProps) {
   const [accounts, setAccounts] = useState<any[]>([]);
+  const [profile, setProfile] = useState<any>(null);
   const [fromAccount, setFromAccount] = useState("");
   const [recipientName, setRecipientName] = useState("");
   const [recipientBank, setRecipientBank] = useState("");
@@ -29,10 +31,26 @@ export function DomesticTransferModal({ onClose, onSuccess }: DomesticTransferMo
   const [showReceipt, setShowReceipt] = useState(false);
   const [receiptData, setReceiptData] = useState<any>(null);
   const [showLoadingSpinner, setShowLoadingSpinner] = useState(false);
+  const [showOTP, setShowOTP] = useState(false);
+  const [pendingTransfer, setPendingTransfer] = useState<any>(null);
 
   useEffect(() => {
     fetchAccounts();
+    fetchProfile();
   }, []);
+
+  const fetchProfile = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+
+    const { data } = await supabase
+      .from("profiles")
+      .select("*")
+      .eq("id", user.id)
+      .single();
+
+    setProfile(data);
+  };
 
   const fetchAccounts = async () => {
     const { data: { user } } = await supabase.auth.getUser();
@@ -64,51 +82,66 @@ export function DomesticTransferModal({ onClose, onSuccess }: DomesticTransferMo
       return;
     }
 
+    // Store transfer data and show OTP modal
+    const selectedAccount = accounts.find(a => a.id === fromAccount);
+    const fee = transferMethod === "Wire" ? "25.00" : "0.00";
+    const reference = `DOM${Date.now()}${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
+    
+    setPendingTransfer({
+      fromAccount,
+      selectedAccount,
+      transferAmount,
+      fee,
+      reference
+    });
+    setShowOTP(true);
+  };
+
+  const handleOTPVerified = async () => {
+    setShowOTP(false);
     setLoading(true);
     setShowLoadingSpinner(true);
+    
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("Not authenticated");
-
-      const transferAmount = parseFloat(amount);
-      const fee = transferMethod === "Wire" ? "25.00" : "0.00";
-      const reference = `DOM${Date.now()}${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
 
       const { error } = await supabase
         .from("transfers")
         .insert({
           user_id: user.id,
-          from_account: fromAccount,
+          from_account: pendingTransfer.fromAccount,
           to_account: accountNumber,
-          amount: transferAmount,
-          status: "completed"
+          amount: pendingTransfer.transferAmount,
+          status: "pending"
         });
 
       if (error) throw error;
-
-      const selectedAccount = accounts.find(a => a.id === fromAccount);
       
       setTimeout(() => {
         setShowLoadingSpinner(false);
         setReceiptData({
           type: 'domestic',
-          fromAccount: selectedAccount?.account_type || '',
+          fromAccount: pendingTransfer.selectedAccount?.account_type || '',
           toAccount: accountNumber,
           recipientName,
           recipientBank,
-          amount: transferAmount.toFixed(2),
+          amount: pendingTransfer.transferAmount.toFixed(2),
           currency: '$',
-          reference,
+          reference: pendingTransfer.reference,
           date: new Date(),
-          fee,
+          fee: pendingTransfer.fee,
           routingNumber,
-          accountNumber
+          accountNumber,
+          status: 'pending'
         });
         setShowReceipt(true);
         onSuccess();
+        toast.success("Transfer initiated and pending approval");
       }, 2000);
     } catch (error: any) {
       toast.error(error.message || "Transfer failed");
+      setShowLoadingSpinner(false);
     } finally {
       setLoading(false);
     }
@@ -229,6 +262,15 @@ export function DomesticTransferModal({ onClose, onSuccess }: DomesticTransferMo
           </div>
         </DialogContent>
       </Dialog>
+
+      {showOTP && (
+        <OTPVerificationModal
+          open={showOTP}
+          onClose={() => setShowOTP(false)}
+          onVerify={handleOTPVerified}
+          email={profile?.email || "your email"}
+        />
+      )}
 
       {showReceipt && receiptData && (
         <TransferReceipt

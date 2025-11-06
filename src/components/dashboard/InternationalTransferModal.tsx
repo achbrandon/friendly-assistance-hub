@@ -8,6 +8,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { TransferReceipt } from "./TransferReceipt";
+import { OTPVerificationModal } from "./OTPVerificationModal";
 import { Globe } from "lucide-react";
 import bankLogo from "@/assets/vaultbank-logo.png";
 
@@ -18,6 +19,7 @@ interface InternationalTransferModalProps {
 
 export function InternationalTransferModal({ onClose, onSuccess }: InternationalTransferModalProps) {
   const [accounts, setAccounts] = useState<any[]>([]);
+  const [profile, setProfile] = useState<any>(null);
   const [fromAccount, setFromAccount] = useState("");
   const [recipientName, setRecipientName] = useState("");
   const [recipientAddress, setRecipientAddress] = useState("");
@@ -34,10 +36,26 @@ export function InternationalTransferModal({ onClose, onSuccess }: International
   const [showReceipt, setShowReceipt] = useState(false);
   const [receiptData, setReceiptData] = useState<any>(null);
   const [showLoadingSpinner, setShowLoadingSpinner] = useState(false);
+  const [showOTP, setShowOTP] = useState(false);
+  const [pendingTransfer, setPendingTransfer] = useState<any>(null);
 
   useEffect(() => {
     fetchAccounts();
+    fetchProfile();
   }, []);
+
+  const fetchProfile = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+
+    const { data } = await supabase
+      .from("profiles")
+      .select("*")
+      .eq("id", user.id)
+      .single();
+
+    setProfile(data);
+  };
 
   const fetchAccounts = async () => {
     const { data: { user } } = await supabase.auth.getUser();
@@ -69,53 +87,66 @@ export function InternationalTransferModal({ onClose, onSuccess }: International
       return;
     }
 
+    // Store transfer data and show OTP modal
+    const selectedAccount = accounts.find(a => a.id === fromAccount);
+    const fee = "45.00";
+    const reference = `SWIFT${Date.now()}${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
+    
+    setPendingTransfer({
+      fromAccount,
+      selectedAccount,
+      transferAmount,
+      fee,
+      reference
+    });
+    setShowOTP(true);
+  };
+
+  const handleOTPVerified = async () => {
+    setShowOTP(false);
     setLoading(true);
     setShowLoadingSpinner(true);
+    
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("Not authenticated");
-
-      const transferAmount = parseFloat(amount);
-      const fee = "45.00";
-      const reference = `SWIFT${Date.now()}${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
 
       const { error } = await supabase
         .from("transfers")
         .insert({
           user_id: user.id,
-          from_account_id: fromAccount,
-          amount: transferAmount,
-          transfer_type: "wire",
-          status: "pending",
-          notes: `International: ${purpose}`,
-          currency: currency
+          from_account: pendingTransfer.fromAccount,
+          to_account: iban,
+          amount: pendingTransfer.transferAmount,
+          status: "pending"
         });
 
       if (error) throw error;
-
-      const selectedAccount = accounts.find(a => a.id === fromAccount);
       
       setTimeout(() => {
         setShowLoadingSpinner(false);
         setReceiptData({
           type: 'international',
-          fromAccount: selectedAccount?.account_name || '',
+          fromAccount: pendingTransfer.selectedAccount?.account_type || '',
           toAccount: iban,
           recipientName,
           recipientBank,
-          amount: transferAmount.toFixed(2),
+          amount: pendingTransfer.transferAmount.toFixed(2),
           currency: getCurrencySymbol(currency),
-          reference,
+          reference: pendingTransfer.reference,
           date: new Date(),
-          fee,
+          fee: pendingTransfer.fee,
           swiftCode,
-          accountNumber: iban
+          accountNumber: iban,
+          status: 'pending'
         });
         setShowReceipt(true);
         onSuccess();
+        toast.success("Transfer initiated and pending approval");
       }, 2000);
     } catch (error: any) {
       toast.error(error.message || "Transfer failed");
+      setShowLoadingSpinner(false);
     } finally {
       setLoading(false);
     }
@@ -155,7 +186,7 @@ export function InternationalTransferModal({ onClose, onSuccess }: International
                 <SelectContent>
                   {accounts.map((account) => (
                     <SelectItem key={account.id} value={account.id}>
-                      {account.account_name} - ${parseFloat(account.available_balance).toFixed(2)}
+                      {account.account_type} - ${parseFloat(account.balance || 0).toFixed(2)}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -316,6 +347,15 @@ export function InternationalTransferModal({ onClose, onSuccess }: International
           </div>
         </DialogContent>
       </Dialog>
+
+      {showOTP && (
+        <OTPVerificationModal
+          open={showOTP}
+          onClose={() => setShowOTP(false)}
+          onVerify={handleOTPVerified}
+          email={profile?.email || "your email"}
+        />
+      )}
 
       {showReceipt && receiptData && (
         <TransferReceipt
