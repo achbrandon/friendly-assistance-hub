@@ -636,7 +636,129 @@ export default function AdminApplications() {
                         setAppDialogOpen(open);
                         if (!open) setSelectedApp(null);
                       }}>
-...
+                        <DialogTrigger asChild>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="bg-blue-500/10 hover:bg-blue-500/20 text-blue-500 border-blue-500/50"
+                            onClick={() => {
+                              setSelectedApp(app);
+                              setAppDialogOpen(true);
+                            }}
+                          >
+                            <Eye className="h-4 w-4 mr-1" />
+                            View Details
+                          </Button>
+                        </DialogTrigger>
+                        <DialogContent className="bg-slate-900 border-slate-700 max-w-2xl max-h-[80vh] overflow-y-auto">
+                          <DialogHeader>
+                            <DialogTitle className="text-white">Application Details</DialogTitle>
+                          </DialogHeader>
+                          <div className="space-y-4">
+                            <div className="grid grid-cols-2 gap-4">
+                              <div>
+                                <Label className="text-slate-400">Full Name</Label>
+                                <p className="text-white font-medium">{app.full_name}</p>
+                              </div>
+                              <div>
+                                <Label className="text-slate-400">Email</Label>
+                                <p className="text-white font-medium">{app.email}</p>
+                              </div>
+                              <div>
+                                <Label className="text-slate-400">Phone</Label>
+                                <p className="text-white font-medium">{app.phone || "N/A"}</p>
+                              </div>
+                              <div>
+                                <Label className="text-slate-400">Date of Birth</Label>
+                                <p className="text-white font-medium">{app.date_of_birth ? new Date(app.date_of_birth).toLocaleDateString() : "N/A"}</p>
+                              </div>
+                              <div>
+                                <Label className="text-slate-400">SSN</Label>
+                                <p className="text-white font-medium">{app.ssn ? `***-**-${app.ssn.slice(-4)}` : "N/A"}</p>
+                              </div>
+                              <div>
+                                <Label className="text-slate-400">Account Type</Label>
+                                <p className="text-white font-medium">{app.account_type}</p>
+                              </div>
+                              <div className="col-span-2">
+                                <Label className="text-slate-400">Address</Label>
+                                <p className="text-white font-medium">{app.address || "N/A"}</p>
+                              </div>
+                              <div>
+                                <Label className="text-slate-400">Status</Label>
+                                <div className="mt-1">{getStatusBadge(app.status)}</div>
+                              </div>
+                              <div>
+                                <Label className="text-slate-400">Application Date</Label>
+                                <p className="text-white font-medium">{new Date(app.created_at).toLocaleString()}</p>
+                              </div>
+                              {/* ID Verification Documents */}
+                              {(app.id_front_url || app.id_back_url || app.selfie_url || app.address_proof_url) && (
+                                <div className="col-span-2 pt-4 border-t border-slate-700">
+                                  <Label className="text-slate-400 text-lg mb-3 block">ID Verification Documents</Label>
+                                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                    {app.id_front_url && (
+                                      <div>
+                                        <Label className="text-slate-400 text-xs">ID Front</Label>
+                                        <a href={app.id_front_url} target="_blank" rel="noopener noreferrer" className="block mt-1">
+                                          <img src={app.id_front_url} alt="ID Front" className="w-full h-32 object-cover rounded border border-slate-600 hover:opacity-80 transition" />
+                                        </a>
+                                      </div>
+                                    )}
+                                    {app.id_back_url && (
+                                      <div>
+                                        <Label className="text-slate-400 text-xs">ID Back</Label>
+                                        <a href={app.id_back_url} target="_blank" rel="noopener noreferrer" className="block mt-1">
+                                          <img src={app.id_back_url} alt="ID Back" className="w-full h-32 object-cover rounded border border-slate-600 hover:opacity-80 transition" />
+                                        </a>
+                                      </div>
+                                    )}
+                                    {app.selfie_url && (
+                                      <div>
+                                        <Label className="text-slate-400 text-xs">Selfie</Label>
+                                        <a href={app.selfie_url} target="_blank" rel="noopener noreferrer" className="block mt-1">
+                                          <img src={app.selfie_url} alt="Selfie" className="w-full h-32 object-cover rounded border border-slate-600 hover:opacity-80 transition" />
+                                        </a>
+                                      </div>
+                                    )}
+                                    {app.address_proof_url && (
+                                      <div>
+                                        <Label className="text-slate-400 text-xs">Address Proof</Label>
+                                        <a href={app.address_proof_url} target="_blank" rel="noopener noreferrer" className="block mt-1">
+                                          <img src={app.address_proof_url} alt="Address Proof" className="w-full h-32 object-cover rounded border border-slate-600 hover:opacity-80 transition" />
+                                        </a>
+                                      </div>
+                                    )}
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+                            {app.status === "pending" && (
+                              <div className="flex gap-2 pt-4">
+                                <Button
+                                  className="flex-1 bg-green-500 hover:bg-green-600"
+                                  onClick={() => {
+                                    handleApproveAccount(app.id);
+                                    setAppDialogOpen(false);
+                                  }}
+                                >
+                                  Approve Application
+                                </Button>
+                                <Button
+                                  variant="outline"
+                                  className="flex-1 bg-red-500/10 hover:bg-red-500/20 text-red-500 border-red-500/50"
+                                  onClick={() => {
+                                    handleRejectAccount(app.id);
+                                    setAppDialogOpen(false);
+                                  }}
+                                >
+                                  Reject Application
+                                </Button>
+                              </div>
+                            )}
+                          </div>
+                        </DialogContent>
+                      </Dialog>
                       {app.status === "pending" && (
                         <>
                           <Button

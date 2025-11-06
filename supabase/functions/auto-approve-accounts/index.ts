@@ -45,13 +45,9 @@ Deno.serve(async (req) => {
           .insert({
             user_id: request.user_id,
             account_type: request.account_type,
-            account_name: `${request.account_type.charAt(0).toUpperCase() + request.account_type.slice(1)} Account`,
             account_number: accountNumber,
-            routing_number: routingNumber,
             balance: 0,
-            available_balance: 0,
-            status: 'active',
-            currency: 'USD'
+            status: 'active'
           })
           .select()
           .single();
@@ -65,19 +61,15 @@ Deno.serve(async (req) => {
         await supabase
           .from('account_requests')
           .update({
-            status: 'approved',
-            processed_at: new Date().toISOString(),
-            auto_approved: true
+            status: 'approved'
           })
           .eq('id', request.id);
 
-        // Create notification for user
+        // Create notification for admin
         await supabase
           .from('admin_notifications')
           .insert({
-            notification_type: 'account_approved',
-            message: `Your ${request.account_type} account has been automatically approved and created`,
-            user_id: request.user_id
+            message: `Auto-approved ${request.account_type} account for user ${request.user_id}`
           });
 
         processedAccounts.push({
