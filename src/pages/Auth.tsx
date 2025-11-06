@@ -102,17 +102,7 @@ const Auth = () => {
       });
 
       if (error) {
-        // Check if email not verified
-        if (error.message.includes("email not confirmed") || error.message.includes("Email not confirmed") || error.message.includes("Email not verified")) {
-          toast.error(
-            "⚠️ Please verify your email address first. Check your inbox for the verification link.",
-            { duration: 8000 }
-          );
-          toast.info(
-            "Didn't receive the email? Check your spam folder or contact support.",
-            { duration: 6000 }
-          );
-        } else if (error.message.includes("Invalid login credentials") || error.message.includes("Invalid")) {
+        if (error.message.includes("Invalid login credentials") || error.message.includes("Invalid")) {
           // Check if there's a pending account application for this email
           const { data: application } = await supabase
             .from("account_applications")
@@ -152,22 +142,10 @@ const Auth = () => {
       }
 
       if (data.user) {
-        // Check if email is verified
-        if (!data.user.email_confirmed_at) {
-          toast.error(
-            "⚠️ Your email is not verified. Please check your inbox and verify your email before signing in.",
-            { duration: 8000 }
-          );
-          await supabase.auth.signOut();
-          setLoading(false);
-          setShowLoadingSpinner(false);
-          return;
-        }
-
         // Verify PIN
         const { data: profile, error: profileError } = await supabase
           .from("profiles")
-          .select("pin, email_verified")
+          .select("pin")
           .eq("id", data.user.id)
           .single();
 
@@ -263,50 +241,15 @@ const Auth = () => {
             full_name: signUpFullName,
             account_type: "personal",
             qr_code_secret: qrSecret,
-            verification_token: data.user.id,
-            email_verified: false,
           });
 
         if (appError) {
           console.error("Error creating application:", appError);
         }
 
-        // Send verification email
-        try {
-          const { error: emailError } = await supabase.functions.invoke(
-            "send-verification-email",
-            {
-              body: {
-                email: signUpEmail,
-                fullName: signUpFullName,
-                verificationToken: data.user.id,
-                qrSecret: qrSecret,
-                redirectUrl: `${window.location.origin}/verify-qr`,
-              },
-            }
-          );
-
-          if (emailError) {
-            console.error("Error sending email:", emailError);
-          }
-        } catch (emailErr) {
-          console.error("Email function error:", emailErr);
-        }
-
-        // Show comprehensive verification instructions
-        toast.success(
-          "Account created successfully! 📧 Please check your email to verify your account before signing in.",
-          { duration: 8000 }
-        );
+        toast.success("Account created! Please complete QR verification to access your account.", { duration: 5000 });
         
-        toast.info(
-          "⚠️ You must verify your email address before you can sign in. Check your inbox and spam folder.",
-          { duration: 10000 }
-        );
-
-        // Sign out user until they verify
-        await supabase.auth.signOut();
-        setMode("signin");
+        // User stays signed in and will be redirected by auth state listener to verify-qr
       }
     } catch (error: any) {
       console.error("Sign up error:", error);
