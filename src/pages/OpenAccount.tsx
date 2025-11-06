@@ -1052,6 +1052,22 @@ const OpenAccount = () => {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Loading Spinner Overlay */}
+      {isSubmitting && (
+        <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-[100] flex items-center justify-center">
+          <div className="text-center space-y-4">
+            <img 
+              src={logo} 
+              alt="VaultBank" 
+              className="h-20 w-auto mx-auto animate-spin"
+              style={{ animationDuration: '2s' }}
+            />
+            <p className="text-lg font-semibold">Creating your account...</p>
+            <p className="text-sm text-muted-foreground">Please wait while we process your application</p>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

@@ -19,12 +19,18 @@ export type Database = {
           account_type: string
           address: string | null
           created_at: string | null
+          date_of_birth: string | null
           email: string
           full_name: string
           id: string
           phone: string | null
+          phone_number: string | null
           qr_code_secret: string | null
           qr_code_verified: boolean | null
+          residential_address: string | null
+          security_answer: string | null
+          security_question: string | null
+          ssn: string | null
           status: string | null
           updated_at: string | null
           user_id: string
@@ -33,12 +39,18 @@ export type Database = {
           account_type: string
           address?: string | null
           created_at?: string | null
+          date_of_birth?: string | null
           email: string
           full_name: string
           id?: string
           phone?: string | null
+          phone_number?: string | null
           qr_code_secret?: string | null
           qr_code_verified?: boolean | null
+          residential_address?: string | null
+          security_answer?: string | null
+          security_question?: string | null
+          ssn?: string | null
           status?: string | null
           updated_at?: string | null
           user_id: string
@@ -47,12 +59,18 @@ export type Database = {
           account_type?: string
           address?: string | null
           created_at?: string | null
+          date_of_birth?: string | null
           email?: string
           full_name?: string
           id?: string
           phone?: string | null
+          phone_number?: string | null
           qr_code_secret?: string | null
           qr_code_verified?: boolean | null
+          residential_address?: string | null
+          security_answer?: string | null
+          security_question?: string | null
+          ssn?: string | null
           status?: string | null
           updated_at?: string | null
           user_id?: string
