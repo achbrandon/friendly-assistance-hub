@@ -38,6 +38,11 @@ export default function AccountDetails() {
     return "806 E Exchange St, Brodhead, WI 53520-0108, US";
   };
 
+  const generateRoutingNumber = () => {
+    // Generate VaultBank routing number (format: 0xxxxxxxx - 9 digits)
+    return `075${Math.floor(100000 + Math.random() * 900000)}`;
+  };
+
   const generateBranchCode = (routingNumber: string) => {
     // Extract branch code from routing number (first 4 digits after the first digit)
     return routingNumber.slice(1, 5);
@@ -67,14 +72,16 @@ export default function AccountDetails() {
         for (const account of accountsRes.data) {
           const hasDetails = existingDetails.some(d => d.account_id === account.id);
           if (!hasDetails) {
-            // Create account details with Chase Bank format
+            // Create account details with VaultBank format
+            const routingNumber = generateRoutingNumber();
             const swift = generateSWIFT();
             const bankAddress = generateBankAddress(account.account_number);
-            const branchCode = generateBranchCode(account.routing_number);
+            const branchCode = generateBranchCode(routingNumber);
             
             await supabase.from("account_details").insert({
               account_id: account.id,
               user_id: userId,
+              routing_number: routingNumber,
               iban: "", // US banks don't use IBAN
               swift_code: swift,
               branch_code: branchCode,
