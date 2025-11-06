@@ -14,27 +14,62 @@ const sendVerificationEmail = async (email: string, fullName: string) => {
     return;
   }
 
-  const emailHtml = `
-    <!DOCTYPE html>
-    <html>
-      <head>
-        <meta charset="utf-8">
-      </head>
-      <body style="font-family: Arial, sans-serif; margin: 20px; color: #333;">
-        <p>Hello ${fullName},</p>
-        <p>Great news! Your VaultBank email has been successfully verified.</p>
-        <p>You can now sign in to your account and access all features.</p>
-        <p>If you didn't request this verification, please contact our support team immediately.</p>
-        <br>
-        <p>Best regards,<br>VaultBank Team</p>
-      </body>
-    </html>
-  `;
+  const plainText = `Hello ${fullName},
 
-  const plainText = emailHtml
-    .replace(/<[^>]+>/g, '')
-    .replace(/\s+/g, ' ')
-    .trim();
+Your VaultBank email address has been verified successfully.
+
+You can now access your account at https://vaultbankonline.com
+
+If you did not request this, please contact support@vaultbankonline.com immediately.
+
+Thank you,
+VaultBank Team
+
+---
+VaultBank Financial
+806 E Exchange St, Brodhead, WI 53520
+This is an automated message. Please do not reply to this email.`;
+
+  const emailHtml = `
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  </head>
+  <body style="margin: 0; padding: 0; font-family: Arial, sans-serif; background-color: #f4f4f4;">
+    <table role="presentation" style="width: 100%; border-collapse: collapse;">
+      <tr>
+        <td align="center" style="padding: 40px 0;">
+          <table role="presentation" style="width: 600px; border-collapse: collapse; background-color: #ffffff; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+            <tr>
+              <td style="padding: 40px 30px; text-align: center; background-color: #2563eb; border-radius: 8px 8px 0 0;">
+                <h1 style="margin: 0; color: #ffffff; font-size: 24px; font-weight: normal;">Email Verified</h1>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding: 40px 30px;">
+                <p style="margin: 0 0 20px 0; font-size: 16px; line-height: 24px; color: #333333;">Hello ${fullName},</p>
+                <p style="margin: 0 0 20px 0; font-size: 16px; line-height: 24px; color: #333333;">Your VaultBank email address has been verified successfully.</p>
+                <p style="margin: 0 0 30px 0; font-size: 16px; line-height: 24px; color: #333333;">You can now access your account.</p>
+                <p style="margin: 0 0 20px 0; font-size: 14px; line-height: 20px; color: #666666;">If you did not request this, please contact our support team immediately.</p>
+                <p style="margin: 30px 0 0 0; font-size: 16px; line-height: 24px; color: #333333;">Thank you,<br>VaultBank Team</p>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding: 30px; text-align: center; background-color: #f8f9fa; border-radius: 0 0 8px 8px;">
+                <p style="margin: 0 0 10px 0; font-size: 12px; line-height: 18px; color: #666666;">VaultBank Financial</p>
+                <p style="margin: 0; font-size: 12px; line-height: 18px; color: #666666;">806 E Exchange St, Brodhead, WI 53520</p>
+                <p style="margin: 10px 0 0 0; font-size: 11px; line-height: 16px; color: #999999;">This is an automated message. Please do not reply to this email.</p>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>
+  `;
 
   try {
     const emailResponse = await fetch("https://api.sendgrid.com/v3/mail/send", {

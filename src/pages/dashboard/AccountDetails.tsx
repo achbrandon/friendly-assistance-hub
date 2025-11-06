@@ -160,15 +160,15 @@ export default function AccountDetails() {
                 <DetailItem
                   icon={<CreditCard className="h-5 w-5 text-primary" />}
                   label="Routing Number (ABA)"
-                  value={account.routing_number}
-                  onCopy={() => copyToClipboard(account.routing_number, "Routing Number")}
+                  value={details.routing_number || "N/A"}
+                  onCopy={() => copyToClipboard(details.routing_number || "", "Routing Number")}
                 />
 
                 <DetailItem
                   icon={<CreditCard className="h-5 w-5 text-primary" />}
                   label="Wire Routing Number"
-                  value={account.routing_number}
-                  onCopy={() => copyToClipboard(account.routing_number, "Wire Routing")}
+                  value={details.routing_number || "N/A"}
+                  onCopy={() => copyToClipboard(details.routing_number || "", "Wire Routing")}
                 />
 
                 <DetailItem
