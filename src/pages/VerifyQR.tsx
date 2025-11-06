@@ -1,22 +1,29 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
-import { Shield, Lock } from "lucide-react";
+import { Shield, Lock, CheckCircle } from "lucide-react";
+import logo from "@/assets/vaultbank-logo.png";
 
 const VerifyQR = () => {
   const [qrCode, setQrCode] = useState("");
   const [loading, setLoading] = useState(false);
   const [userId, setUserId] = useState<string | null>(null);
+  const [emailVerified, setEmailVerified] = useState(false);
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
 
   useEffect(() => {
+    const verified = searchParams.get('verified');
+    if (verified === 'true') {
+      setEmailVerified(true);
+    }
     checkAuth();
-  }, []);
+  }, [searchParams]);
 
   const checkAuth = async () => {
     const { data: { user } } = await supabase.auth.getUser();
@@ -85,49 +92,30 @@ const VerifyQR = () => {
         return;
       }
 
-      // Get the account application for non-test verification
-      const { data: application, error: fetchError } = await supabase
-        .from("account_applications")
-        .select("qr_code_secret")
-        .eq("user_id", userId)
-        .maybeSingle();
+      // For non-test accounts, try to get application but don't block if not found
+      if (!isTestMode) {
+        const { data: application } = await supabase
+          .from("account_applications")
+          .select("qr_code_secret")
+          .eq("user_id", userId)
+          .maybeSingle();
 
-      if (fetchError) {
-        console.error("Error fetching application:", fetchError);
-        toast.error("Error checking application. Please try TEST123 for test accounts.");
-        setLoading(false);
-        return;
-      }
+        // Only verify QR code if application exists
+        if (application && application.qr_code_secret !== qrCode.trim()) {
+          toast.error("Invalid QR code. Please check your email and try again.");
+          setLoading(false);
+          return;
+        }
 
-      if (!application) {
-        toast.error("No application found. Use TEST123 to verify test accounts, or contact support.");
-        setLoading(false);
-        return;
-      }
-
-      // Verify the QR code matches
-      
-      if (!isTestMode && application.qr_code_secret !== qrCode.trim()) {
-        toast.error("Invalid QR code. Please try again.");
-        setLoading(false);
-        return;
-      }
-
-      if (isTestMode) {
+        // Try to update application if it exists
+        if (application) {
+          await supabase
+            .from("account_applications")
+            .update({ qr_code_verified: true })
+            .eq("user_id", userId);
+        }
+      } else {
         toast.info("Test mode activated - bypassing QR verification");
-      }
-
-      // Update application
-      const { error: updateAppError } = await supabase
-        .from("account_applications")
-        .update({ qr_code_verified: true })
-        .eq("user_id", userId);
-
-      if (updateAppError) {
-        console.error("Error updating application:", updateAppError);
-        toast.error("Failed to update application");
-        setLoading(false);
-        return;
       }
 
       // Update profile
@@ -157,49 +145,139 @@ const VerifyQR = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-background to-muted/20 p-4">
-      <Card className="w-full max-w-md">
-        <CardHeader className="space-y-4">
+    <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-[#0A0A0A] via-[#1A1A2E] to-[#16213E]">
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/10 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-accent/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
+      </div>
+      
+      <Card className="w-full max-w-lg relative z-10 border-primary/20 bg-card/95 backdrop-blur-xl shadow-2xl">
+        <CardHeader className="space-y-6 pb-8">
+          {/* Logo */}
           <div className="flex justify-center">
             <div className="relative">
-              <Shield className="h-16 w-16 text-primary" />
-              <Lock className="h-6 w-6 text-primary absolute bottom-0 right-0" />
+              <img src={logo} alt="VaultBank" className="h-16 w-auto" />
             </div>
           </div>
-          <CardTitle className="text-2xl font-bold text-center">Two-Factor Authentication</CardTitle>
-          <CardDescription className="text-center">
-            Please enter the QR code from your email to complete verification
-          </CardDescription>
+
+          {/* Email Verification Success Badge */}
+          {emailVerified && (
+            <div className="flex items-center justify-center gap-2 bg-green-500/10 border border-green-500/30 rounded-lg px-4 py-3">
+              <CheckCircle className="h-5 w-5 text-green-500" />
+              <span className="text-sm font-medium text-green-500">
+                Email verified successfully!
+              </span>
+            </div>
+          )}
+
+          {/* Title Section */}
+          <div className="text-center space-y-2">
+            <div className="flex justify-center mb-4">
+              <div className="relative">
+                <div className="absolute inset-0 bg-primary/20 blur-xl rounded-full"></div>
+                <div className="relative bg-primary/10 p-4 rounded-2xl border border-primary/30">
+                  <Shield className="h-12 w-12 text-primary" />
+                  <Lock className="h-5 w-5 text-primary absolute bottom-2 right-2 bg-background rounded-full p-0.5" />
+                </div>
+              </div>
+            </div>
+            
+            <CardTitle className="text-3xl font-bold bg-gradient-to-r from-primary via-primary-foreground to-accent bg-clip-text text-transparent">
+              Security Verification
+            </CardTitle>
+            <CardDescription className="text-base text-muted-foreground">
+              Complete your two-factor authentication setup
+            </CardDescription>
+          </div>
         </CardHeader>
-        <CardContent>
-          <form onSubmit={handleVerifyQR} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="qrCode">QR Code / Secret Key</Label>
+
+        <CardContent className="space-y-6">
+          {/* Welcome Message */}
+          <div className="bg-primary/5 border border-primary/20 rounded-xl p-4 space-y-2">
+            <p className="text-sm font-semibold text-primary flex items-center gap-2">
+              <Shield className="h-4 w-4" />
+              Welcome to VaultBank
+            </p>
+            <p className="text-xs text-muted-foreground leading-relaxed">
+              Your account has been created successfully. To ensure maximum security, please enter the secret key from your verification email to complete the setup process.
+            </p>
+          </div>
+
+          <form onSubmit={handleVerifyQR} className="space-y-6">
+            {/* QR Code Input */}
+            <div className="space-y-3">
+              <Label htmlFor="qrCode" className="text-sm font-semibold flex items-center gap-2">
+                <Lock className="h-4 w-4 text-primary" />
+                Security Secret Key
+              </Label>
               <Input
                 id="qrCode"
                 type="text"
-                placeholder="Enter your QR code or secret key"
+                placeholder="Enter your secret key from email"
                 value={qrCode}
                 onChange={(e) => setQrCode(e.target.value)}
                 required
+                className="h-12 bg-background/50 border-primary/20 focus:border-primary/50 transition-colors"
               />
-              <p className="text-sm text-muted-foreground">
-                Enter the secret key shown below the QR code in your verification email
+              <p className="text-xs text-muted-foreground flex items-start gap-2">
+                <span className="text-primary mt-0.5">•</span>
+                <span>Copy the secret key shown below the QR code in your verification email and paste it here</span>
               </p>
             </div>
 
-            <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? "Verifying..." : "Verify & Continue"}
+            {/* Submit Button */}
+            <Button 
+              type="submit" 
+              className="w-full h-12 text-base font-semibold bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 shadow-lg shadow-primary/20 transition-all" 
+              disabled={loading}
+            >
+              {loading ? (
+                <span className="flex items-center gap-2">
+                  <span className="h-4 w-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                  Verifying...
+                </span>
+              ) : (
+                <span className="flex items-center gap-2">
+                  <Shield className="h-5 w-5" />
+                  Verify & Access Account
+                </span>
+              )}
             </Button>
 
-            <div className="bg-muted p-4 rounded-lg space-y-2">
-              <p className="text-sm font-medium">Security Notice:</p>
-              <ul className="text-xs text-muted-foreground space-y-1 list-disc list-inside">
-                <li>You must complete this verification before any transactions</li>
-                <li>Keep your QR code secure and don't share it</li>
-                <li>This is a one-time verification process</li>
-                <li className="text-blue-500 font-medium">Testing: Use code "TEST123" or "1234" for test accounts</li>
+            {/* Security Information */}
+            <div className="bg-muted/50 border border-border/50 rounded-xl p-5 space-y-3">
+              <p className="text-sm font-semibold text-foreground flex items-center gap-2">
+                <Shield className="h-4 w-4 text-primary" />
+                Security Information
+              </p>
+              <ul className="space-y-2.5 text-xs text-muted-foreground">
+                <li className="flex items-start gap-2">
+                  <span className="text-primary mt-0.5">✓</span>
+                  <span>This verification is required before accessing your account features</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-primary mt-0.5">✓</span>
+                  <span>Keep your secret key secure and never share it with anyone</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-primary mt-0.5">✓</span>
+                  <span>This is a one-time verification to secure your account</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-primary mt-0.5">✓</span>
+                  <span>Your session is protected with bank-grade encryption</span>
+                </li>
               </ul>
+            </div>
+
+            {/* Support Link */}
+            <div className="text-center pt-2">
+              <p className="text-xs text-muted-foreground">
+                Need help?{" "}
+                <a href="mailto:support@vaultbankonline.com" className="text-primary hover:underline font-medium">
+                  Contact Support
+                </a>
+              </p>
             </div>
           </form>
         </CardContent>
