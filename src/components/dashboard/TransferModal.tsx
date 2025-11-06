@@ -115,7 +115,7 @@ export function TransferModal({ onClose, onSuccess }: TransferModalProps) {
           account_id: fromAccount,
           type: "debit",
           amount: transferAmount,
-          description: `Transfer to ${toAcc?.account_name}`,
+          description: `Transfer to ${toAcc?.account_type}`,
           status: "completed"
         },
         {
@@ -123,7 +123,7 @@ export function TransferModal({ onClose, onSuccess }: TransferModalProps) {
           account_id: toAccount,
           type: "credit",
           amount: transferAmount,
-          description: `Transfer from ${fromAcc?.account_name}`,
+          description: `Transfer from ${fromAcc?.account_type}`,
           status: "completed"
         }
       ]);
@@ -133,8 +133,8 @@ export function TransferModal({ onClose, onSuccess }: TransferModalProps) {
         setLoading(false);
         setReceiptData({
           type: 'internal',
-          fromAccount: fromAcc?.account_name || '',
-          toAccount: toAcc?.account_name || '',
+          fromAccount: `${fromAcc?.account_type} (${fromAcc?.account_number})` || '',
+          toAccount: `${toAcc?.account_type} (${toAcc?.account_number})` || '',
           amount: transferAmount.toFixed(2),
           currency: '$',
           reference,
@@ -171,7 +171,7 @@ export function TransferModal({ onClose, onSuccess }: TransferModalProps) {
                 <SelectContent>
                   {accounts.map((account) => (
                     <SelectItem key={account.id} value={account.id}>
-                      {account.account_name} - ${parseFloat(account.available_balance).toFixed(2)}
+                      {account.account_type} ({account.account_number}) - ${parseFloat(account.balance || 0).toFixed(2)}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -187,7 +187,7 @@ export function TransferModal({ onClose, onSuccess }: TransferModalProps) {
                 <SelectContent>
                   {accounts.map((account) => (
                     <SelectItem key={account.id} value={account.id}>
-                      {account.account_name}
+                      {account.account_type} ({account.account_number})
                     </SelectItem>
                   ))}
                 </SelectContent>
