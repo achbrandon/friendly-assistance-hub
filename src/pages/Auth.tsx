@@ -8,6 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { ChevronRight, Eye, EyeOff } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { LoginOTPModal } from "@/components/dashboard/LoginOTPModal";
 import bankLogo from "@/assets/vaultbank-logo.png";
 
 const Auth = () => {
@@ -17,6 +18,9 @@ const Auth = () => {
   const navigate = useNavigate();
   const isRedirecting = useRef(false);
   const [showLoadingSpinner, setShowLoadingSpinner] = useState(false);
+  const [showOTPModal, setShowOTPModal] = useState(false);
+  const [pendingUserId, setPendingUserId] = useState<string>("");
+  const [pendingUserEmail, setPendingUserEmail] = useState<string>("");
 
   // Sign In form
   const [signInEmail, setSignInEmail] = useState("");
@@ -162,12 +166,12 @@ const Auth = () => {
           return;
         }
 
-        // Wait for minimum spinner time before proceeding
-        await minSpinnerTime;
-        
-        toast.success("Signed in successfully!");
-        // The auth state listener will handle the redirect
-        // Keep spinner visible during redirect
+        // PIN verified - now require OTP verification
+        setPendingUserId(data.user.id);
+        setPendingUserEmail(data.user.email || "");
+        setShowLoadingSpinner(false);
+        setShowOTPModal(true);
+        // Note: User will be redirected after OTP verification
       }
     } catch (error: any) {
       console.error("Sign in error:", error);
@@ -175,6 +179,23 @@ const Auth = () => {
       setShowLoadingSpinner(false);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleOTPVerified = async () => {
+    setShowOTPModal(false);
+    setShowLoadingSpinner(true);
+    
+    try {
+      // Wait for minimum spinner time
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      
+      toast.success("Login successful! Welcome back.");
+      // The auth state listener will handle the redirect
+    } catch (error) {
+      console.error("Post-OTP error:", error);
+      toast.error("An error occurred. Please try again.");
+      setShowLoadingSpinner(false);
     }
   };
 
@@ -423,6 +444,17 @@ const Auth = () => {
           </TabsContent>
         </Tabs>
       </div>
+
+      <LoginOTPModal
+        open={showOTPModal}
+        onClose={() => {
+          setShowOTPModal(false);
+          supabase.auth.signOut();
+        }}
+        onVerify={handleOTPVerified}
+        email={pendingUserEmail}
+        userId={pendingUserId}
+      />
 
       {showLoadingSpinner && (
         <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-[100] flex items-center justify-center">
