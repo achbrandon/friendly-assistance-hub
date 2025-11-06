@@ -233,9 +233,12 @@ const OpenAccount = () => {
         },
       });
 
+      // Handle edge function errors - extract the real error message from the response
       if (error) {
         console.error('Application error:', error);
-        alert(`Error creating account: ${error.message || 'Unknown error occurred'}`);
+        // Try to extract the actual error message from the data
+        const errorMessage = data?.error || error.message || 'Unknown error occurred';
+        alert(`Error creating account: ${errorMessage}`);
         setIsSubmitting(false);
         return;
       }
