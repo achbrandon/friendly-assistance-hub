@@ -3,12 +3,27 @@ import { supabase } from "@/integrations/supabase/client";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Search } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Search, Trash2, AlertTriangle } from "lucide-react";
+import { toast } from "sonner";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 export default function AdminUsers() {
   const [users, setUsers] = useState<any[]>([]);
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [userToDelete, setUserToDelete] = useState<string | null>(null);
+  const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
     fetchUsers();
@@ -30,10 +45,67 @@ export default function AdminUsers() {
     }
   };
 
+  const deleteUser = async (userId: string) => {
+    setDeleting(true);
+    try {
+      // Delete from auth.users using admin API
+      const { error: authError } = await supabase.auth.admin.deleteUser(userId);
+      
+      if (authError) throw authError;
+      
+      toast.success("User deleted successfully");
+      await fetchUsers();
+    } catch (error: any) {
+      console.error("Error deleting user:", error);
+      toast.error(error.message || "Failed to delete user");
+    } finally {
+      setDeleting(false);
+      setShowDeleteDialog(false);
+      setUserToDelete(null);
+    }
+  };
+
+  const deleteAllUnverified = async () => {
+    setDeleting(true);
+    try {
+      const unverifiedUsers = users.filter(u => !u.email_verified && !u.qr_verified);
+      
+      if (unverifiedUsers.length === 0) {
+        toast.info("No unverified users to delete");
+        return;
+      }
+
+      let successCount = 0;
+      let errorCount = 0;
+
+      for (const user of unverifiedUsers) {
+        try {
+          const { error } = await supabase.auth.admin.deleteUser(user.id);
+          if (error) throw error;
+          successCount++;
+        } catch (error) {
+          console.error(`Failed to delete user ${user.id}:`, error);
+          errorCount++;
+        }
+      }
+
+      toast.success(`Deleted ${successCount} unverified users${errorCount > 0 ? ` (${errorCount} failed)` : ''}`);
+      await fetchUsers();
+    } catch (error: any) {
+      console.error("Error deleting unverified users:", error);
+      toast.error(error.message || "Failed to delete unverified users");
+    } finally {
+      setDeleting(false);
+      setShowDeleteDialog(false);
+    }
+  };
+
   const filteredUsers = users.filter(user =>
     user.full_name?.toLowerCase().includes(search.toLowerCase()) ||
     user.email?.toLowerCase().includes(search.toLowerCase())
   );
+
+  const unverifiedCount = users.filter(u => !u.email_verified && !u.qr_verified).length;
 
   if (loading) {
     return <div className="flex items-center justify-center h-96">Loading...</div>;
@@ -41,9 +113,25 @@ export default function AdminUsers() {
 
   return (
     <div className="min-h-full w-full p-6 space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold text-white">Users Management</h1>
-        <p className="text-slate-300">View and manage all registered users</p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold text-white">Users Management</h1>
+          <p className="text-slate-300">View and manage all registered users</p>
+        </div>
+        {unverifiedCount > 0 && (
+          <Button
+            variant="destructive"
+            onClick={() => {
+              setUserToDelete("all-unverified");
+              setShowDeleteDialog(true);
+            }}
+            disabled={deleting}
+            className="gap-2"
+          >
+            <Trash2 className="h-4 w-4" />
+            Delete All Unverified ({unverifiedCount})
+          </Button>
+        )}
       </div>
 
       <div className="bg-slate-800/50 border border-slate-700 rounded-lg p-6">
@@ -74,6 +162,12 @@ export default function AdminUsers() {
                 </div>
               </div>
               <div className="flex items-center gap-3">
+                {!user.email_verified && !user.qr_verified && (
+                  <Badge variant="destructive" className="gap-1">
+                    <AlertTriangle className="h-3 w-3" />
+                    Unverified
+                  </Badge>
+                )}
                 {user.email_verified && (
                   <Badge variant="default">Email Verified</Badge>
                 )}
@@ -83,11 +177,55 @@ export default function AdminUsers() {
                 {user.can_transact && (
                   <Badge className="bg-green-600">Can Transact</Badge>
                 )}
+                {!user.email_verified && !user.qr_verified && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => {
+                      setUserToDelete(user.id);
+                      setShowDeleteDialog(true);
+                    }}
+                    disabled={deleting}
+                    className="text-red-400 hover:text-red-300 hover:bg-red-950/30"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                )}
               </div>
             </div>
           ))}
         </div>
       </div>
+
+      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              {userToDelete === "all-unverified" 
+                ? `This will permanently delete ${unverifiedCount} unverified user${unverifiedCount !== 1 ? 's' : ''} and all their data. This action cannot be undone.`
+                : "This will permanently delete this unverified user and all their data. This action cannot be undone."
+              }
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={deleting}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                if (userToDelete === "all-unverified") {
+                  deleteAllUnverified();
+                } else if (userToDelete) {
+                  deleteUser(userToDelete);
+                }
+              }}
+              disabled={deleting}
+              className="bg-destructive hover:bg-destructive/90"
+            >
+              {deleting ? "Deleting..." : "Delete"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
