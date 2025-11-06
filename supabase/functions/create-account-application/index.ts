@@ -92,7 +92,50 @@ const handler = async (req: Request): Promise<Response> => {
     const userId = signUpData.user.id;
     console.log('User created successfully:', userId);
 
+    // Create profile for the user (since there's no auto-create trigger)
+    const { error: profileInsertError } = await supabaseAdmin
+      .from("profiles")
+      .insert({
+        id: userId,
+        pin: applicationData.pin,
+        security_question: applicationData.securityQuestion,
+        security_answer: applicationData.securityAnswer,
+        full_name: applicationData.fullName,
+        email: applicationData.email,
+        qr_verified: false,
+        can_transact: false,
+        email_verified: false,
+      });
+
+    if (profileInsertError) {
+      console.error("❌ Error creating profile:", profileInsertError);
+      // If profile already exists, try to update it instead
+      if (profileInsertError.code === '23505') { // Unique violation
+        console.log('Profile exists, updating instead...');
+        const { error: profileUpdateError } = await supabaseAdmin
+          .from("profiles")
+          .update({
+            pin: applicationData.pin,
+            security_question: applicationData.securityQuestion,
+            security_answer: applicationData.securityAnswer,
+            full_name: applicationData.fullName,
+            email: applicationData.email,
+          })
+          .eq("id", userId);
+        
+        if (profileUpdateError) {
+          console.error("❌ Error updating profile:", profileUpdateError);
+          throw new Error(`Failed to update profile: ${profileUpdateError.message}`);
+        }
+      } else {
+        throw new Error(`Failed to create profile: ${profileInsertError.message}`);
+      }
+    }
+
+    console.log('✅ Profile created successfully');
+
     // Insert application into database (using service role, bypasses RLS)
+    console.log('📝 Creating account application...');
     const { error: appError } = await supabaseAdmin
       .from("account_applications")
       .insert({
@@ -113,25 +156,11 @@ const handler = async (req: Request): Promise<Response> => {
       });
 
     if (appError) {
-      console.error("Error submitting application:", appError);
-      throw new Error(appError.message);
+      console.error("❌ Error submitting application:", appError);
+      throw new Error(`Failed to create application: ${appError.message}`);
     }
 
-    // Update profile with security info
-    const { error: profileError } = await supabaseAdmin
-      .from("profiles")
-      .update({
-        pin: applicationData.pin,
-        security_question: applicationData.securityQuestion,
-        security_answer: applicationData.securityAnswer,
-        phone: applicationData.phoneNumber,
-      })
-      .eq("id", userId);
-
-    if (profileError) {
-      console.error("Error updating profile:", profileError);
-      // Don't throw, this is not critical
-    }
+    console.log('✅ Application created successfully');
 
     // Generate email verification token using Supabase
     console.log('📧 Generating email verification token...');
