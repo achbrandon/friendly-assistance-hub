@@ -104,7 +104,7 @@ export function AccountCard({ account, showBalance, onRefresh }: AccountCardProp
         <Button 
           variant="ghost" 
           className="w-full justify-between text-sm"
-          onClick={() => window.location.href = '/dashboard/account-details'}
+          onClick={() => window.location.href = `/dashboard/account-details?id=${account.id}`}
         >
           View Details
           <ChevronRight className="h-4 w-4" />

@@ -1,15 +1,17 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
-import { Copy, Building2, Globe, CreditCard, Shield, Send, ArrowRight } from "lucide-react";
+import { Copy, Building2, Globe, CreditCard, Shield, Send, ArrowRight, Lock } from "lucide-react";
 
 export default function AccountDetails() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const accountId = searchParams.get("id");
   const [user, setUser] = useState<any>(null);
   const [profile, setProfile] = useState<any>(null);
   const [accounts, setAccounts] = useState<any[]>([]);
@@ -58,9 +60,20 @@ export default function AccountDetails() {
 
   const fetchData = async (userId: string) => {
     try {
+      let accountsQuery = supabase
+        .from("accounts")
+        .select("*")
+        .eq("user_id", userId)
+        .eq("status", "active");
+      
+      // If accountId is provided, filter for that specific account
+      if (accountId) {
+        accountsQuery = accountsQuery.eq("id", accountId);
+      }
+
       const [profileRes, accountsRes, detailsRes] = await Promise.all([
         supabase.from("profiles").select("*").eq("id", userId).single(),
-        supabase.from("accounts").select("*").eq("user_id", userId).eq("status", "active"),
+        accountsQuery,
         supabase.from("account_details").select("*").eq("user_id", userId)
       ]);
 
@@ -150,6 +163,9 @@ export default function AccountDetails() {
         const details = accountDetails.find(d => d.account_id === account.id);
         if (!details) return null;
 
+        // Check if this is a credit card account
+        const isCreditCard = account.account_type === 'credit_card';
+
         return (
           <Card key={account.id} className="border-2 border-primary/20 shadow-xl overflow-hidden">
             <div className="bg-gradient-to-r from-blue-600 to-cyan-600 p-6 text-white">
@@ -163,7 +179,27 @@ export default function AccountDetails() {
               </div>
             </div>
 
-            <CardContent className="pt-6 space-y-6">
+            {isCreditCard ? (
+              <CardContent className="pt-6">
+                <div className="flex flex-col items-center justify-center py-12 text-center">
+                  <div className="h-20 w-20 rounded-full bg-destructive/10 flex items-center justify-center mb-4">
+                    <Lock className="h-10 w-10 text-destructive" />
+                  </div>
+                  <h3 className="text-xl font-semibold mb-2">Credit Card Information Blocked</h3>
+                  <p className="text-muted-foreground max-w-md">
+                    Complete credit card details are restricted for security purposes. 
+                    Please visit the Cards page to manage your credit card or contact support for assistance.
+                  </p>
+                  <Button 
+                    onClick={() => navigate("/dashboard/cards")}
+                    className="mt-6"
+                  >
+                    Go to Cards
+                  </Button>
+                </div>
+              </CardContent>
+            ) : (
+              <CardContent className="pt-6 space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <DetailItem
                   icon={<CreditCard className="h-5 w-5 text-primary" />}
@@ -303,7 +339,8 @@ export default function AccountDetails() {
                   </Button>
                 </div>
               </div>
-            </CardContent>
+              </CardContent>
+            )}
           </Card>
         );
       })}

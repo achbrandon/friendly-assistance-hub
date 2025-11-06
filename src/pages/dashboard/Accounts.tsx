@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { AccountCard } from "@/components/dashboard/AccountCard";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
+import { AddAccountDialog } from "@/components/dashboard/AddAccountDialog";
 
 export default function Accounts() {
   const navigate = useNavigate();
@@ -11,6 +12,7 @@ export default function Accounts() {
   const [accounts, setAccounts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [showBalance, setShowBalance] = useState(true);
+  const [showAddDialog, setShowAddDialog] = useState(false);
 
   useEffect(() => {
     checkAuth();
@@ -52,9 +54,9 @@ export default function Accounts() {
           <h1 className="text-3xl font-bold">My Accounts</h1>
           <p className="text-muted-foreground">Overview of all your accounts</p>
         </div>
-        <Button onClick={() => navigate("/dashboard/request-account")} className="flex items-center gap-2">
+        <Button onClick={() => setShowAddDialog(true)} className="flex items-center gap-2">
           <Plus className="h-4 w-4" />
-          Request New Account
+          Add Account
         </Button>
       </div>
 
@@ -68,6 +70,13 @@ export default function Accounts() {
           />
         ))}
       </div>
+
+      <AddAccountDialog
+        open={showAddDialog}
+        onOpenChange={setShowAddDialog}
+        userId={user?.id || ""}
+        onSuccess={() => fetchAccounts(user.id)}
+      />
     </div>
   );
 }
