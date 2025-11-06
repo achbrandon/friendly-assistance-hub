@@ -256,13 +256,21 @@ const handler = async (req: Request): Promise<Response> => {
       })
     });
 
+    // Log the complete response for debugging
+    const responseBody = await emailResponse.text();
+    console.log("SendGrid Response Status:", emailResponse.status);
+    console.log("SendGrid Response Headers:", Object.fromEntries(emailResponse.headers.entries()));
+    console.log("SendGrid Response Body:", responseBody);
+
     if (!emailResponse.ok) {
-      const errorText = await emailResponse.text();
-      console.error("SendGrid API error:", errorText);
-      throw new Error(`SendGrid API error: ${emailResponse.status} - ${errorText}`);
+      console.error("SendGrid API error - Full response:", responseBody);
+      throw new Error(`SendGrid API error: ${emailResponse.status} - ${responseBody}`);
     }
 
-    console.log("Verification email sent successfully via SendGrid");
+    // SendGrid returns 202 Accepted - this means it accepted the request, not that it delivered
+    console.log("✅ SendGrid accepted email request (Status: 202)");
+    console.log("📧 Email sent to:", email);
+    console.log("⚠️ Note: Check SendGrid Activity Feed if email doesn't arrive");
 
     return new Response(
       JSON.stringify({ success: true, message: "Verification email sent successfully" }),

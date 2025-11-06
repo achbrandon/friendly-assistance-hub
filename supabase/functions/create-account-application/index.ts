@@ -48,7 +48,7 @@ const handler = async (req: Request): Promise<Response> => {
     const { data: signUpData, error: signUpError } = await supabaseAdmin.auth.admin.createUser({
       email: applicationData.email,
       password: applicationData.password,
-      email_confirm: true, // Auto-confirm email so users can login immediately
+      email_confirm: false, // User must verify email via the verification link
       user_metadata: {
         full_name: applicationData.fullName,
       }
@@ -131,9 +131,9 @@ const handler = async (req: Request): Promise<Response> => {
       // Don't throw, this is not critical
     }
 
-    // Send verification email using Resend
-    console.log('Sending verification email via Resend...');
-    const { error: emailError } = await supabaseAdmin.functions.invoke("send-verification-email", {
+    // Send verification email using SendGrid
+    console.log('Sending verification email...');
+    const { data: emailData, error: emailError } = await supabaseAdmin.functions.invoke("send-verification-email", {
       body: {
         email: applicationData.email,
         fullName: applicationData.fullName,
@@ -143,10 +143,11 @@ const handler = async (req: Request): Promise<Response> => {
     });
 
     if (emailError) {
-      console.error("Error sending verification email:", emailError);
+      console.error("❌ Error calling email function:", emailError);
       // Don't throw, account is created
     } else {
-      console.log('Verification email sent successfully');
+      console.log('✅ Email function called successfully');
+      console.log('Email function response:', emailData);
     }
 
     console.log('Application submitted successfully');
