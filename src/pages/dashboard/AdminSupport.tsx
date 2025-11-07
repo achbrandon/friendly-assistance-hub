@@ -33,21 +33,71 @@ export default function AdminSupport() {
   }, []);
 
   useEffect(() => {
-    if (selectedTicket) {
-      loadMessages(selectedTicket.id);
-      subscribeToMessages(selectedTicket.id);
-      subscribeToTyping(selectedTicket.id);
-      updateAgentStatus(true);
-      markTicketMessagesAsRead(selectedTicket.id);
-    }
+    if (!selectedTicket) return;
+
+    console.log('ADMIN: Selected ticket:', selectedTicket.id);
+    loadMessages(selectedTicket.id);
+    updateAgentStatus(true);
+    markTicketMessagesAsRead(selectedTicket.id);
+
+    // Set up ONE channel for all events for this ticket
+    const channel = supabase
+      .channel(`admin-ticket-${selectedTicket.id}`)
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'support_messages',
+          filter: `ticket_id=eq.${selectedTicket.id}`
+        },
+        (payload) => {
+          console.log('ADMIN: New message received:', {
+            id: payload.new.id,
+            sender: payload.new.sender_type,
+            text: payload.new.message?.substring(0, 30)
+          });
+
+          setMessages(prev => {
+            if (prev.some(m => m.id === payload.new.id)) {
+              console.log('ADMIN: Duplicate prevented');
+              return prev;
+            }
+
+            // Play sound for user messages
+            if (payload.new.sender_type === 'user') {
+              (audioRef as any)?.play().catch((e: any) => console.log('Audio failed:', e));
+            }
+
+            console.log('ADMIN: Adding message, total:', prev.length + 1);
+            return [...prev, payload.new];
+          });
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'support_tickets',
+          filter: `id=eq.${selectedTicket.id}`
+        },
+        (payload) => {
+          console.log('ADMIN: Ticket updated, user typing:', payload.new.user_typing);
+          setUserTypingStatus(prev => ({
+            ...prev,
+            [selectedTicket.id]: payload.new.user_typing
+          }));
+        }
+      )
+      .subscribe((status) => {
+        console.log('ADMIN: Subscription status:', status);
+      });
 
     return () => {
-      if (selectedTicket) {
-        updateAgentStatus(false);
-      }
-      if (typingChannelRef) {
-        supabase.removeChannel(typingChannelRef);
-      }
+      console.log('ADMIN: Cleaning up ticket subscriptions');
+      updateAgentStatus(false);
+      supabase.removeChannel(channel);
     };
   }, [selectedTicket]);
 
@@ -78,33 +128,6 @@ export default function AdminSupport() {
     return () => {
       supabase.removeChannel(channel);
     };
-  };
-
-  const subscribeToTyping = (ticketId: string) => {
-    const channel = supabase
-      .channel(`ticket-typing-${ticketId}`)
-      .on(
-        'postgres_changes',
-        {
-          event: 'UPDATE',
-          schema: 'public',
-          table: 'support_tickets',
-          filter: `id=eq.${ticketId}`
-        },
-        (payload) => {
-          console.log('Typing status update:', payload.new);
-          if (payload.new && typeof payload.new === 'object' && 'user_typing' in payload.new) {
-            const newPayload = payload.new as any;
-            setUserTypingStatus(prev => ({
-              ...prev,
-              [ticketId]: newPayload.user_typing
-            }));
-          }
-        }
-      )
-      .subscribe();
-
-    (typingChannelRef as any) = channel;
   };
 
   const loadAllUnreadCounts = async () => {
@@ -147,76 +170,6 @@ export default function AdminSupport() {
     } catch (error) {
       console.error("Error marking messages as read:", error);
     }
-  };
-
-  const subscribeToMessages = (ticketId: string) => {
-    const channel = supabase
-      .channel(`admin-messages-${ticketId}`, {
-        config: {
-          broadcast: { self: true },
-          presence: { key: '' }
-        }
-      })
-      .on(
-        'postgres_changes',
-        {
-          event: 'INSERT',
-          schema: 'public',
-          table: 'support_messages',
-          filter: `ticket_id=eq.${ticketId}`
-        },
-        (payload) => {
-          console.log('ADMIN SIDE: New message INSERT received:', {
-            id: payload.new.id,
-            sender_type: payload.new.sender_type,
-            message: payload.new.message?.substring(0, 50)
-          });
-          
-          setMessages(prev => {
-            // Check for duplicates
-            if (prev.some(msg => msg.id === payload.new.id)) {
-              console.log('ADMIN: Duplicate prevented:', payload.new.id);
-              return prev;
-            }
-            console.log('ADMIN: Adding message to state, total will be:', prev.length + 1);
-            return [...prev, payload.new];
-          });
-          
-          // Play sound and update counter if it's a user message
-          if (payload.new.sender_type === 'user') {
-            console.log('ADMIN: Playing notification for user message');
-            (audioRef as any)?.play().catch((err: any) => console.log('Audio play failed:', err));
-            setUnreadCounts(prev => ({
-              ...prev,
-              [ticketId]: (prev[ticketId] || 0) + 1
-            }));
-          }
-        }
-      )
-      .on(
-        'postgres_changes',
-        {
-          event: 'UPDATE',
-          schema: 'public',
-          table: 'support_messages',
-          filter: `ticket_id=eq.${ticketId}`
-        },
-        (payload) => {
-          console.log('ADMIN SIDE: Message updated:', payload.new.id);
-          setMessages(prev => prev.map(msg => msg.id === payload.new.id ? payload.new : msg));
-        }
-      )
-      .subscribe((status) => {
-        console.log('ADMIN: Message subscription status:', status);
-        if (status === 'SUBSCRIBED') {
-          console.log('ADMIN: Successfully subscribed to messages for ticket:', ticketId);
-        }
-      });
-
-    return () => {
-      console.log('ADMIN: Cleaning up message subscription');
-      supabase.removeChannel(channel);
-    };
   };
 
   const updateAgentStatus = async (online: boolean) => {

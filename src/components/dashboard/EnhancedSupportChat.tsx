@@ -55,31 +55,47 @@ export function EnhancedSupportChat({ userId, onClose }: EnhancedSupportChatProp
   }, [userId]);
 
   useEffect(() => {
-    if (ticketId) {
-      console.log('Setting up subscriptions for ticket:', ticketId);
-      const messagesCleanup = subscribeToMessages();
-      const ticketCleanup = subscribeToTicketChanges();
-      updateUserOnlineStatus(true);
+    if (!ticketId) return;
 
-      return () => {
-        console.log('Cleaning up subscriptions');
-        messagesCleanup();
-        ticketCleanup();
-        updateUserOnlineStatus(false);
-      };
-    }
-  }, [ticketId]);
+    console.log('USER: Setting up subscriptions for ticket:', ticketId);
+    
+    // Set online status
+    updateUserOnlineStatus(true);
 
-  const subscribeToTicketChanges = () => {
-    // Clean up any existing subscription first
-    if (ticketChannelRef.current) {
-      console.log('Removing existing ticket subscription');
-      supabase.removeChannel(ticketChannelRef.current);
-      ticketChannelRef.current = null;
-    }
-
+    // Set up ONE channel for all realtime events
     const channel = supabase
-      .channel(`ticket-status-${ticketId}`)
+      .channel(`ticket-all-${ticketId}`)
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'support_messages',
+          filter: `ticket_id=eq.${ticketId}`
+        },
+        (payload) => {
+          console.log('USER: New message received:', {
+            id: payload.new.id,
+            sender: payload.new.sender_type,
+            text: payload.new.message?.substring(0, 30)
+          });
+
+          setMessages(prev => {
+            if (prev.some(m => m.id === payload.new.id)) {
+              console.log('USER: Duplicate prevented');
+              return prev;
+            }
+            
+            // Play sound for staff/bot messages
+            if (payload.new.sender_type === 'staff' || payload.new.sender_type === 'bot') {
+              audioRef.current?.play().catch(e => console.log('Audio failed:', e));
+            }
+            
+            console.log('USER: Adding message, total:', prev.length + 1);
+            return [...prev, payload.new];
+          });
+        }
+      )
       .on(
         'postgres_changes',
         {
@@ -89,28 +105,24 @@ export function EnhancedSupportChat({ userId, onClose }: EnhancedSupportChatProp
           filter: `id=eq.${ticketId}`
         },
         async (payload) => {
-          console.log('USER: Ticket update received:', {
+          console.log('USER: Ticket updated:', {
             agent_online: payload.new.agent_online,
-            agent_typing: payload.new.agent_typing,
-            chat_mode: payload.new.chat_mode
+            agent_typing: payload.new.agent_typing
           });
           
           setAgentOnline(payload.new.agent_online || false);
           setAgentTyping(payload.new.agent_typing || false);
-          
-          // Update ticket state with latest data
           setTicket(payload.new);
           
-          // Fetch agent name if assigned and we don't have it yet
+          // Load agent info if assigned
           if (payload.new.assigned_agent_id && !agentName) {
             const { data } = await supabase
               .from('support_agents')
               .select('name, avatar_url')
               .eq('user_id', payload.new.assigned_agent_id)
-              .limit(1)
-              .maybeSingle();
+              .single();
             if (data) {
-              console.log('USER: Agent assigned:', data.name);
+              console.log('USER: Agent loaded:', data.name);
               setAgentName(data.name);
               setAgentAvatar(data.avatar_url || '');
             }
@@ -118,15 +130,15 @@ export function EnhancedSupportChat({ userId, onClose }: EnhancedSupportChatProp
         }
       )
       .subscribe((status) => {
-        console.log('USER: Ticket subscription status:', status);
+        console.log('USER: Subscription status:', status);
       });
 
-    ticketChannelRef.current = channel;
-
     return () => {
+      console.log('USER: Cleaning up subscriptions');
+      updateUserOnlineStatus(false);
       supabase.removeChannel(channel);
     };
-  };
+  }, [ticketId]);
 
   useEffect(() => {
     if (scrollRef.current) {
