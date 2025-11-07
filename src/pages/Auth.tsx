@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { ChevronRight, Eye, EyeOff } from "lucide-react";
+import { ChevronRight, Eye, EyeOff, Shield } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { LoginOTPModal } from "@/components/dashboard/LoginOTPModal";
 import bankLogo from "@/assets/vaultbank-logo.png";
@@ -23,6 +23,11 @@ const Auth = () => {
   const [showOTPModal, setShowOTPModal] = useState(false);
   const [pendingUserId, setPendingUserId] = useState<string>("");
   const [pendingUserEmail, setPendingUserEmail] = useState<string>("");
+  
+  // QR Verification state
+  const [showQRVerification, setShowQRVerification] = useState(false);
+  const [qrCode, setQrCode] = useState("");
+  const [qrLoading, setQrLoading] = useState(false);
 
   // Sign In form
   const [signInEmail, setSignInEmail] = useState("");
@@ -322,15 +327,89 @@ const Auth = () => {
           console.error("Error creating application:", appError);
         }
 
-        toast.success("Account created! Please check your email to verify your account.", { duration: 5000 });
+        toast.success("Account created! Please verify your email to continue.", { duration: 5000 });
         
-        // User stays signed in and will be redirected by auth state listener to verify-qr
+        // Show QR verification on the same page
+        setShowQRVerification(true);
       }
     } catch (error: any) {
       console.error("Sign up error:", error);
       toast.error(error?.message || "An error occurred during sign up");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleVerifyQR = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!qrCode.trim()) {
+      toast.error("Please enter your QR code");
+      return;
+    }
+
+    setQrLoading(true);
+
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) {
+        toast.error("Session expired. Please sign up again.");
+        setShowQRVerification(false);
+        setQrLoading(false);
+        return;
+      }
+
+      // Get application to verify QR code
+      const { data: application } = await supabase
+        .from("account_applications")
+        .select("qr_code_secret")
+        .eq("user_id", user.id)
+        .maybeSingle();
+
+      if (application && application.qr_code_secret !== qrCode.trim()) {
+        toast.error("Invalid QR code. Please check your email and try again.");
+        setQrLoading(false);
+        return;
+      }
+
+      // Update application
+      if (application) {
+        await supabase
+          .from("account_applications")
+          .update({ qr_code_verified: true })
+          .eq("user_id", user.id);
+      }
+
+      // Update profile
+      const { error: updateProfileError } = await supabase
+        .from("profiles")
+        .update({ 
+          qr_verified: true,
+          can_transact: true 
+        })
+        .eq("id", user.id);
+
+      if (updateProfileError) {
+        console.error("Error updating profile:", updateProfileError);
+        toast.error("Failed to update profile");
+        setQrLoading(false);
+        return;
+      }
+
+      toast.success("Email verified! You can now sign in to your account.");
+      
+      // Sign out and reset form
+      await supabase.auth.signOut();
+      setShowQRVerification(false);
+      setQrCode("");
+      setMode("signin");
+      
+    } catch (error) {
+      console.error("Error verifying QR:", error);
+      toast.error("An error occurred during verification");
+    } finally {
+      setQrLoading(false);
     }
   };
 
@@ -341,11 +420,81 @@ const Auth = () => {
           {mode === "signin" ? "Welcome Back" : "Create Account"}
         </h1>
 
-        <Tabs value={mode} onValueChange={(v) => setMode(v as "signin" | "signup")} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="signin">Sign In</TabsTrigger>
-            <TabsTrigger value="signup">Sign Up</TabsTrigger>
-          </TabsList>
+        {showQRVerification ? (
+          // QR Verification UI
+          <div className="space-y-6">
+            <div className="text-center space-y-2">
+              <div className="flex justify-center mb-4">
+                <div className="relative">
+                  <div className="absolute inset-0 bg-primary/20 blur-xl rounded-full"></div>
+                  <div className="relative bg-primary/10 p-4 rounded-2xl border border-primary/30">
+                    <Shield className="h-12 w-12 text-primary" />
+                  </div>
+                </div>
+              </div>
+              <h2 className="text-2xl font-bold">Verify Your Email</h2>
+              <p className="text-sm text-muted-foreground">
+                Check your email for the verification code to complete your account setup
+              </p>
+            </div>
+
+            <div className="bg-primary/5 border border-primary/20 rounded-xl p-4 space-y-2">
+              <p className="text-sm font-semibold text-primary flex items-center gap-2">
+                <Shield className="h-4 w-4" />
+                Security Verification Required
+              </p>
+              <p className="text-xs text-muted-foreground">
+                We've sent a verification email with a secret key. Enter it below to activate your account.
+              </p>
+            </div>
+
+            <form onSubmit={handleVerifyQR} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="qrCode" className="text-sm font-semibold">
+                  Security Secret Key
+                </Label>
+                <Input
+                  id="qrCode"
+                  type="text"
+                  placeholder="Enter your secret key from email"
+                  value={qrCode}
+                  onChange={(e) => setQrCode(e.target.value)}
+                  required
+                  className="h-12"
+                />
+                <p className="text-xs text-muted-foreground">
+                  Copy the secret key from your verification email
+                </p>
+              </div>
+
+              <Button 
+                type="submit" 
+                className="w-full h-12" 
+                disabled={qrLoading}
+              >
+                {qrLoading ? "Verifying..." : "Verify & Continue"}
+              </Button>
+
+              <Button 
+                type="button"
+                variant="outline"
+                className="w-full h-12"
+                onClick={() => {
+                  setShowQRVerification(false);
+                  setQrCode("");
+                  supabase.auth.signOut();
+                }}
+              >
+                Cancel
+              </Button>
+            </form>
+          </div>
+        ) : (
+          <Tabs value={mode} onValueChange={(v) => setMode(v as "signin" | "signup")} className="space-y-6">
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="signin">Sign In</TabsTrigger>
+              <TabsTrigger value="signup">Sign Up</TabsTrigger>
+            </TabsList>
 
           <TabsContent value="signin">
             <form onSubmit={handleSignIn} className="space-y-4 sm:space-y-6">
@@ -509,6 +658,7 @@ const Auth = () => {
             </form>
           </TabsContent>
         </Tabs>
+        )}
       </div>
 
       <LoginOTPModal
