@@ -89,16 +89,19 @@ export function EnhancedSupportChat({ userId, onClose }: EnhancedSupportChatProp
           filter: `id=eq.${ticketId}`
         },
         async (payload) => {
-          console.log('USER SIDE: Ticket update received:', {
+          console.log('USER: Ticket update received:', {
             agent_online: payload.new.agent_online,
-            agent_typing: payload.new.agent_typing
+            agent_typing: payload.new.agent_typing,
+            chat_mode: payload.new.chat_mode
           });
           
           setAgentOnline(payload.new.agent_online || false);
           setAgentTyping(payload.new.agent_typing || false);
+          
+          // Update ticket state with latest data
           setTicket(payload.new);
           
-          // Fetch agent name if assigned
+          // Fetch agent name if assigned and we don't have it yet
           if (payload.new.assigned_agent_id && !agentName) {
             const { data } = await supabase
               .from('support_agents')
@@ -115,7 +118,7 @@ export function EnhancedSupportChat({ userId, onClose }: EnhancedSupportChatProp
         }
       )
       .subscribe((status) => {
-        console.log('Ticket subscription status:', status);
+        console.log('USER: Ticket subscription status:', status);
       });
 
     ticketChannelRef.current = channel;
@@ -446,7 +449,10 @@ export function EnhancedSupportChat({ userId, onClose }: EnhancedSupportChatProp
 
       // Check if agent is online, if not use AI bot
       if (!agentOnline && ticket?.chat_mode !== 'agent') {
-        console.log('No agent online, calling AI bot...');
+        console.log('USER: No agent online, calling AI bot...', {
+          agentOnline,
+          chatMode: ticket?.chat_mode
+        });
         
         // Show bot typing indicator
         setBotTyping(true);
@@ -457,7 +463,7 @@ export function EnhancedSupportChat({ userId, onClose }: EnhancedSupportChatProp
             body: { message: messageText, ticketId }
           });
 
-          console.log('Bot response:', data, 'Error:', botError);
+          console.log('USER: Bot response:', data, 'Error:', botError);
 
           // Bot message will be added via realtime subscription - no need to reload
 
