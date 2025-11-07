@@ -31,6 +31,7 @@ export function EnhancedSupportChat({ userId, onClose }: EnhancedSupportChatProp
   const [ratingFeedback, setRatingFeedback] = useState("");
   const [userOnline, setUserOnline] = useState(true);
   const [agentTyping, setAgentTyping] = useState(false);
+  const [botTyping, setBotTyping] = useState(false);
   const [agentName, setAgentName] = useState("");
   const scrollRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -369,6 +370,9 @@ export function EnhancedSupportChat({ userId, onClose }: EnhancedSupportChatProp
       if (!agentOnline && ticket?.chat_mode !== 'agent') {
         console.log('No agent online, calling AI bot...');
         
+        // Show bot typing indicator
+        setBotTyping(true);
+        
         // Call AI bot (don't throw error if bot fails - message still sent)
         try {
           const { data, error: botError } = await supabase.functions.invoke('support-bot', {
@@ -407,6 +411,9 @@ export function EnhancedSupportChat({ userId, onClose }: EnhancedSupportChatProp
         } catch (botError) {
           // Bot failed, but user's message was still sent successfully
           console.error('Bot error (non-fatal):', botError);
+        } finally {
+          // Hide bot typing indicator
+          setBotTyping(false);
         }
       }
     } catch (error: any) {
@@ -608,23 +615,23 @@ export function EnhancedSupportChat({ userId, onClose }: EnhancedSupportChatProp
                      </div>
                    </div>
                  ))}
-                  {agentTyping && (
+                  {(agentTyping || botTyping) && (
                    <div className="flex gap-3">
                      <Avatar className="h-10 w-10 border-2">
                        <AvatarFallback className="bg-primary text-primary-foreground">
-                         {agentName ? agentName.charAt(0) : "A"}
+                         {botTyping ? "🤖" : (agentName ? agentName.charAt(0) : "A")}
                        </AvatarFallback>
                      </Avatar>
                      <div className="flex-1">
                        <div className="inline-block rounded-2xl px-4 py-3 bg-muted rounded-tl-none">
                          <div className="flex items-center gap-2">
                            <div className="flex gap-1">
-                             <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" />
-                             <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }} />
-                             <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }} />
+                             <div className="w-2 h-2 bg-primary rounded-full animate-bounce" />
+                             <div className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{ animationDelay: '0.1s' }} />
+                             <div className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{ animationDelay: '0.2s' }} />
                            </div>
                            <span className="text-xs text-muted-foreground ml-2">
-                             {agentName ? `${agentName.replace('Support - ', '')} is typing...` : 'Agent is typing...'}
+                             {botTyping ? 'AI is thinking...' : (agentName ? `${agentName.replace('Support - ', '')} is typing...` : 'Agent is typing...')}
                            </span>
                          </div>
                        </div>
