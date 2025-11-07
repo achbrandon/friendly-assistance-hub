@@ -611,6 +611,15 @@ export function EnhancedSupportChat({ userId, onClose }: EnhancedSupportChatProp
                             minute: '2-digit'
                           })}
                         </span>
+                        {message.sender_type === 'user' && message.is_read && (
+                          <span className="flex items-center gap-1 text-primary">
+                            <svg className="h-3 w-3" viewBox="0 0 16 16" fill="currentColor">
+                              <path d="M13.854 3.646a.5.5 0 0 1 0 .708l-7 7a.5.5 0 0 1-.708 0l-3.5-3.5a.5.5 0 1 1 .708-.708L6.5 10.293l6.646-6.647a.5.5 0 0 1 .708 0z"/>
+                              <path d="M15.354 3.646a.5.5 0 0 1 0 .708l-7 7a.5.5 0 0 1-.708 0l-.354-.354 6.646-6.647a.5.5 0 0 1 .708 0z" fillOpacity="0.5"/>
+                            </svg>
+                            <span className="text-[10px]">Read</span>
+                          </span>
+                        )}
                       </div>
                      </div>
                    </div>
