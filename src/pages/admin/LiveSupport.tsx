@@ -79,6 +79,7 @@ export default function LiveSupport() {
           id: payload.new.id,
           sender_type: payload.new.sender_type,
           ticket_id: payload.new.ticket_id,
+          message: payload.new.message,
           selectedChatId: selectedChat?.id
         });
         
@@ -90,10 +91,18 @@ export default function LiveSupport() {
           });
         }
         
-        // Always reload messages for the selected chat to maintain order
+        // Always update messages for the selected chat
         if (selectedChat && payload.new.ticket_id === selectedChat.id) {
-          console.log('Reloading messages for ticket:', selectedChat.id);
-          loadMessages(selectedChat.id);
+          console.log('Adding message to state directly');
+          setMessages(prev => {
+            // Check if message already exists
+            if (prev.some(msg => msg.id === payload.new.id)) {
+              console.log('Message already exists in state');
+              return prev;
+            }
+            console.log('Adding new message to state');
+            return [...prev, payload.new];
+          });
           
           // Mark customer messages as read immediately
           if (payload.new.sender_type === 'user') {
@@ -194,7 +203,7 @@ export default function LiveSupport() {
     
     // Load ratings for each agent
     if (data && data.length > 0) {
-      const agentIds = data.map((a: any) => a.user_id);
+      const agentIds = data.map((a: any) => a.id);
       const { data: ratingsData } = await supabase
         .from('support_ratings')
         .select(`
@@ -282,19 +291,19 @@ export default function LiveSupport() {
 
     setSelectedAgent(agentId);
 
-    // Find the agent to get the user_id
+    // Find the agent
     const agent = agents.find(a => a.id === agentId);
     if (!agent) {
       toast.error('Agent not found');
       return;
     }
 
-    console.log('Assigning agent:', { agentId, userId: agent.user_id, chatId: selectedChat.id });
+    console.log('Assigning agent:', { agentId, agentName: agent.name, chatId: selectedChat.id });
 
     const { error } = await supabase
       .from('support_tickets')
       .update({ 
-        assigned_agent_id: agent.user_id,  // Use user_id, not id
+        assigned_agent_id: agentId,  // Use agent id directly
         chat_mode: 'agent',
         agent_online: true
       })
@@ -309,7 +318,7 @@ export default function LiveSupport() {
     // Update selectedChat state so sending messages works immediately
     setSelectedChat(prev => prev ? {
       ...prev,
-      assigned_agent_id: agent.user_id,
+      assigned_agent_id: agentId,
       chat_mode: 'agent',
       agent_online: true
     } : null);
@@ -451,7 +460,7 @@ export default function LiveSupport() {
                           <Badge variant="outline" className="text-xs">Waiting for agent</Badge>
                         )}
                         {chat.assigned_agent_id && (() => {
-                          const agent = agents.find(a => a.user_id === chat.assigned_agent_id);
+                          const agent = agents.find(a => a.id === chat.assigned_agent_id);
                           const rating = agentRatings[chat.assigned_agent_id];
                           return (
                             <div className="flex items-center gap-1">
@@ -504,7 +513,7 @@ export default function LiveSupport() {
                           </>
                         )}
                         {selectedChat.assigned_agent_id && (() => {
-                          const agent = agents.find(a => a.user_id === selectedChat.assigned_agent_id);
+                          const agent = agents.find(a => a.id === selectedChat.assigned_agent_id);
                           return agent && (
                             <Badge variant="secondary" className="ml-2">
                               Handled by: {agent.name.replace('Support - ', '')}
@@ -523,7 +532,7 @@ export default function LiveSupport() {
                   >
                     <option value="">Assign agent...</option>
                     {agents.map((agent) => {
-                      const rating = agentRatings[agent.user_id];
+                      const rating = agentRatings[agent.id];
                       const ratingText = rating 
                         ? ` ⭐ ${rating.avg.toFixed(1)} (${rating.count})` 
                         : '';
@@ -554,7 +563,7 @@ export default function LiveSupport() {
                     >
                       <Avatar className="w-8 h-8">
                         {message.sender_type === 'staff' && (() => {
-                          const agent = agents.find(a => a.user_id === selectedChat?.assigned_agent_id);
+                          const agent = agents.find(a => a.id === selectedChat?.assigned_agent_id);
                           return agent?.avatar_url && <AvatarImage src={agent.avatar_url} alt={agent.name} />;
                         })()}
                         <AvatarFallback className={message.sender_type === 'user' ? 'bg-slate-600 text-white' : (message.sender_type === 'staff' ? 'bg-green-600 text-white' : 'bg-blue-600 text-white')}>

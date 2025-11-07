@@ -103,8 +103,9 @@ export function EnhancedSupportChat({ userId, onClose }: EnhancedSupportChatProp
             const { data } = await supabase
               .from('support_agents')
               .select('name, avatar_url')
-              .eq('user_id', payload.new.assigned_agent_id)
-              .single();
+              .eq('id', payload.new.assigned_agent_id)
+              .limit(1)
+              .maybeSingle();
             if (data) {
               setAgentName(data.name);
               setAgentAvatar(data.avatar_url || '');
@@ -294,8 +295,9 @@ export function EnhancedSupportChat({ userId, onClose }: EnhancedSupportChatProp
           const { data: agentData } = await supabase
             .from('support_agents')
             .select('name, avatar_url')
-            .eq('user_id', currentTicket.assigned_agent_id)
-            .single();
+            .eq('id', currentTicket.assigned_agent_id)
+            .limit(1)
+            .maybeSingle();
           if (agentData) {
             setAgentName(agentData.name);
             setAgentAvatar(agentData.avatar_url || '');
