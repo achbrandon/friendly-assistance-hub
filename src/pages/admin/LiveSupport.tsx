@@ -276,21 +276,30 @@ export default function LiveSupport() {
 
     setSelectedAgent(agentId);
 
+    // Find the agent to get the user_id
+    const agent = agents.find(a => a.id === agentId);
+    if (!agent) {
+      toast.error('Agent not found');
+      return;
+    }
+
+    console.log('Assigning agent:', { agentId, userId: agent.user_id, chatId: selectedChat.id });
+
     const { error } = await supabase
       .from('support_tickets')
       .update({ 
-        assigned_agent_id: agentId,
+        assigned_agent_id: agent.user_id,  // Use user_id, not id
         chat_mode: 'agent',
         agent_online: true
       })
       .eq('id', selectedChat.id);
 
     if (error) {
-      toast.error('Failed to assign agent');
+      console.error('Agent assignment error:', error);
+      toast.error(`Failed to assign agent: ${error.message}`);
       return;
     }
 
-    const agent = agents.find(a => a.id === agentId);
     toast.success(`${agent?.name} assigned to this ticket`);
   };
 
