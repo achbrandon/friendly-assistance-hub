@@ -47,6 +47,14 @@ export default function AdminSupport() {
     updateAgentStatus(true);
     markTicketMessagesAsRead(selectedTicket.id);
 
+    // Polling fallback - check for new messages every 3 seconds
+    const pollInterval = setInterval(async () => {
+      if (!isConnected) {
+        console.log('ADMIN: Realtime disconnected, polling for new messages');
+        await loadMessages(selectedTicket.id);
+      }
+    }, 3000);
+
     // Set up ONE channel for all events for this ticket
     const channel = supabase
       .channel(`admin-ticket-${selectedTicket.id}`)
@@ -112,6 +120,7 @@ export default function AdminSupport() {
 
     return () => {
       console.log('ADMIN: Cleaning up ticket subscriptions');
+      clearInterval(pollInterval);
       updateAgentStatus(false);
       // Clear typing status on cleanup
       if (selectedTicket?.id) {
@@ -127,7 +136,7 @@ export default function AdminSupport() {
       supabase.removeChannel(channel);
       channelRef.current = null;
     };
-  }, [selectedTicket]);
+  }, [selectedTicket, isConnected]);
 
   const subscribeToTickets = () => {
     const channel = supabase

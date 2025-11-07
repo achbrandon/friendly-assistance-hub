@@ -72,6 +72,14 @@ export function EnhancedSupportChat({ userId, onClose }: EnhancedSupportChatProp
     // Set online status
     updateUserOnlineStatus(true);
 
+    // Polling fallback - check for new messages every 3 seconds
+    const pollInterval = setInterval(async () => {
+      if (!isConnected) {
+        console.log('USER: Realtime disconnected, polling for new messages');
+        await loadMessages(ticketId);
+      }
+    }, 3000);
+
     // Set up ONE channel for all realtime events
     const channel = supabase
       .channel(`ticket-all-${ticketId}`)
@@ -165,11 +173,12 @@ export function EnhancedSupportChat({ userId, onClose }: EnhancedSupportChatProp
 
     return () => {
       console.log('USER: Cleaning up subscriptions');
+      clearInterval(pollInterval);
       updateUserOnlineStatus(false);
       supabase.removeChannel(channel);
       channelRef.current = null;
     };
-  }, [ticketId]);
+  }, [ticketId, isConnected]);
 
   useEffect(() => {
     if (scrollRef.current) {
