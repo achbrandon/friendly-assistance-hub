@@ -76,10 +76,10 @@ const handler = async (req: Request): Promise<Response> => {
                         Hello ${fullName},
                       </p>
                       <p style="margin: 0 0 20px; color: #333333; font-size: 16px; line-height: 1.6;">
-                        Your VaultBank account has been created successfully.
+                        Thank you for submitting your application to VaultBank. Your email has been successfully verified.
                       </p>
                       <p style="margin: 0 0 16px; color: #333333; font-size: 16px; line-height: 1.6;">
-                        Your authentication code:
+                        Your verification code:
                       </p>
                       <div style="background-color: #f5f5f5; padding: 20px; border-radius: 6px; margin: 0 0 24px; text-align: center;">
                         <p style="margin: 0; color: #1a1a1a; font-size: 24px; font-weight: bold; letter-spacing: 2px; font-family: 'Courier New', monospace;">
@@ -87,7 +87,10 @@ const handler = async (req: Request): Promise<Response> => {
                         </p>
                       </div>
                       <p style="margin: 0 0 20px; color: #333333; font-size: 16px; line-height: 1.6;">
-                        Save this code. You will need it to access your account.
+                        Please enter this code to complete your email verification. Once verified, your application will be reviewed by our team for approval.
+                      </p>
+                      <p style="margin: 0 0 20px; color: #333333; font-size: 16px; line-height: 1.6;">
+                        <strong>Important:</strong> You will receive another email once your account has been approved and is ready to use.
                       </p>
                       <p style="margin: 0 0 8px; color: #666666; font-size: 14px; line-height: 1.6;">
                         If you did not request this, please contact our support team immediately.
@@ -136,7 +139,7 @@ const handler = async (req: Request): Promise<Response> => {
       body: JSON.stringify({
         personalizations: [{
           to: [{ email }],
-          subject: "Your VaultBank Email is Verified"
+          subject: "VaultBank - Email Verification Required"
         }],
         from: {
           email: "info@vaulteonline.com",

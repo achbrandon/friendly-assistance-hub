@@ -1232,10 +1232,10 @@ const OpenAccount = () => {
               setVerificationSuccess(true);
               setQrLoading(false);
               
-              // Wait 2 seconds then sign out and redirect
+              // Wait 2 seconds then sign out and redirect to home page
               setTimeout(async () => {
                 await supabase.auth.signOut();
-                window.location.href = "/auth";
+                window.location.href = "/";
               }, 2000);
               
             } catch (error) {
@@ -1266,10 +1266,10 @@ const OpenAccount = () => {
               <div className="text-center py-6 space-y-4">
                 <CheckCircle className="w-16 h-16 text-green-500 mx-auto" />
                 <p className="text-xl font-semibold text-green-600">
-                  Account verified successfully!
+                  Email verified successfully!
                 </p>
                 <p className="text-sm text-muted-foreground">
-                  Redirecting to sign in...
+                  Your application is being reviewed. You'll receive an email once approved.
                 </p>
               </div>
             ) : (
