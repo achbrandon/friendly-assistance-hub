@@ -358,28 +358,40 @@ export function EnhancedSupportChat({ userId, onClose }: EnhancedSupportChatProp
       const fileExt = file.name.split('.').pop();
       const fileName = `${userId}/${Date.now()}.${fileExt}`;
       
+      console.log('USER: Uploading file to support-attachments bucket:', fileName);
+      
       const { error: uploadError } = await supabase.storage
-        .from('avatars')
+        .from('support-attachments')
         .upload(fileName, file);
 
-      if (uploadError) throw uploadError;
+      if (uploadError) {
+        console.error('USER: Upload error:', uploadError);
+        throw uploadError;
+      }
 
       const { data: { publicUrl } } = supabase.storage
-        .from('avatars')
+        .from('support-attachments')
         .getPublicUrl(fileName);
+
+      console.log('USER: File uploaded successfully, URL:', publicUrl);
 
       await supabase.from("support_messages").insert({
         ticket_id: ticketId,
-        message: `Sent file: ${file.name}`,
-        sender_type: "user"
+        message: `📎 ${file.name}`,
+        sender_type: "user",
+        file_url: publicUrl,
+        file_name: file.name
       });
 
       toast.success("File uploaded successfully");
     } catch (error: any) {
       console.error("Error uploading file:", error);
-      toast.error("Failed to upload file");
+      toast.error(error.message || "Failed to upload file");
     } finally {
       setUploading(false);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
     }
   };
 
