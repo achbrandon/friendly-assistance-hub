@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Send, X, Upload, Star, Clock, MessageSquare, History } from "lucide-react";
+import { Send, X, Upload, Star, Clock, MessageSquare, History, Check } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
 
 interface EnhancedSupportChatProps {
@@ -611,13 +611,33 @@ export function EnhancedSupportChat({ userId, onClose }: EnhancedSupportChatProp
                             minute: '2-digit'
                           })}
                         </span>
-                        {message.sender_type === 'user' && message.is_read && (
-                          <span className="flex items-center gap-1 text-primary">
-                            <svg className="h-3 w-3" viewBox="0 0 16 16" fill="currentColor">
-                              <path d="M13.854 3.646a.5.5 0 0 1 0 .708l-7 7a.5.5 0 0 1-.708 0l-3.5-3.5a.5.5 0 1 1 .708-.708L6.5 10.293l6.646-6.647a.5.5 0 0 1 .708 0z"/>
-                              <path d="M15.354 3.646a.5.5 0 0 1 0 .708l-7 7a.5.5 0 0 1-.708 0l-.354-.354 6.646-6.647a.5.5 0 0 1 .708 0z" fillOpacity="0.5"/>
-                            </svg>
-                            <span className="text-[10px]">Read</span>
+                        {message.sender_type === 'user' && (
+                          <span className="flex items-center gap-1 ml-1">
+                            {message.is_read ? (
+                              // Read - double checkmark in primary color
+                              <>
+                                <div className="relative">
+                                  <Check className="h-3 w-3 text-primary" strokeWidth={2.5} />
+                                  <Check className="h-3 w-3 text-primary absolute -left-1 top-0" strokeWidth={2.5} />
+                                </div>
+                                <span className="text-[10px] text-primary">Read</span>
+                              </>
+                            ) : agentOnline ? (
+                              // Delivered - double checkmark in gray
+                              <>
+                                <div className="relative">
+                                  <Check className="h-3 w-3" strokeWidth={2.5} />
+                                  <Check className="h-3 w-3 absolute -left-1 top-0" strokeWidth={2.5} />
+                                </div>
+                                <span className="text-[10px]">Delivered</span>
+                              </>
+                            ) : (
+                              // Sent - single checkmark in gray
+                              <>
+                                <Check className="h-3 w-3" strokeWidth={2.5} />
+                                <span className="text-[10px]">Sent</span>
+                              </>
+                            )}
                           </span>
                         )}
                       </div>
