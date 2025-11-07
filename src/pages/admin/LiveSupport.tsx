@@ -15,6 +15,7 @@ export default function LiveSupport() {
   const [messages, setMessages] = useState<any[]>([]);
   const [newMessage, setNewMessage] = useState("");
   const [loading, setLoading] = useState(true);
+  const [isSending, setIsSending] = useState(false);
   const [agents, setAgents] = useState<any[]>([]);
   const [agentRatings, setAgentRatings] = useState<Record<string, { avg: number; count: number }>>({});
   const [selectedAgent, setSelectedAgent] = useState<string>("");
@@ -300,6 +301,14 @@ export default function LiveSupport() {
       return;
     }
 
+    // Update selectedChat state so sending messages works immediately
+    setSelectedChat(prev => prev ? {
+      ...prev,
+      assigned_agent_id: agent.user_id,
+      chat_mode: 'agent',
+      agent_online: true
+    } : null);
+
     toast.success(`${agent?.name} assigned to this ticket`);
   };
 
@@ -312,9 +321,19 @@ export default function LiveSupport() {
       return;
     }
 
+    setIsSending(true);
     try {
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
+      if (!user) {
+        toast.error('Not authenticated');
+        return;
+      }
+
+      console.log('Sending staff message:', { 
+        ticket_id: selectedChat.id, 
+        message: newMessage.trim(),
+        user_id: user.id 
+      });
 
       // Don't add to state here - let realtime handle it
       const { error } = await supabase
@@ -325,7 +344,10 @@ export default function LiveSupport() {
           sender_type: 'staff'
         });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Message send error:', error);
+        throw error;
+      }
 
       setNewMessage("");
       
@@ -338,9 +360,11 @@ export default function LiveSupport() {
           agent_online: true
         })
         .eq('id', selectedChat.id);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error sending message:", error);
-      toast.error("Failed to send message");
+      toast.error(`Failed to send message: ${error.message || 'Unknown error'}`);
+    } finally {
+      setIsSending(false);
     }
   };
 
