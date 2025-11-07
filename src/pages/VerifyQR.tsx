@@ -128,46 +128,13 @@ const VerifyQR = () => {
         return;
       }
 
-      toast.success("QR code verified successfully!");
+      toast.success("Email verified successfully! You can now sign in to your account.");
       
-      // Check if user's application is approved
-      const { data: profile } = await supabase
-        .from("profiles")
-        .select("*")
-        .eq("id", userId)
-        .single();
-
-      const { data: application } = await supabase
-        .from("account_applications")
-        .select("status")
-        .eq("user_id", userId)
-        .maybeSingle();
-
-      // Show loading spinner
-      setLoading(true);
-      
-      // Wait for 1 second to show the loading state
-      await new Promise(resolve => setTimeout(resolve, 1000));
-
-      // If application is not approved, show waiting message
-      if (application?.status !== "approved") {
-        toast.info("Your account is under review. You'll be notified once approved.", {
-          duration: 6000,
-        });
-        
-        // Sign out the user
-        await supabase.auth.signOut();
-        
-        // Redirect to a waiting page or home
-        navigate("/verification-success?status=pending");
-        return;
-      }
-      
-      // If approved, sign out and let them login fresh
+      // Sign out the user so they can login with full verification
       await supabase.auth.signOut();
       
-      // Redirect to verification success page
-      navigate("/verification-success");
+      // Redirect to sign in page
+      navigate("/auth");
     } catch (error) {
       console.error("Error verifying QR:", error);
       toast.error("An error occurred during verification");

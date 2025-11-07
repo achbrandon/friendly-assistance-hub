@@ -306,7 +306,7 @@ const Auth = () => {
       }
 
       if (data.user) {
-        // Create account application
+        // Create account application with approved status for new signups
         const { error: appError } = await supabase
           .from("account_applications")
           .insert({
@@ -315,13 +315,14 @@ const Auth = () => {
             full_name: signUpFullName,
             account_type: "personal",
             qr_code_secret: qrSecret,
+            status: "approved", // Auto-approve new account signups
           });
 
         if (appError) {
           console.error("Error creating application:", appError);
         }
 
-        toast.success("Account created! Please complete QR verification to access your account.", { duration: 5000 });
+        toast.success("Account created! Please check your email to verify your account.", { duration: 5000 });
         
         // User stays signed in and will be redirected by auth state listener to verify-qr
       }
