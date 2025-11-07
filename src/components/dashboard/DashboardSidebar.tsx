@@ -18,6 +18,7 @@ import {
   Link,
   Download,
   BarChart3,
+  Shield,
 } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import {
@@ -50,6 +51,7 @@ const menuItems = [
   { title: "Generate Statement", url: "/dashboard/generate-statement", icon: Download },
   { title: "Offers & Rewards", url: "/dashboard/offers", icon: Gift },
   { title: "Alerts", url: "/dashboard/alerts", icon: Bell },
+  { title: "Login History", url: "/dashboard/login-history", icon: Shield },
   { title: "Settings", url: "/dashboard/settings", icon: Settings },
   { title: "Support", url: "/dashboard/support", icon: LifeBuoy },
 ];

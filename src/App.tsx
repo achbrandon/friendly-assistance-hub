@@ -67,6 +67,8 @@ import CreateTestAccount from "./pages/CreateTestAccount";
 import CreateAdminAccount from "./pages/CreateAdminAccount";
 import CheckAdmin from "./pages/CheckAdmin";
 import ActivityLogs from "./pages/admin/ActivityLogs";
+import AuthenticationLogs from "./pages/admin/AuthenticationLogs";
+import LoginHistory from "./pages/dashboard/LoginHistory";
 import { useState } from "react";
 
 const queryClient = new QueryClient();
@@ -138,6 +140,7 @@ function AppRoutes() {
       <Route path="/dashboard/admin-support" element={<AdminSupport />} />
       <Route path="/dashboard/request-account" element={<RequestAccount />} />
       <Route path="/dashboard/analytics" element={<Analytics />} />
+      <Route path="/dashboard/login-history" element={<LoginHistory />} />
       
       {/* Admin Routes */}
       <Route path="/admin" element={<AdminDashboard />}>
@@ -154,6 +157,7 @@ function AppRoutes() {
         <Route path="settings" element={<AdminSettings />} />
         <Route path="activity" element={<AdminUserActivity />} />
         <Route path="activity-logs" element={<ActivityLogs />} />
+        <Route path="authentication-logs" element={<AuthenticationLogs />} />
       </Route>
       
       {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

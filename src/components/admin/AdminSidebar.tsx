@@ -9,7 +9,8 @@ import {
   FileText,
   UserCog,
   Activity,
-  Sliders
+  Sliders,
+  Shield
 } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import {
@@ -89,6 +90,11 @@ const menuItems = [
     title: "Activity Logs",
     url: "/admin/activity-logs",
     icon: FileText,
+  },
+  {
+    title: "Authentication Logs",
+    url: "/admin/authentication-logs",
+    icon: Shield,
   },
 ];
 
