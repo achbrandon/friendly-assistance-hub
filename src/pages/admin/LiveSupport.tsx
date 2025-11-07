@@ -75,12 +75,12 @@ export default function LiveSupport() {
         schema: 'public', 
         table: 'support_messages' 
       }, (payload) => {
-        console.log('ADMIN SIDE: New message received:', {
+        console.log('ADMIN: Message INSERT received:', {
           id: payload.new.id,
           sender_type: payload.new.sender_type,
           ticket_id: payload.new.ticket_id,
-          message: payload.new.message,
-          selectedChatId: selectedChat?.id
+          selectedChatId: selectedChat?.id,
+          matches: payload.new.ticket_id === selectedChat?.id
         });
         
         if (payload.new.sender_type === 'user') {
@@ -93,14 +93,14 @@ export default function LiveSupport() {
         
         // Always update messages for the selected chat
         if (selectedChat && payload.new.ticket_id === selectedChat.id) {
-          console.log('Adding message to state directly');
+          console.log('ADMIN: Ticket matches, adding to state');
           setMessages(prev => {
             // Check if message already exists
             if (prev.some(msg => msg.id === payload.new.id)) {
-              console.log('Message already exists in state');
+              console.log('ADMIN: Message already exists in state');
               return prev;
             }
-            console.log('Adding new message to state');
+            console.log('ADMIN: Adding new message to state, total will be:', prev.length + 1);
             return [...prev, payload.new];
           });
           
@@ -112,6 +112,8 @@ export default function LiveSupport() {
               .eq('id', payload.new.id)
               .then();
           }
+        } else {
+          console.log('ADMIN: Message not for selected chat, ignoring');
         }
         loadActiveChats();
       })

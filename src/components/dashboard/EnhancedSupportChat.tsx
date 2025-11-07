@@ -192,12 +192,17 @@ export function EnhancedSupportChat({ userId, onClose }: EnhancedSupportChatProp
           filter: `ticket_id=eq.${ticketId}`
         },
         (payload) => {
-          console.log('USER SIDE: New message received:', payload.new.id);
+          console.log('USER SIDE: New message INSERT received:', {
+            id: payload.new.id,
+            sender_type: payload.new.sender_type,
+            message: payload.new.message?.substring(0, 50)
+          });
+          
           setMessages(prev => {
             // Check for duplicate by ID
             const isDuplicate = prev.some(msg => msg.id === payload.new.id);
             if (isDuplicate) {
-              console.log('Duplicate message prevented:', payload.new.id);
+              console.log('USER: Duplicate message prevented:', payload.new.id);
               return prev;
             }
             
@@ -206,7 +211,7 @@ export function EnhancedSupportChat({ userId, onClose }: EnhancedSupportChatProp
               audioRef.current?.play().catch(err => console.log('Audio play failed:', err));
             }
             
-            console.log('Adding new message to state');
+            console.log('USER: Adding new message to state, total will be:', prev.length + 1);
             return [...prev, payload.new];
           });
         }
@@ -452,12 +457,7 @@ export function EnhancedSupportChat({ userId, onClose }: EnhancedSupportChatProp
 
           console.log('Bot response:', data, 'Error:', botError);
 
-          // Reload messages to ensure bot message is displayed
-          if (!botError) {
-            // Wait a moment for the bot message to be inserted
-            await new Promise(resolve => setTimeout(resolve, 500));
-            await loadMessages(ticketId);
-          }
+          // Bot message will be added via realtime subscription - no need to reload
 
           // If bot succeeded and suggests live agent
           if (data?.suggestsLiveAgent) {
