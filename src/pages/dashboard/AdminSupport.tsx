@@ -16,10 +16,18 @@ export default function AdminSupport() {
   const [messages, setMessages] = useState<any[]>([]);
   const [newMessage, setNewMessage] = useState("");
   const [loading, setLoading] = useState(false);
+  const [unreadCounts, setUnreadCounts] = useState<Record<string, number>>({});
+  const audioRef = useState<HTMLAudioElement | null>(null)[0];
 
   useEffect(() => {
+    // Initialize audio
+    const audio = new Audio('/notification.mp3');
+    audio.volume = 0.5;
+    (audioRef as any) = audio;
+    
     loadTickets();
     subscribeToTickets();
+    loadAllUnreadCounts();
   }, []);
 
   useEffect(() => {
@@ -27,6 +35,7 @@ export default function AdminSupport() {
       loadMessages(selectedTicket.id);
       subscribeToMessages(selectedTicket.id);
       updateAgentStatus(true);
+      markTicketMessagesAsRead(selectedTicket.id);
     }
 
     return () => {
@@ -57,6 +66,48 @@ export default function AdminSupport() {
     };
   };
 
+  const loadAllUnreadCounts = async () => {
+    try {
+      const { data: ticketsData } = await supabase
+        .from("support_tickets")
+        .select("id");
+
+      if (!ticketsData) return;
+
+      const counts: Record<string, number> = {};
+      
+      for (const ticket of ticketsData) {
+        const { count } = await supabase
+          .from("support_messages")
+          .select("*", { count: "exact", head: true })
+          .eq("ticket_id", ticket.id)
+          .eq("sender_type", "user")
+          .eq("is_read", false);
+        
+        counts[ticket.id] = count || 0;
+      }
+      
+      setUnreadCounts(counts);
+    } catch (error) {
+      console.error("Error loading unread counts:", error);
+    }
+  };
+
+  const markTicketMessagesAsRead = async (ticketId: string) => {
+    try {
+      await supabase
+        .from("support_messages")
+        .update({ is_read: true })
+        .eq("ticket_id", ticketId)
+        .eq("sender_type", "user")
+        .eq("is_read", false);
+      
+      setUnreadCounts(prev => ({ ...prev, [ticketId]: 0 }));
+    } catch (error) {
+      console.error("Error marking messages as read:", error);
+    }
+  };
+
   const subscribeToMessages = (ticketId: string) => {
     const channel = supabase
       .channel(`admin-messages-${ticketId}`)
@@ -71,6 +122,15 @@ export default function AdminSupport() {
         (payload) => {
           console.log('ADMIN SIDE: New message received:', payload.new);
           setMessages(prev => [...prev, payload.new]);
+          
+          // Play sound and update counter if it's a user message
+          if (payload.new.sender_type === 'user') {
+            (audioRef as any)?.play().catch((err: any) => console.log('Audio play failed:', err));
+            setUnreadCounts(prev => ({
+              ...prev,
+              [ticketId]: (prev[ticketId] || 0) + 1
+            }));
+          }
         }
       )
       .on(
@@ -198,9 +258,16 @@ export default function AdminSupport() {
                                 <p className="text-xs text-muted-foreground">{ticket.subject}</p>
                               </div>
                             </div>
-                            {ticket.user_online && (
-                              <Badge variant="default" className="text-xs">Online</Badge>
-                            )}
+                            <div className="flex items-center gap-2">
+                              {unreadCounts[ticket.id] > 0 && (
+                                <Badge variant="destructive" className="text-xs">
+                                  {unreadCounts[ticket.id]}
+                                </Badge>
+                              )}
+                              {ticket.user_online && (
+                                <Badge variant="default" className="text-xs">Online</Badge>
+                              )}
+                            </div>
                           </div>
                           <div className="flex items-center gap-2 text-xs text-muted-foreground">
                             <Clock className="h-3 w-3" />
