@@ -43,7 +43,7 @@ export default function AdminSupportPage() {
         schema: 'public', 
         table: 'support_messages' 
       }, (payload) => {
-        if (!payload.new.is_staff) {
+        if (payload.new.sender_type === 'user') {
           toast.success("New message from customer", { icon: <Bell className="h-4 w-4" /> });
         }
       })
@@ -156,7 +156,7 @@ export default function AdminSupportPage() {
         .from("support_messages")
         .update({ is_read: true })
         .eq("ticket_id", ticketId)
-        .eq("is_staff", false);
+        .eq("sender_type", "user");
       
       await updateQuery;
     } catch (error) {
@@ -180,7 +180,7 @@ export default function AdminSupportPage() {
           }
           return [...prev, payload.new];
         });
-        if (!payload.new.is_staff) {
+        if (payload.new.sender_type === 'user') {
           markMessageAsRead(payload.new.id);
         }
       })
@@ -216,9 +216,8 @@ export default function AdminSupportPage() {
         .from("support_messages")
         .insert({
           ticket_id: selectedTicket.id,
-          sender_id: user.id,
           message: newMessage.trim(),
-          is_staff: true
+          sender_type: 'staff'
         });
 
       if (error) throw error;
@@ -439,11 +438,11 @@ export default function AdminSupportPage() {
                     {messages.map((message) => (
                       <div
                         key={message.id}
-                        className={`flex ${message.is_staff ? "justify-end" : "justify-start"}`}
+                        className={`flex ${message.sender_type !== 'user' ? "justify-end" : "justify-start"}`}
                       >
                         <div
                           className={`max-w-[70%] rounded-lg p-3 ${
-                            message.is_staff
+                            message.sender_type !== 'user'
                               ? "bg-primary text-primary-foreground"
                               : "bg-slate-700 text-white"
                           }`}
@@ -453,7 +452,7 @@ export default function AdminSupportPage() {
                             <span className="text-xs opacity-70">
                               {new Date(message.created_at).toLocaleTimeString()}
                             </span>
-                            {message.is_staff && message.is_read && (
+                            {message.sender_type !== 'user' && message.is_read && (
                               <span className="text-xs opacity-70">• Read</span>
                             )}
                           </div>

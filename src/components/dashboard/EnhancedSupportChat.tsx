@@ -131,8 +131,7 @@ export function EnhancedSupportChat({ userId, onClose }: EnhancedSupportChatProp
       supabase
         .from('support_tickets')
         .update({ 
-          user_typing: true,
-          user_typing_at: new Date().toISOString()
+          user_typing: true
         })
         .eq('id', ticketId)
         .then();
@@ -267,9 +266,8 @@ export function EnhancedSupportChat({ userId, onClose }: EnhancedSupportChatProp
 
         setMessages([{
           id: "welcome",
-          sender_id: "system",
           message: "Hello! Welcome to VaultBank support. An agent will be with you shortly. How can we help you today?",
-          is_staff: true,
+          sender_type: "staff",
           created_at: new Date().toISOString()
         }]);
       }
@@ -331,11 +329,8 @@ export function EnhancedSupportChat({ userId, onClose }: EnhancedSupportChatProp
 
       await supabase.from("support_messages").insert({
         ticket_id: ticketId,
-        sender_id: userId,
         message: `Sent file: ${file.name}`,
-        is_staff: false,
-        file_url: publicUrl,
-        file_name: file.name
+        sender_type: "user"
       });
 
       toast.success("File uploaded successfully");
@@ -358,9 +353,8 @@ export function EnhancedSupportChat({ userId, onClose }: EnhancedSupportChatProp
       // Insert the user's message to database (real-time will handle UI update)
       const { error: insertError } = await supabase.from("support_messages").insert({
         ticket_id: ticketId,
-        sender_id: userId,
         message: messageText,
-        is_staff: false
+        sender_type: "user"
       });
 
       if (insertError) throw insertError;
@@ -390,9 +384,24 @@ export function EnhancedSupportChat({ userId, onClose }: EnhancedSupportChatProp
             .update({ chat_mode: 'connecting' })
             .eq('id', ticketId);
           
-          toast.info("🔄 Connecting you to a live agent...", {
-            duration: 5000
+          toast.info("🔄 Finding the best available agent for you...", {
+            duration: 3000
           });
+
+          // Call smart agent assignment
+          const { data: assignData } = await supabase.functions.invoke('assign-best-agent', {
+            body: { ticketId }
+          });
+
+          if (assignData?.assigned) {
+            toast.success(`✅ Connected to ${assignData.agentName}!`, {
+              duration: 4000
+            });
+          } else {
+            toast.info("⏳ All agents are busy. You'll be connected shortly.", {
+              duration: 5000
+            });
+          }
         }
       }
     } catch (error: any) {
@@ -555,17 +564,17 @@ export function EnhancedSupportChat({ userId, onClose }: EnhancedSupportChatProp
                 {messages.map((message) => (
                   <div
                     key={message.id}
-                    className={`flex gap-3 ${message.is_staff ? "" : "flex-row-reverse"}`}
+                    className={`flex gap-3 ${message.sender_type === 'staff' || message.sender_type === 'bot' ? "" : "flex-row-reverse"}`}
                   >
                     <Avatar className="h-10 w-10 border-2">
-                      <AvatarFallback className={message.is_staff ? "bg-primary text-primary-foreground" : "bg-secondary"}>
-                        {message.is_staff ? (agentName ? agentName.charAt(0) : "A") : "You"}
+                      <AvatarFallback className={message.sender_type === 'staff' || message.sender_type === 'bot' ? "bg-primary text-primary-foreground" : "bg-secondary"}>
+                        {message.sender_type === 'staff' || message.sender_type === 'bot' ? (agentName ? agentName.charAt(0) : "A") : "You"}
                       </AvatarFallback>
                     </Avatar>
-                    <div className={`flex-1 ${message.is_staff ? "" : "text-right"}`}>
+                    <div className={`flex-1 ${message.sender_type === 'staff' || message.sender_type === 'bot' ? "" : "text-right"}`}>
                       <div
                         className={`inline-block rounded-2xl px-4 py-3 max-w-[80%] shadow-sm ${
-                          message.is_staff
+                          message.sender_type === 'staff' || message.sender_type === 'bot'
                             ? "bg-muted text-left rounded-tl-none"
                             : "bg-primary text-primary-foreground text-right rounded-tr-none"
                         }`}

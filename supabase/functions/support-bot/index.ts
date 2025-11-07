@@ -124,9 +124,8 @@ Customer name: ${profile?.full_name || 'Customer'}`;
       .from('support_messages')
       .insert({
         ticket_id: ticketId,
-        sender_id: ticket.user_id,
         message: botReply,
-        is_staff: true,
+        sender_type: 'bot',
         is_read: false
       });
 

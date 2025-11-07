@@ -39,7 +39,7 @@ export default function LiveSupport() {
         .from("support_messages")
         .update({ is_read: true })
         .eq("ticket_id", ticketId)
-        .eq("is_staff", false)
+        .eq("sender_type", "user")
         .eq("is_read", false);
       
       await updateQuery;
@@ -76,7 +76,7 @@ export default function LiveSupport() {
       }, (payload) => {
         console.log('New message received:', payload.new);
         
-        if (!payload.new.is_staff) {
+        if (payload.new.sender_type === 'user') {
           // Play notification sound for customer messages
           audioRef.current?.play().catch(e => console.log('Audio play failed:', e));
           toast.info("New message from customer", {
@@ -90,7 +90,7 @@ export default function LiveSupport() {
           loadMessages(selectedChat.id);
           
           // Mark customer messages as read immediately
-          if (!payload.new.is_staff) {
+          if (payload.new.sender_type === 'user') {
             supabase
               .from('support_messages')
               .update({ is_read: true })
@@ -313,9 +313,8 @@ export default function LiveSupport() {
         .from("support_messages")
         .insert({
           ticket_id: selectedChat.id,
-          sender_id: user.id,
           message: newMessage.trim(),
-          is_staff: true
+          sender_type: 'staff'
         });
 
       if (error) throw error;
@@ -501,19 +500,19 @@ export default function LiveSupport() {
                   {messages.map((message) => (
                     <div
                       key={message.id}
-                      className={`flex gap-3 ${!message.is_staff ? "flex-row-reverse" : ""}`}
+                      className={`flex gap-3 ${message.sender_type === 'user' ? "flex-row-reverse" : ""}`}
                     >
                       <Avatar className="w-8 h-8">
-                        <AvatarFallback className={!message.is_staff ? 'bg-slate-600 text-white' : (message.is_agent ? 'bg-green-600 text-white' : 'bg-blue-600 text-white')}>
-                          {!message.is_staff ? 'C' : (message.is_agent ? 'S' : 'AI')}
+                        <AvatarFallback className={message.sender_type === 'user' ? 'bg-slate-600 text-white' : (message.sender_type === 'staff' ? 'bg-green-600 text-white' : 'bg-blue-600 text-white')}>
+                          {message.sender_type === 'user' ? 'C' : (message.sender_type === 'staff' ? 'S' : 'AI')}
                         </AvatarFallback>
                       </Avatar>
-                      <div className={`flex flex-col max-w-[70%] ${!message.is_staff ? 'items-end' : ''}`}>
+                      <div className={`flex flex-col max-w-[70%] ${message.sender_type === 'user' ? 'items-end' : ''}`}>
                         <div
                           className={`rounded-lg p-3 ${
-                            !message.is_staff
+                            message.sender_type === 'user'
                               ? "bg-slate-700 text-white"
-                              : message.is_agent 
+                              : message.sender_type === 'staff' 
                                 ? "bg-green-600 text-white"
                                 : "bg-blue-600 text-white"
                           }`}

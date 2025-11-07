@@ -18,6 +18,9 @@ verify_jwt = false
 [functions.support-bot]
 verify_jwt = false
 
+[functions.assign-best-agent]
+verify_jwt = false
+
 [functions.create-admin-account]
 verify_jwt = false
 
