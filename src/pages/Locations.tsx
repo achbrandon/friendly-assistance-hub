@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { MapPin, Clock, Phone, Navigation } from "lucide-react";
+import { MapPin, Navigation } from "lucide-react";
 
 interface Location {
   id: number;
@@ -13,8 +13,6 @@ interface Location {
   city: string;
   state: string;
   zip: string;
-  phone?: string;
-  hours?: string;
   lat: number;
   lng: number;
 }
@@ -34,8 +32,6 @@ const Locations = () => {
       city: "New York",
       state: "NY",
       zip: "10022",
-      phone: "(212) 555-0200",
-      hours: "Mon-Fri 9AM-6PM, Sat 10AM-3PM",
       lat: 40.7614,
       lng: -73.9776
     },
@@ -47,8 +43,6 @@ const Locations = () => {
       city: "Los Angeles",
       state: "CA",
       zip: "90067",
-      phone: "(310) 555-0300",
-      hours: "Mon-Fri 9AM-5PM, Sat 10AM-2PM",
       lat: 34.0553,
       lng: -118.4137
     },
@@ -60,8 +54,6 @@ const Locations = () => {
       city: "Chicago",
       state: "IL",
       zip: "60606",
-      phone: "(312) 555-0350",
-      hours: "Mon-Fri 9AM-6PM, Sat 10AM-2PM",
       lat: 41.8781,
       lng: -87.6298
     },
@@ -73,8 +65,6 @@ const Locations = () => {
       city: "Miami",
       state: "FL",
       zip: "33131",
-      phone: "(305) 555-0400",
-      hours: "Mon-Fri 9AM-5PM, Sat 10AM-2PM",
       lat: 25.7743,
       lng: -80.1937
     },
@@ -87,8 +77,6 @@ const Locations = () => {
       city: "Istanbul",
       state: "Levent",
       zip: "34394",
-      phone: "+90 212 555-0500",
-      hours: "Mon-Fri 9AM-6PM",
       lat: 41.0799,
       lng: 29.0121
     },
@@ -100,8 +88,6 @@ const Locations = () => {
       city: "Istanbul",
       state: "Kadıköy",
       zip: "34710",
-      phone: "+90 216 555-0600",
-      hours: "Mon-Fri 9AM-6PM, Sat 10AM-2PM",
       lat: 40.9877,
       lng: 29.0292
     },
@@ -113,8 +99,6 @@ const Locations = () => {
       city: "Ankara",
       state: "Çankaya",
       zip: "06420",
-      phone: "+90 312 555-0700",
-      hours: "Mon-Fri 9AM-6PM",
       lat: 39.9208,
       lng: 32.8541
     },
@@ -126,8 +110,6 @@ const Locations = () => {
       city: "Izmir",
       state: "Konak",
       zip: "35220",
-      phone: "+90 232 555-0800",
-      hours: "Mon-Fri 9AM-6PM, Sat 10AM-2PM",
       lat: 38.4363,
       lng: 27.1428
     },
@@ -139,8 +121,6 @@ const Locations = () => {
       city: "Antalya",
       state: "Muratpaşa",
       zip: "07100",
-      phone: "+90 242 555-0900",
-      hours: "Mon-Fri 9AM-6PM",
       lat: 36.8969,
       lng: 30.7133
     },
@@ -152,8 +132,6 @@ const Locations = () => {
       city: "Bursa",
       state: "Osmangazi",
       zip: "16050",
-      phone: "+90 224 555-1000",
-      hours: "Mon-Fri 9AM-6PM",
       lat: 40.1826,
       lng: 29.0665
     },
@@ -166,8 +144,6 @@ const Locations = () => {
       city: "London",
       state: "Greater London",
       zip: "E14 5LQ",
-      phone: "+44 20 5555-1100",
-      hours: "Mon-Fri 9AM-6PM",
       lat: 51.5054,
       lng: -0.0235
     },
@@ -179,8 +155,6 @@ const Locations = () => {
       city: "Manchester",
       state: "Greater Manchester",
       zip: "M3 2RW",
-      phone: "+44 161 555-1200",
-      hours: "Mon-Fri 9AM-5PM, Sat 10AM-2PM",
       lat: 53.4794,
       lng: -2.2453
     },
@@ -193,8 +167,6 @@ const Locations = () => {
       city: "Frankfurt",
       state: "Hessen",
       zip: "60325",
-      phone: "+49 69 555-1300",
-      hours: "Mon-Fri 9AM-6PM",
       lat: 50.1109,
       lng: 8.6821
     },
@@ -206,8 +178,6 @@ const Locations = () => {
       city: "Berlin",
       state: "Berlin",
       zip: "10117",
-      phone: "+49 30 555-1400",
-      hours: "Mon-Fri 9AM-6PM",
       lat: 52.5170,
       lng: 13.3889
     },
@@ -219,8 +189,6 @@ const Locations = () => {
       city: "Munich",
       state: "Bavaria",
       zip: "80539",
-      phone: "+49 89 555-1500",
-      hours: "Mon-Fri 9AM-6PM",
       lat: 48.1375,
       lng: 11.5755
     },
@@ -233,8 +201,6 @@ const Locations = () => {
       city: "Paris",
       state: "Île-de-France",
       zip: "75008",
-      phone: "+33 1 5555-1600",
-      hours: "Mon-Fri 9AM-6PM",
       lat: 48.8698,
       lng: 2.3078
     },
@@ -247,8 +213,6 @@ const Locations = () => {
       city: "Madrid",
       state: "Community of Madrid",
       zip: "28046",
-      phone: "+34 91 555-1700",
-      hours: "Mon-Fri 9AM-6PM",
       lat: 40.4168,
       lng: -3.7038
     },
@@ -260,8 +224,6 @@ const Locations = () => {
       city: "Barcelona",
       state: "Catalonia",
       zip: "08008",
-      phone: "+34 93 555-1800",
-      hours: "Mon-Fri 9AM-6PM",
       lat: 41.3874,
       lng: 2.1686
     },
@@ -274,8 +236,6 @@ const Locations = () => {
       city: "Milan",
       state: "Lombardy",
       zip: "20121",
-      phone: "+39 02 555-1900",
-      hours: "Mon-Fri 9AM-6PM",
       lat: 45.4654,
       lng: 9.1859
     },
@@ -287,8 +247,6 @@ const Locations = () => {
       city: "Rome",
       state: "Lazio",
       zip: "00186",
-      phone: "+39 06 555-2000",
-      hours: "Mon-Fri 9AM-6PM",
       lat: 41.9028,
       lng: 12.4964
     },
@@ -301,8 +259,6 @@ const Locations = () => {
       city: "Dubai",
       state: "Dubai",
       zip: "507010",
-      phone: "+971 4 555-2100",
-      hours: "Sun-Thu 9AM-6PM",
       lat: 25.2048,
       lng: 55.2708
     },
@@ -315,8 +271,6 @@ const Locations = () => {
       city: "Singapore",
       state: "Singapore",
       zip: "048616",
-      phone: "+65 6555-2200",
-      hours: "Mon-Fri 9AM-6PM",
       lat: 1.2844,
       lng: 103.8511
     }
@@ -405,22 +359,6 @@ const Locations = () => {
                       <p>{location.city}, {location.state} {location.zip}</p>
                     </div>
                   </div>
-                  
-                  {location.phone && (
-                    <div className="flex items-center gap-2 text-sm">
-                      <Phone className="h-4 w-4 text-muted-foreground" />
-                      <a href={`tel:${location.phone}`} className="hover:underline">
-                        {location.phone}
-                      </a>
-                    </div>
-                  )}
-                  
-                  {location.hours && (
-                    <div className="flex items-center gap-2 text-sm">
-                      <Clock className="h-4 w-4 text-muted-foreground" />
-                      <span>{location.hours}</span>
-                    </div>
-                  )}
                   
                 </CardContent>
               </Card>
