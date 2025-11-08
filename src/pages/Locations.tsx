@@ -57,17 +57,6 @@ const Locations = () => {
       lat: 41.8781,
       lng: -87.6298
     },
-    {
-      id: 4,
-      name: "VaultBank Miami Brickell",
-      type: "branch",
-      address: "100 SE 2nd Street",
-      city: "Miami",
-      state: "FL",
-      zip: "33131",
-      lat: 25.7743,
-      lng: -80.1937
-    },
     // Turkey Branches
     {
       id: 5,
@@ -79,17 +68,6 @@ const Locations = () => {
       zip: "34394",
       lat: 41.0799,
       lng: 29.0121
-    },
-    {
-      id: 6,
-      name: "VaultBank Istanbul Kadıköy",
-      type: "branch",
-      address: "Moda Caddesi No:45",
-      city: "Istanbul",
-      state: "Kadıköy",
-      zip: "34710",
-      lat: 40.9877,
-      lng: 29.0292
     },
     {
       id: 7,
@@ -112,51 +90,6 @@ const Locations = () => {
       zip: "35220",
       lat: 38.4363,
       lng: 27.1428
-    },
-    {
-      id: 9,
-      name: "VaultBank Antalya",
-      type: "branch",
-      address: "Atatürk Caddesi No:67",
-      city: "Antalya",
-      state: "Muratpaşa",
-      zip: "07100",
-      lat: 36.8969,
-      lng: 30.7133
-    },
-    {
-      id: 10,
-      name: "VaultBank Bursa",
-      type: "branch",
-      address: "Atatürk Caddesi No:125",
-      city: "Bursa",
-      state: "Osmangazi",
-      zip: "16050",
-      lat: 40.1826,
-      lng: 29.0665
-    },
-    // United Kingdom Branches
-    {
-      id: 11,
-      name: "VaultBank London Canary Wharf",
-      type: "branch",
-      address: "25 Canada Square",
-      city: "London",
-      state: "Greater London",
-      zip: "E14 5LQ",
-      lat: 51.5054,
-      lng: -0.0235
-    },
-    {
-      id: 12,
-      name: "VaultBank Manchester",
-      type: "branch",
-      address: "100 Deansgate",
-      city: "Manchester",
-      state: "Greater Manchester",
-      zip: "M3 2RW",
-      lat: 53.4794,
-      lng: -2.2453
     },
     // Germany Branches
     {
@@ -206,17 +139,6 @@ const Locations = () => {
     },
     // Spain Branches
     {
-      id: 17,
-      name: "VaultBank Madrid",
-      type: "branch",
-      address: "Paseo de la Castellana 95",
-      city: "Madrid",
-      state: "Community of Madrid",
-      zip: "28046",
-      lat: 40.4168,
-      lng: -3.7038
-    },
-    {
       id: 18,
       name: "VaultBank Barcelona",
       type: "branch",
@@ -238,29 +160,6 @@ const Locations = () => {
       zip: "20121",
       lat: 45.4654,
       lng: 9.1859
-    },
-    {
-      id: 20,
-      name: "VaultBank Rome",
-      type: "branch",
-      address: "Via del Corso 506",
-      city: "Rome",
-      state: "Lazio",
-      zip: "00186",
-      lat: 41.9028,
-      lng: 12.4964
-    },
-    // Dubai Branch
-    {
-      id: 21,
-      name: "VaultBank Dubai Financial Center",
-      type: "branch",
-      address: "Gate Village Building 10",
-      city: "Dubai",
-      state: "Dubai",
-      zip: "507010",
-      lat: 25.2048,
-      lng: 55.2708
     },
     // Singapore Branch
     {
