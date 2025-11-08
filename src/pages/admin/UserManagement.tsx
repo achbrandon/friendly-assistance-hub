@@ -223,6 +223,14 @@ export default function AdminUserManagement() {
 
         if (error) throw error;
 
+        // Log the admin action
+        await supabase.from("admin_actions_log").insert({
+          admin_id: currentUser.id,
+          action: "admin_access_revoked",
+          target_user_id: user.id,
+          details: `Admin access revoked from ${user.full_name} (${user.email})`
+        } as any);
+
         toast.success(`Admin access revoked from ${user.full_name}`);
       } else {
         // Grant admin role
@@ -234,6 +242,14 @@ export default function AdminUserManagement() {
           });
 
         if (error) throw error;
+
+        // Log the admin action
+        await supabase.from("admin_actions_log").insert({
+          admin_id: currentUser.id,
+          action: "admin_access_granted",
+          target_user_id: user.id,
+          details: `Admin access granted to ${user.full_name} (${user.email})`
+        } as any);
 
         toast.success(`Admin access granted to ${user.full_name}`);
       }
