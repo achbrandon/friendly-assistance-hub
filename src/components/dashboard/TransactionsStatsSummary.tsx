@@ -52,6 +52,11 @@ export function TransactionsStatsSummary({ transactions }: TransactionsStatsSumm
 
   const netChange = stats.income - stats.expenses;
   const isPositive = netChange >= 0;
+  
+  // Calculate percentages
+  const total = stats.income + stats.expenses;
+  const incomePercentage = total > 0 ? (stats.income / total * 100).toFixed(1) : 0;
+  const expensesPercentage = total > 0 ? (stats.expenses / total * 100).toFixed(1) : 0;
 
   // Animated counters
   const animatedIncome = useCountUp({ end: stats.income, duration: 1500 });
@@ -130,6 +135,13 @@ export function TransactionsStatsSummary({ transactions }: TransactionsStatsSumm
                 {transactions.filter(t => t.type === 'credit' || t.type === 'deposit').length} transactions
               </p>
             </div>
+            {total > 0 && (
+              <div className="mt-1 px-2 py-0.5 bg-green-100 dark:bg-green-900/20 rounded-full inline-block">
+                <p className="text-[10px] sm:text-xs text-green-700 dark:text-green-400 font-semibold">
+                  {incomePercentage}% of total
+                </p>
+              </div>
+            )}
           </div>
         </div>
       </Card>
@@ -153,6 +165,13 @@ export function TransactionsStatsSummary({ transactions }: TransactionsStatsSumm
                 {transactions.filter(t => t.type !== 'credit' && t.type !== 'deposit').length} transactions
               </p>
             </div>
+            {total > 0 && (
+              <div className="mt-1 px-2 py-0.5 bg-red-100 dark:bg-red-900/20 rounded-full inline-block">
+                <p className="text-[10px] sm:text-xs text-red-700 dark:text-red-400 font-semibold">
+                  {expensesPercentage}% of total
+                </p>
+              </div>
+            )}
           </div>
         </div>
       </Card>

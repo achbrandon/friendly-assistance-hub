@@ -2,6 +2,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
+import { useNavigate } from "react-router-dom";
 import { 
   CreditCard, 
   Wallet, 
@@ -19,6 +20,8 @@ interface AccountCardProps {
 }
 
 export function AccountCard({ account, showBalance, onRefresh }: AccountCardProps) {
+  const navigate = useNavigate();
+  
   const getAccountIcon = (type: string) => {
     switch (type) {
       case 'checking':
@@ -110,7 +113,7 @@ export function AccountCard({ account, showBalance, onRefresh }: AccountCardProp
           variant="ghost" 
           className="w-full justify-between text-xs sm:text-sm mobile-button hover:bg-primary/5 hover:text-primary transition-colors"
           onClick={() => {
-            window.location.href = `/dashboard/account-details?id=${account.id}`;
+            navigate(`/dashboard/account-details?id=${account.id}`);
           }}
         >
           View Details
