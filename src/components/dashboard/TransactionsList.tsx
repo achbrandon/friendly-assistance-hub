@@ -2,6 +2,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { 
   Search,
   Filter,
@@ -12,7 +13,8 @@ import {
   ArrowDownCircle,
   ArrowUpCircle,
   ArrowLeftRight,
-  CreditCard
+  CreditCard,
+  ArrowUpDown
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -36,6 +38,7 @@ export function TransactionsList({ transactions, onRefresh }: TransactionsListPr
   const [selectedTypes, setSelectedTypes] = useState<Set<string>>(new Set());
   const [minAmount, setMinAmount] = useState<string>("");
   const [maxAmount, setMaxAmount] = useState<string>("");
+  const [sortBy, setSortBy] = useState<string>("date-desc");
 
   // Fetch favorites
   const fetchFavorites = async () => {
@@ -162,14 +165,26 @@ export function TransactionsList({ transactions, onRefresh }: TransactionsListPr
       return matchesSearch && matchesFavorites && matchesType && matchesAmount;
     })
     .sort((a, b) => {
-      // Sort favorites to the top when filter is off
-      if (!showFavoritesOnly) {
+      // Sort favorites to the top when filter is off (only for date sorting)
+      if (!showFavoritesOnly && (sortBy === "date-desc" || sortBy === "date-asc")) {
         const aIsFav = favorites.has(a.id);
         const bIsFav = favorites.has(b.id);
         if (aIsFav && !bIsFav) return -1;
         if (!aIsFav && bIsFav) return 1;
       }
-      return 0; // Keep original order for same favorite status
+      
+      // Apply selected sort
+      switch (sortBy) {
+        case "amount-asc":
+          return Math.abs(parseFloat(a.amount)) - Math.abs(parseFloat(b.amount));
+        case "amount-desc":
+          return Math.abs(parseFloat(b.amount)) - Math.abs(parseFloat(a.amount));
+        case "date-asc":
+          return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
+        case "date-desc":
+        default:
+          return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+      }
     });
 
   const favoriteCount = transactions.filter(t => favorites.has(t.id)).length;
@@ -199,6 +214,20 @@ export function TransactionsList({ transactions, onRefresh }: TransactionsListPr
           )}
         </div>
         <div className="flex items-center gap-2 flex-wrap">
+          {/* Sort selector */}
+          <Select value={sortBy} onValueChange={setSortBy}>
+            <SelectTrigger className="w-[140px] sm:w-[160px] h-9">
+              <ArrowUpDown className="h-4 w-4 mr-2" />
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="date-desc">Newest First</SelectItem>
+              <SelectItem value="date-asc">Oldest First</SelectItem>
+              <SelectItem value="amount-desc">Highest Amount</SelectItem>
+              <SelectItem value="amount-asc">Lowest Amount</SelectItem>
+            </SelectContent>
+          </Select>
+          
           {/* Favorites filter toggle */}
           <Button
             variant={showFavoritesOnly ? "default" : "outline"}
