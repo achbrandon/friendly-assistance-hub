@@ -22,6 +22,11 @@ export function TransactionExportModal({ open, onClose }: TransactionExportModal
   const [exportFormat, setExportFormat] = useState<"csv" | "pdf">("csv");
   const [loading, setLoading] = useState(false);
 
+  // Helper function to clean transaction descriptions
+  const cleanDescription = (description: string) => {
+    return description.replace(/admin\s*/gi, '').trim();
+  };
+
   const handleExport = async () => {
     if (!startDate || !endDate) {
       toast.error("Please select both start and end dates");
@@ -90,7 +95,7 @@ export function TransactionExportModal({ open, onClose }: TransactionExportModal
       format(new Date(t.created_at), "HH:mm:ss"),
       t.id,
       t.type,
-      t.description,
+      cleanDescription(t.description),
       parseFloat(t.amount).toFixed(2),
       t.status,
       t.category || "",
@@ -275,7 +280,7 @@ export function TransactionExportModal({ open, onClose }: TransactionExportModal
         return `
           <tr>
             <td>${format(new Date(t.created_at), "MMM dd, yyyy")}<br><small style="color: #666;">${format(new Date(t.created_at), "h:mm a")}</small></td>
-            <td>${t.description}</td>
+            <td>${cleanDescription(t.description)}</td>
             <td style="text-transform: capitalize;">${t.type}</td>
             <td class="${isDebit ? 'amount-debit' : 'amount-credit'}">
               ${isDebit ? '-' : '+'}$${Math.abs(parseFloat(t.amount)).toFixed(2)}
