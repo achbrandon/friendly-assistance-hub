@@ -682,7 +682,7 @@ export function EnhancedSupportChat({ userId, onClose }: EnhancedSupportChatProp
   return (
     <Dialog open={true} onOpenChange={onClose}>
       <DialogContent 
-        className="sm:max-w-4xl h-[85vh] flex flex-col p-0 transition-transform duration-200" 
+        className="w-[100vw] h-[100vh] sm:w-auto sm:h-[85vh] sm:max-w-4xl max-w-none flex flex-col p-0 transition-transform duration-200 m-0 sm:m-4" 
         onInteractOutside={(e) => e.preventDefault()}
         style={{
           transform: swipeDistance > 0 ? `translateY(${Math.min(swipeDistance, 200)}px)` : 'translateY(0)',
