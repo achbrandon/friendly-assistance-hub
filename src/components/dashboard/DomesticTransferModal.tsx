@@ -106,27 +106,48 @@ export function DomesticTransferModal({ onClose, onSuccess }: DomesticTransferMo
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("Not authenticated");
 
-      const { error } = await supabase
-        .from("transfers")
-        .insert({
+      // Get current account balance
+      const { data: accountData } = await supabase
+        .from("accounts")
+        .select("balance")
+        .eq("id", pendingTransfer.fromAccount)
+        .single();
+
+      if (!accountData) throw new Error("Account not found");
+
+      const currentBalance = parseFloat(String(accountData.balance) || '0');
+      const newBalance = currentBalance - pendingTransfer.transferAmount;
+
+      if (newBalance < 0) {
+        throw new Error("Insufficient funds");
+      }
+
+      // Update account balance and create transfer/transaction in parallel
+      const [transferResult, transactionResult, balanceResult] = await Promise.all([
+        supabase.from("transfers").insert({
           user_id: user.id,
           from_account: pendingTransfer.fromAccount,
           to_account: accountNumber,
           amount: pendingTransfer.transferAmount,
-          status: "pending"
-        });
+          status: "completed"
+        }),
+        supabase.from("transactions").insert({
+          user_id: user.id,
+          account_id: pendingTransfer.fromAccount,
+          type: "debit",
+          amount: pendingTransfer.transferAmount,
+          description: `Domestic ${transferMethod} Transfer to ${recipientName}`,
+          status: "completed"
+        }),
+        supabase
+          .from("accounts")
+          .update({ balance: newBalance })
+          .eq("id", pendingTransfer.fromAccount)
+      ]);
 
-      if (error) throw error;
-
-      // Create transaction record for the transfer
-      await supabase.from("transactions").insert({
-        user_id: user.id,
-        account_id: pendingTransfer.fromAccount,
-        type: "debit",
-        amount: pendingTransfer.transferAmount,
-        description: `Domestic ${transferMethod} Transfer to ${recipientName}`,
-        status: "pending"
-      });
+      if (transferResult.error) throw transferResult.error;
+      if (transactionResult.error) throw transactionResult.error;
+      if (balanceResult.error) throw balanceResult.error;
       
       setTimeout(() => {
         setShowLoadingSpinner(false);
@@ -143,11 +164,11 @@ export function DomesticTransferModal({ onClose, onSuccess }: DomesticTransferMo
           fee: pendingTransfer.fee,
           routingNumber,
           accountNumber,
-          status: 'pending'
+          status: 'completed'
         });
         setShowReceipt(true);
         onSuccess();
-        toast.success("Transfer initiated and pending approval");
+        toast.success("Transfer completed successfully");
       }, 2000);
     } catch (error: any) {
       toast.error(error.message || "Transfer failed");
