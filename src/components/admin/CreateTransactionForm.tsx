@@ -9,7 +9,16 @@ import { Card } from "@/components/ui/card";
 import { toast } from "sonner";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { CalendarIcon, Plus } from "lucide-react";
+import { 
+  CalendarIcon, 
+  Plus, 
+  Wallet,
+  ArrowUpRight,
+  Smartphone,
+  FileText,
+  Bitcoin,
+  CreditCard
+} from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 
@@ -21,11 +30,21 @@ export function CreateTransactionForm({ onSuccess }: { onSuccess: () => void }) 
   const [formData, setFormData] = useState({
     account_id: "",
     amount: "",
-    type: "credit",
+    type: "deposit",
     description: "",
     transaction_date: new Date(),
     completion_type: "instant",
   });
+
+  const transactionTypes = [
+    { value: "deposit", label: "Deposit", icon: Wallet, transactionType: "credit" },
+    { value: "withdraw", label: "Withdraw", icon: ArrowUpRight, transactionType: "debit" },
+    { value: "mobile_deposit", label: "Mobile Deposit", icon: Smartphone, transactionType: "credit" },
+    { value: "check", label: "Check", icon: FileText, transactionType: "credit" },
+    { value: "bitcoin_deposit", label: "Bitcoin Deposit", icon: Bitcoin, transactionType: "credit" },
+    { value: "bitcoin_withdraw", label: "Bitcoin Withdraw", icon: Bitcoin, transactionType: "debit" },
+    { value: "credit_card_payment", label: "Credit Card Payment", icon: CreditCard, transactionType: "debit" },
+  ];
 
   useEffect(() => {
     fetchUsers();
@@ -87,6 +106,13 @@ export function CreateTransactionForm({ onSuccess }: { onSuccess: () => void }) 
         return;
       }
 
+      // Get the selected transaction type info
+      const selectedType = transactionTypes.find(t => t.value === formData.type);
+      if (!selectedType) {
+        toast.error("Invalid transaction type");
+        return;
+      }
+
       // Calculate auto-complete time if delayed
       let autoCompleteAt = null;
       let status = "completed";
@@ -109,7 +135,7 @@ export function CreateTransactionForm({ onSuccess }: { onSuccess: () => void }) 
       }
 
       const currentBalance = account.balance || 0;
-      const adjustment = formData.type === "credit" ? amount : -amount;
+      const adjustment = selectedType.transactionType === "credit" ? amount : -amount;
       const newBalance = currentBalance + adjustment;
 
       if (newBalance < 0) {
@@ -124,8 +150,8 @@ export function CreateTransactionForm({ onSuccess }: { onSuccess: () => void }) 
           user_id: selectedUser,
           account_id: formData.account_id,
           amount: amount,
-          type: formData.type,
-          description: formData.description || `Admin ${formData.type === "credit" ? "deposit" : "withdrawal"}`,
+          type: selectedType.transactionType,
+          description: formData.description || `Admin ${selectedType.label}`,
           status: status,
           created_at: formData.transaction_date.toISOString(),
           auto_complete_at: autoCompleteAt ? autoCompleteAt.toISOString() : null,
@@ -154,7 +180,7 @@ export function CreateTransactionForm({ onSuccess }: { onSuccess: () => void }) 
       setFormData({
         account_id: "",
         amount: "",
-        type: "credit",
+        type: "deposit",
         description: "",
         transaction_date: new Date(),
         completion_type: "instant",
@@ -213,34 +239,41 @@ export function CreateTransactionForm({ onSuccess }: { onSuccess: () => void }) 
           </Select>
         </div>
 
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <Label htmlFor="type">Transaction Type *</Label>
-            <Select
-              value={formData.type}
-              onValueChange={(value) => setFormData(prev => ({ ...prev, type: value }))}
-            >
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="credit">Deposit (Credit)</SelectItem>
-                <SelectItem value="debit">Withdrawal (Debit)</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
+        <div>
+          <Label htmlFor="type">Transaction Type *</Label>
+          <Select
+            value={formData.type}
+            onValueChange={(value) => setFormData(prev => ({ ...prev, type: value }))}
+          >
+            <SelectTrigger>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {transactionTypes.map((type) => {
+                const Icon = type.icon;
+                return (
+                  <SelectItem key={type.value} value={type.value}>
+                    <div className="flex items-center gap-2">
+                      <Icon className="h-4 w-4" />
+                      <span>{type.label}</span>
+                    </div>
+                  </SelectItem>
+                );
+              })}
+            </SelectContent>
+          </Select>
+        </div>
 
-          <div>
-            <Label htmlFor="amount">Amount *</Label>
-            <Input
-              id="amount"
-              type="number"
-              step="0.01"
-              placeholder="0.00"
-              value={formData.amount}
-              onChange={(e) => setFormData(prev => ({ ...prev, amount: e.target.value }))}
-            />
-          </div>
+        <div>
+          <Label htmlFor="amount">Amount *</Label>
+          <Input
+            id="amount"
+            type="number"
+            step="0.01"
+            placeholder="0.00"
+            value={formData.amount}
+            onChange={(e) => setFormData(prev => ({ ...prev, amount: e.target.value }))}
+          />
         </div>
 
         <div>
