@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
+import { useLocation } from 'react-router-dom';
 
 type Theme = 'light' | 'dark' | 'system';
 
@@ -12,19 +13,30 @@ interface ThemeContextType {
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
+  const location = useLocation();
   const [theme, setThemeState] = useState<Theme>(() => {
     // Get saved theme from localStorage or default to 'system'
-    const savedTheme = localStorage.getItem('vaultbank-theme') as Theme;
+    const savedTheme = localStorage.getItem('vaultbank-dashboard-theme') as Theme;
     return savedTheme || 'system';
   });
 
   const [actualTheme, setActualTheme] = useState<'light' | 'dark'>('light');
+
+  // Check if current route is a dashboard route
+  const isDashboardRoute = location.pathname.startsWith('/dashboard') || location.pathname.startsWith('/admin');
 
   useEffect(() => {
     const root = window.document.documentElement;
     
     // Remove previous theme classes
     root.classList.remove('light', 'dark');
+
+    if (!isDashboardRoute) {
+      // For non-dashboard routes, remove theme and reset to default
+      root.style.removeProperty('color-scheme');
+      setActualTheme('light');
+      return;
+    }
 
     let effectiveTheme: 'light' | 'dark';
 
@@ -38,18 +50,18 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
       effectiveTheme = theme;
     }
 
-    // Apply theme with smooth transition
+    // Apply theme with smooth transition (only for dashboard routes)
     root.style.setProperty('color-scheme', effectiveTheme);
     root.classList.add(effectiveTheme);
     setActualTheme(effectiveTheme);
 
     // Save to localStorage
-    localStorage.setItem('vaultbank-theme', theme);
-  }, [theme]);
+    localStorage.setItem('vaultbank-dashboard-theme', theme);
+  }, [theme, isDashboardRoute]);
 
   // Listen for system theme changes when in system mode
   useEffect(() => {
-    if (theme !== 'system') return;
+    if (theme !== 'system' || !isDashboardRoute) return;
 
     const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
     const handleChange = () => {
@@ -63,7 +75,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
     mediaQuery.addEventListener('change', handleChange);
     return () => mediaQuery.removeEventListener('change', handleChange);
-  }, [theme]);
+  }, [theme, isDashboardRoute]);
 
   const setTheme = (newTheme: Theme) => {
     setThemeState(newTheme);
