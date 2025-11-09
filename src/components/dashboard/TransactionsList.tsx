@@ -34,6 +34,8 @@ export function TransactionsList({ transactions, onRefresh }: TransactionsListPr
   const [favorites, setFavorites] = useState<Set<string>>(new Set());
   const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
   const [selectedTypes, setSelectedTypes] = useState<Set<string>>(new Set());
+  const [minAmount, setMinAmount] = useState<string>("");
+  const [maxAmount, setMaxAmount] = useState<string>("");
 
   // Fetch favorites
   const fetchFavorites = async () => {
@@ -120,6 +122,22 @@ export function TransactionsList({ transactions, onRefresh }: TransactionsListPr
     setSelectedTypes(new Set());
     setShowFavoritesOnly(false);
     setSearchQuery("");
+    setMinAmount("");
+    setMaxAmount("");
+  };
+
+  const handleMinAmountChange = (value: string) => {
+    // Only allow numbers and decimal point
+    if (value === "" || /^\d*\.?\d{0,2}$/.test(value)) {
+      setMinAmount(value);
+    }
+  };
+
+  const handleMaxAmountChange = (value: string) => {
+    // Only allow numbers and decimal point
+    if (value === "" || /^\d*\.?\d{0,2}$/.test(value)) {
+      setMaxAmount(value);
+    }
   };
 
   // Filter and sort transactions
@@ -135,7 +153,13 @@ export function TransactionsList({ transactions, onRefresh }: TransactionsListPr
       // Type filter
       const matchesType = selectedTypes.size === 0 || selectedTypes.has(t.type);
       
-      return matchesSearch && matchesFavorites && matchesType;
+      // Amount range filter
+      const amount = Math.abs(parseFloat(t.amount));
+      const min = minAmount ? parseFloat(minAmount) : 0;
+      const max = maxAmount ? parseFloat(maxAmount) : Infinity;
+      const matchesAmount = amount >= min && amount <= max;
+      
+      return matchesSearch && matchesFavorites && matchesType && matchesAmount;
     })
     .sort((a, b) => {
       // Sort favorites to the top when filter is off
@@ -149,7 +173,7 @@ export function TransactionsList({ transactions, onRefresh }: TransactionsListPr
     });
 
   const favoriteCount = transactions.filter(t => favorites.has(t.id)).length;
-  const activeFiltersCount = selectedTypes.size + (showFavoritesOnly ? 1 : 0);
+  const activeFiltersCount = selectedTypes.size + (showFavoritesOnly ? 1 : 0) + (minAmount ? 1 : 0) + (maxAmount ? 1 : 0);
 
   const handleTransactionClick = (transaction: any) => {
     setSelectedTransaction(transaction);
@@ -234,15 +258,54 @@ export function TransactionsList({ transactions, onRefresh }: TransactionsListPr
             </Button>
           )}
         </div>
+
+        {/* Amount Range Filter */}
+        <div className="flex items-center gap-2 flex-wrap">
+          <span className="text-sm text-muted-foreground">Amount:</span>
+          <div className="flex items-center gap-2">
+            <Input
+              type="text"
+              inputMode="decimal"
+              placeholder="Min"
+              value={minAmount}
+              onChange={(e) => handleMinAmountChange(e.target.value)}
+              className="w-24 h-8 text-sm"
+            />
+            <span className="text-muted-foreground">-</span>
+            <Input
+              type="text"
+              inputMode="decimal"
+              placeholder="Max"
+              value={maxAmount}
+              onChange={(e) => handleMaxAmountChange(e.target.value)}
+              className="w-24 h-8 text-sm"
+            />
+          </div>
+          {(minAmount || maxAmount) && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => {
+                setMinAmount("");
+                setMaxAmount("");
+              }}
+              className="h-7 px-2"
+            >
+              <X className="h-3 w-3" />
+            </Button>
+          )}
+        </div>
       </div>
 
       {/* Active filters indicator */}
-      {(showFavoritesOnly || selectedTypes.size > 0) && (
+      {activeFiltersCount > 0 && (
         <div className="mb-4 flex items-center gap-2 p-3 bg-primary/5 border border-primary/20 rounded-lg animate-fade-in">
           <Filter className="h-4 w-4 text-primary shrink-0" />
           <p className="text-sm text-muted-foreground flex-1">
             Showing <span className="font-medium text-foreground">{filteredTransactions.length}</span> filtered transaction{filteredTransactions.length !== 1 ? 's' : ''}
             {showFavoritesOnly && <span className="ml-1">(favorites only)</span>}
+            {minAmount && <span className="ml-1">(min: ${minAmount})</span>}
+            {maxAmount && <span className="ml-1">(max: ${maxAmount})</span>}
           </p>
           <Button
             variant="ghost"
