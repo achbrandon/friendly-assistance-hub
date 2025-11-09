@@ -75,6 +75,30 @@ export const BalanceHistoryChart = () => {
     try {
       const dateRangeStart = getDateRangeStart();
       
+      // First, get all transactions before the date range to calculate starting balance
+      const { data: previousTransactions } = await supabase
+        .from("transactions")
+        .select("amount, type, account_id")
+        .eq("user_id", user.id)
+        .eq("status", "completed")
+        .lt("created_at", dateRangeStart.toISOString());
+
+      // Calculate starting balance from previous transactions
+      let startingBalance = 0;
+      if (previousTransactions) {
+        previousTransactions.forEach((transaction) => {
+          // Only count if filtering by specific account or all accounts
+          if (selectedAccount === "all" || transaction.account_id === selectedAccount) {
+            if (transaction.type === "credit") {
+              startingBalance += parseFloat(String(transaction.amount));
+            } else {
+              startingBalance -= parseFloat(String(transaction.amount));
+            }
+          }
+        });
+      }
+      
+      // Now get transactions in the selected date range
       let query = supabase
         .from("transactions")
         .select("amount, type, created_at, account_id")
@@ -90,8 +114,8 @@ export const BalanceHistoryChart = () => {
       const { data: transactions } = await query;
 
       if (transactions && transactions.length > 0) {
-        // Calculate running balance
-        let runningBalance = 0;
+        // Calculate running balance starting from the starting balance
+        let runningBalance = startingBalance;
         const balancePoints: BalanceDataPoint[] = transactions.map((transaction) => {
           if (transaction.type === "credit") {
             runningBalance += parseFloat(String(transaction.amount));
@@ -116,7 +140,16 @@ export const BalanceHistoryChart = () => {
 
         setChartData(Object.values(groupedByDate));
       } else {
-        setChartData([]);
+        // If no transactions in range, show starting balance if it exists
+        if (startingBalance !== 0) {
+          setChartData([{
+            date: dateRangeStart.toLocaleDateString(),
+            balance: startingBalance,
+            timestamp: dateRangeStart.getTime(),
+          }]);
+        } else {
+          setChartData([]);
+        }
       }
     } catch (error) {
       console.error("Error fetching balance history:", error);
