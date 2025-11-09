@@ -77,10 +77,10 @@ const Auth = () => {
         return;
       }
 
-      // Check if email is verified
+      // Check profile status
       const { data: profile } = await supabase
         .from("profiles")
-        .select("qr_verified, email_verified")
+        .select("qr_verified, email_verified, can_transact")
         .eq("id", user.id)
         .maybeSingle();
 
@@ -91,7 +91,14 @@ const Auth = () => {
         return;
       }
 
-      // For all other users: check account application status
+      // If user can transact and is verified, allow access
+      if (profile?.can_transact && profile?.qr_verified) {
+        toast.success("Signed in successfully!");
+        navigate("/dashboard", { replace: true });
+        return;
+      }
+
+      // Check account application status only if can't transact yet
       const { data: application } = await supabase
         .from("account_applications")
         .select("status, qr_code_verified")
@@ -108,24 +115,24 @@ const Auth = () => {
         return;
       }
 
-      // If account is approved but QR not verified (edge case)
+      // If account is approved but QR not verified
       if (application?.status === 'approved' && !profile?.qr_verified) {
         toast.info("Please complete QR verification");
         navigate("/verify-qr", { replace: true });
         return;
       }
 
-      // If QR verified but account not approved (shouldn't happen)
-      if (profile?.qr_verified && application?.status !== 'approved') {
-        toast.info(
-          "🔍 Your verification is complete. Waiting for approval.",
+      // If rejected
+      if (application?.status === 'rejected') {
+        toast.error(
+          "Your account application was rejected. Please contact support.",
           { duration: 6000 }
         );
         navigate("/", { replace: true });
         return;
       }
 
-      // All checks passed - proceed to dashboard
+      // Default: allow access if no blocking issues
       toast.success("Signed in successfully!");
       navigate("/dashboard", { replace: true });
     } catch (error) {
@@ -225,16 +232,10 @@ const Auth = () => {
           return;
         }
 
-        // PIN verified - now check account application status and QR verification
-        const { data: application } = await supabase
-          .from("account_applications")
-          .select("status, qr_code_verified")
-          .eq("user_id", data.user.id)
-          .maybeSingle();
-
+        // PIN verified - now check profile status
         const { data: fullProfile } = await supabase
           .from("profiles")
-          .select("qr_verified, email_verified")
+          .select("qr_verified, email_verified, can_transact")
           .eq("id", data.user.id)
           .maybeSingle();
 
@@ -248,6 +249,25 @@ const Auth = () => {
           navigate("/resend-emails");
           return;
         }
+
+        // If user can transact and is verified, proceed to OTP
+        if (fullProfile?.can_transact && fullProfile?.qr_verified) {
+          // QR verified - now sign out and require OTP verification
+          await supabase.auth.signOut();
+          
+          setPendingUserId(data.user.id);
+          setPendingUserEmail(data.user.email || "");
+          setShowLoadingSpinner(false);
+          setShowOTPModal(true);
+          return;
+        }
+
+        // Check account application status only if can't transact yet
+        const { data: application } = await supabase
+          .from("account_applications")
+          .select("status, qr_code_verified")
+          .eq("user_id", data.user.id)
+          .maybeSingle();
 
         // Check if account is still pending approval
         if (application?.status === 'pending') {
@@ -266,7 +286,7 @@ const Auth = () => {
           return;
         }
 
-        // If account is approved but QR not verified (edge case)
+        // If account is approved but QR not verified
         if (application?.status === 'approved' && !fullProfile?.qr_verified) {
           toast.info("📧 Please complete email verification with the QR code sent to your inbox.");
           setLoading(false);
@@ -276,10 +296,10 @@ const Auth = () => {
           return;
         }
 
-        // If QR is verified but account not approved yet (shouldn't happen but handle it)
-        if (fullProfile?.qr_verified && application?.status !== 'approved') {
-          toast.info(
-            "🔍 Your account verification is complete. Waiting for final approval.",
+        // If rejected
+        if (application?.status === 'rejected') {
+          toast.error(
+            "Your account application was rejected. Please contact support.",
             { duration: 6000 }
           );
           await supabase.auth.signOut();
@@ -289,8 +309,7 @@ const Auth = () => {
           return;
         }
 
-        // QR verified - now sign out and require OTP verification
-        // User must complete OTP before getting dashboard access
+        // Default: Proceed to OTP if all basic checks pass
         await supabase.auth.signOut();
         
         setPendingUserId(data.user.id);
