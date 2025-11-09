@@ -11,6 +11,7 @@ import { AccountCard } from "@/components/dashboard/AccountCard";
 import { TransactionsList } from "@/components/dashboard/TransactionsList";
 import { QuickActions } from "@/components/dashboard/QuickActions";
 import { SpendingInsights } from "@/components/dashboard/SpendingInsights";
+import { BalanceHistoryChart } from "@/components/dashboard/BalanceHistoryChart";
 import { useUserActivity } from "@/hooks/useUserActivity";
 import { useSessionTracking } from "@/hooks/useSessionTracking";
 import logo from "@/assets/vaultbank-logo.png";
@@ -267,6 +268,10 @@ const Dashboard = () => {
                       ))}
                     </div>
                   )}
+                </div>
+
+                <div className="mb-6">
+                  <BalanceHistoryChart />
                 </div>
 
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
