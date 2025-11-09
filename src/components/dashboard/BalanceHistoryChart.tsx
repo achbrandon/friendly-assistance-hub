@@ -10,6 +10,8 @@ interface BalanceDataPoint {
   date: string;
   balance: number;
   timestamp: number;
+  hasAdminTransaction?: boolean;
+  hasUserTransaction?: boolean;
 }
 
 interface Account {
@@ -78,7 +80,7 @@ export const BalanceHistoryChart = () => {
       // First, get all transactions before the date range to calculate starting balance
       const { data: previousTransactions } = await supabase
         .from("transactions")
-        .select("amount, type, account_id")
+        .select("amount, type, account_id, description")
         .eq("user_id", user.id)
         .eq("status", "completed")
         .lt("created_at", dateRangeStart.toISOString());
@@ -101,7 +103,7 @@ export const BalanceHistoryChart = () => {
       // Now get transactions in the selected date range
       let query = supabase
         .from("transactions")
-        .select("amount, type, created_at, account_id")
+        .select("amount, type, created_at, account_id, description")
         .eq("user_id", user.id)
         .eq("status", "completed")
         .gte("created_at", dateRangeStart.toISOString())
@@ -116,24 +118,44 @@ export const BalanceHistoryChart = () => {
       if (transactions && transactions.length > 0) {
         // Calculate running balance starting from the starting balance
         let runningBalance = startingBalance;
-        const balancePoints: BalanceDataPoint[] = transactions.map((transaction) => {
+        const balancePoints: BalanceDataPoint[] = [];
+        const dailyTransactions: Record<string, { admin: boolean; user: boolean }> = {};
+
+        transactions.forEach((transaction) => {
           if (transaction.type === "credit") {
             runningBalance += parseFloat(String(transaction.amount));
           } else {
             runningBalance -= parseFloat(String(transaction.amount));
           }
 
-          return {
-            date: new Date(transaction.created_at).toLocaleDateString(),
+          const dateKey = new Date(transaction.created_at).toLocaleDateString();
+          const isAdminTransaction = transaction.description?.toLowerCase().includes('admin') || false;
+
+          // Track which types of transactions occurred on this date
+          if (!dailyTransactions[dateKey]) {
+            dailyTransactions[dateKey] = { admin: false, user: false };
+          }
+          if (isAdminTransaction) {
+            dailyTransactions[dateKey].admin = true;
+          } else {
+            dailyTransactions[dateKey].user = true;
+          }
+
+          balancePoints.push({
+            date: dateKey,
             balance: runningBalance,
             timestamp: new Date(transaction.created_at).getTime(),
-          };
+          });
         });
 
-        // Group by date and take the last balance of each day
+        // Group by date and take the last balance of each day, adding transaction type markers
         const groupedByDate = balancePoints.reduce((acc, point) => {
           if (!acc[point.date] || point.timestamp > acc[point.date].timestamp) {
-            acc[point.date] = point;
+            acc[point.date] = {
+              ...point,
+              hasAdminTransaction: dailyTransactions[point.date]?.admin || false,
+              hasUserTransaction: dailyTransactions[point.date]?.user || false,
+            };
           }
           return acc;
         }, {} as Record<string, BalanceDataPoint>);
@@ -248,15 +270,73 @@ export const BalanceHistoryChart = () => {
                   border: '1px solid hsl(var(--border))',
                   borderRadius: '8px',
                 }}
+                content={({ active, payload }) => {
+                  if (active && payload && payload.length) {
+                    const data = payload[0].payload;
+                    return (
+                      <div className="bg-background border border-border rounded-lg p-3 shadow-lg">
+                        <p className="font-semibold mb-1">{data.date}</p>
+                        <p className="text-primary mb-2">{formatCurrency(data.balance)}</p>
+                        {data.hasAdminTransaction && (
+                          <div className="flex items-center gap-1 text-xs text-orange-500">
+                            <div className="w-2 h-2 rounded-full bg-orange-500" />
+                            Admin Transaction
+                          </div>
+                        )}
+                        {data.hasUserTransaction && (
+                          <div className="flex items-center gap-1 text-xs text-green-500">
+                            <div className="w-2 h-2 rounded-full bg-green-500" />
+                            User Transaction
+                          </div>
+                        )}
+                      </div>
+                    );
+                  }
+                  return null;
+                }}
               />
-              <Legend />
+              <Legend 
+                content={() => (
+                  <div className="flex justify-center gap-6 mt-4 text-sm">
+                    <div className="flex items-center gap-2">
+                      <div className="w-3 h-3 rounded-full bg-primary" />
+                      <span>Balance</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="w-3 h-3 rounded-full bg-green-500" />
+                      <span>User Transaction</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="w-3 h-3 rounded-full bg-orange-500" />
+                      <span>Admin Transaction</span>
+                    </div>
+                  </div>
+                )}
+              />
               <Line 
                 type="monotone" 
                 dataKey="balance" 
                 stroke="hsl(var(--primary))" 
                 strokeWidth={2}
-                dot={{ fill: 'hsl(var(--primary))', r: 4 }}
-                activeDot={{ r: 6 }}
+                dot={(props: any) => {
+                  const { cx, cy, payload } = props;
+                  if (payload.hasAdminTransaction && payload.hasUserTransaction) {
+                    // Both types on same day - show split dot
+                    return (
+                      <g>
+                        <circle cx={cx} cy={cy} r={6} fill="hsl(var(--background))" stroke="hsl(var(--primary))" strokeWidth={2} />
+                        <circle cx={cx - 2} cy={cy} r={2} fill="#22c55e" />
+                        <circle cx={cx + 2} cy={cy} r={2} fill="#f97316" />
+                      </g>
+                    );
+                  } else if (payload.hasAdminTransaction) {
+                    return <circle cx={cx} cy={cy} r={5} fill="#f97316" stroke="hsl(var(--primary))" strokeWidth={2} />;
+                  } else if (payload.hasUserTransaction) {
+                    return <circle cx={cx} cy={cy} r={5} fill="#22c55e" stroke="hsl(var(--primary))" strokeWidth={2} />;
+                  }
+                  return <circle cx={cx} cy={cy} r={4} fill="hsl(var(--primary))" />;
+                }}
+                activeDot={{ r: 8 }}
                 name="Balance"
               />
             </LineChart>
