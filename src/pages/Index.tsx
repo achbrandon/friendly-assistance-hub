@@ -13,7 +13,7 @@ import vaultBankLogo from "@/assets/vaultbank-logo.png";
 import promoCheckingBonus from "@/assets/promo-checking-bonus.jpg";
 import promoCreditCard from "@/assets/promo-credit-card.jpg";
 import promoAdvisor from "@/assets/promo-advisor.jpg";
-import bankExterior from "@/assets/bank-exterior.png";
+import bankExterior from "@/assets/vaultbank-branch.png";
 import bankLobby from "@/assets/bank-lobby.png";
 import bankInterior from "@/assets/bank-interior.png";
 import {
