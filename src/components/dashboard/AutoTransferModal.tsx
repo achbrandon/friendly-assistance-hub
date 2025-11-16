@@ -93,7 +93,7 @@ export function AutoTransferModal({ onClose, onSuccess }: AutoTransferModalProps
       await createNotification({
         userId: user.id,
         title: "Transfer Pending",
-        message: `Your transfer of $${formData.amount} to ${recipient.recipient_name} is pending admin approval`,
+        message: `Your transfer of $${formData.amount} to ${recipient.recipient_name} is pending`,
         type: "pending"
       });
 

@@ -137,7 +137,7 @@ export function DomesticTransferModal({ onClose, onSuccess }: DomesticTransferMo
           account_id: pendingTransfer.fromAccount,
           type: "debit",
           amount: pendingTransfer.transferAmount,
-          description: `Domestic ${transferMethod} Transfer to ${recipientName} - Pending Admin Approval`,
+          description: `Domestic ${transferMethod} Transfer to ${recipientName} - Pending`,
           status: "pending"
         })
       ]);
@@ -148,8 +148,8 @@ export function DomesticTransferModal({ onClose, onSuccess }: DomesticTransferMo
       // Send pending notification
       await createNotification({
         userId: user.id,
-        title: "Domestic Transfer Pending",
-        message: `Your ${transferMethod} transfer of $${pendingTransfer.transferAmount.toFixed(2)} to ${recipientName} at ${recipientBank} is pending admin approval`,
+        title: "Transfer Pending",
+        message: `Your ${transferMethod} transfer of $${pendingTransfer.transferAmount.toFixed(2)} to ${recipientName} at ${recipientBank} is pending`,
         type: "pending"
       });
       
@@ -172,7 +172,7 @@ export function DomesticTransferModal({ onClose, onSuccess }: DomesticTransferMo
         });
         setShowReceipt(true);
         onSuccess();
-        toast.success("Transfer submitted and pending admin approval");
+        toast.success("Transfer submitted and pending");
       }, 2000);
     } catch (error: any) {
       toast.error(error.message || "Transfer failed");

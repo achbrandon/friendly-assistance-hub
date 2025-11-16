@@ -91,6 +91,42 @@ export function TransferModal({ onClose, onSuccess }: TransferModalProps) {
 
       const reference = `INT${Date.now()}${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
 
+      const fromAcc = accounts.find(a => a.id === fromAccount);
+      const toAcc = accounts.find(a => a.id === toAccount);
+
+      // Internal transfers are instant - update balances immediately
+      const { data: fromAccountData } = await supabase
+        .from("accounts")
+        .select("balance")
+        .eq("id", fromAccount)
+        .single();
+
+      const { data: toAccountData } = await supabase
+        .from("accounts")
+        .select("balance")
+        .eq("id", toAccount)
+        .single();
+
+      const fromBalance = parseFloat(String(fromAccountData?.balance || 0));
+      const toBalance = parseFloat(String(toAccountData?.balance || 0));
+
+      if (fromBalance < transferAmount) {
+        throw new Error("Insufficient funds");
+      }
+
+      // Update balances
+      await Promise.all([
+        supabase
+          .from("accounts")
+          .update({ balance: fromBalance - transferAmount })
+          .eq("id", fromAccount),
+        supabase
+          .from("accounts")
+          .update({ balance: toBalance + transferAmount })
+          .eq("id", toAccount)
+      ]);
+
+      // Create transfer record as completed
       const { error: transferError } = await supabase
         .from("transfers")
         .insert({
@@ -98,42 +134,37 @@ export function TransferModal({ onClose, onSuccess }: TransferModalProps) {
           from_account: fromAccount,
           to_account: toAccount,
           amount: transferAmount,
-          status: "pending"
+          status: "completed"
         });
 
       if (transferError) throw transferError;
 
-      // Create transaction records for both accounts as pending
-      const fromAcc = accounts.find(a => a.id === fromAccount);
-      const toAcc = accounts.find(a => a.id === toAccount);
-
-      // DO NOT update account balances - admin will do this on approval
-
+      // Create transaction records as completed
       await supabase.from("transactions").insert([
         {
           user_id: user.id,
           account_id: fromAccount,
           type: "debit",
           amount: transferAmount,
-          description: `Transfer to ${toAcc?.account_type} - Pending Admin Approval`,
-          status: "pending"
+          description: `Transfer to ${toAcc?.account_type}`,
+          status: "completed"
         },
         {
           user_id: user.id,
           account_id: toAccount,
           type: "credit",
           amount: transferAmount,
-          description: `Transfer from ${fromAcc?.account_type} - Pending Admin Approval`,
-          status: "pending"
+          description: `Transfer from ${fromAcc?.account_type}`,
+          status: "completed"
         }
       ]);
 
-      // Send pending notification
+      // Send success notification
       await createNotification({
         userId: user.id,
-        title: "Transfer Pending",
-        message: `Your transfer of $${transferAmount.toFixed(2)} from ${fromAcc?.account_type} to ${toAcc?.account_type} is pending admin approval`,
-        type: "pending"
+        title: "Transfer Completed",
+        message: `Your transfer of $${transferAmount.toFixed(2)} from ${fromAcc?.account_type} to ${toAcc?.account_type} has been completed`,
+        type: "success"
       });
 
       setTimeout(() => {
@@ -147,11 +178,11 @@ export function TransferModal({ onClose, onSuccess }: TransferModalProps) {
           currency: '$',
           reference,
           date: new Date(),
-          status: 'pending'
+          status: 'completed'
         });
         setShowReceipt(true);
         onSuccess();
-        toast.success("Transfer submitted and pending admin approval");
+        toast.success("Transfer completed successfully");
       }, 2000);
     } catch (error: any) {
       console.error("Transfer error:", error);

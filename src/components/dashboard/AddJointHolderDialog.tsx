@@ -133,8 +133,8 @@ export function AddJointHolderDialog({ open, onOpenChange, account, onSuccess }:
       // Create user notification
       await createNotification({
         userId: account.user_id,
-        title: "Joint Account Request Submitted",
-        message: `Your joint account request for ${formData.partnerFullName} has been submitted and is pending admin approval.`,
+        title: "Joint Account Request Pending",
+        message: `Your joint account request for ${formData.partnerFullName} has been submitted and is pending`,
         type: "pending",
       });
 
