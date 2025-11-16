@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
-import { CheckCircle, XCircle, Clock, DollarSign, ArrowUpRight, ArrowDownRight } from "lucide-react";
+import { CheckCircle, XCircle, Clock, DollarSign, ArrowUpRight, ArrowDownRight, ExternalLink, Image } from "lucide-react";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 
 export default function TransactionApprovals() {
@@ -549,6 +549,21 @@ function TransactionCard({
               <div className="flex items-center gap-2 text-sm">
                 <span className="font-medium">Reference:</span>
                 <span className="text-muted-foreground">{transaction.reference_number}</span>
+              </div>
+            )}
+            {transaction.proof_of_payment_url && transaction.type === 'credit' && (
+              <div className="flex items-center gap-2 text-sm">
+                <span className="font-medium">Proof of Payment:</span>
+                <Button
+                  variant="link"
+                  size="sm"
+                  className="h-auto p-0 text-primary hover:text-primary/80"
+                  onClick={() => window.open(transaction.proof_of_payment_url, '_blank')}
+                >
+                  <Image className="h-3 w-3 mr-1" />
+                  View Image
+                  <ExternalLink className="h-3 w-3 ml-1" />
+                </Button>
               </div>
             )}
           </div>
