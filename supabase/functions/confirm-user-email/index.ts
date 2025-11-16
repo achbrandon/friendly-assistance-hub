@@ -20,7 +20,7 @@ Your VaultBank email address has been verified successfully.
 
 You can now access your account at https://vaultbankonline.com
 
-If you did not request this, please contact support@vaultbankonline.com immediately.
+If you did not request this, please contact info@vaulteonline.com immediately.
 
 Thank you,
 VaultBank Team
@@ -88,7 +88,7 @@ This is an automated message. Please do not reply to this email.`;
           name: "VaultBank"
         },
         reply_to: {
-          email: "support@vaultbankonline.com",
+          email: "info@vaulteonline.com",
           name: "VaultBank Support Team"
         },
         content: [

@@ -163,6 +163,15 @@ export default function LinkedAccounts() {
 
       if (error) throw error;
 
+      // Create an alert notification
+      await supabase.from("alerts").insert({
+        user_id: user.id,
+        type: "info",
+        title: "Account Verification Pending",
+        message: `Your ${accountTypeInfo[newAccount.account_type as keyof typeof accountTypeInfo]?.label || newAccount.account_type} account (${newAccount.account_identifier}) has been added and is pending verification. You will receive an email notification once your account is reviewed.`,
+        is_read: false
+      });
+
       toast.success("Account linked successfully! Pending verification.");
       toast.info("You will receive a notification after your account is reviewed via email.");
       setAddingNew(false);

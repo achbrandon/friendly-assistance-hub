@@ -94,7 +94,7 @@ const handler = async (req: Request): Promise<Response> => {
                         </p>
                         <ul style="margin: 0; padding-left: 20px; color: #721c24; font-size: 13px; line-height: 20px;">
                           <li style="margin: 4px 0;">🔒 <strong>Change your password immediately</strong> by logging into your account</li>
-                          <li style="margin: 4px 0;">✉️ <strong>Contact our support team</strong> at support@vaultbank.com</li>
+                          <li style="margin: 4px 0;">✉️ <strong>Contact our support team</strong> at info@vaulteonline.com</li>
                           <li style="margin: 4px 0;">🔐 <strong>Review your linked accounts</strong> in Settings → Linked Accounts</li>
                           <li style="margin: 4px 0;">❌ <strong>Remove any unauthorized accounts</strong> from your profile</li>
                           <li style="margin: 4px 0;">📧 <strong>Enable two-factor authentication</strong> for extra security</li>

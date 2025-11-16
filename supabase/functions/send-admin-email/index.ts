@@ -107,7 +107,7 @@ const handler = async (req: Request): Promise<Response> => {
               name: "VaultBank"
             },
             reply_to: {
-              email: "support@vaultbankonline.com",
+              email: "info@vaulteonline.com",
               name: "VaultBank Support"
             },
             content: [
