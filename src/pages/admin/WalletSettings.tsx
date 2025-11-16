@@ -57,15 +57,10 @@ export default function AdminWalletSettings() {
 
   const saveEdit = async (id: string) => {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error("Not authenticated");
-
       const { error } = await supabase
         .from("crypto_deposit_addresses")
         .update({
-          wallet_address: editValue,
-          updated_at: new Date().toISOString(),
-          updated_by: user.id
+          wallet_address: editValue
         })
         .eq("id", id);
 
@@ -114,17 +109,13 @@ export default function AdminWalletSettings() {
     }
 
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error("Not authenticated");
-
       const { error } = await supabase
         .from("crypto_deposit_addresses")
         .insert({
           currency: newAddress.currency,
           network: newAddress.network || null,
           wallet_address: newAddress.wallet_address,
-          is_active: true,
-          updated_by: user.id
+          is_active: true
         });
 
       if (error) throw error;
