@@ -58,10 +58,40 @@ export const NotificationTemplates = {
     type: "info" as NotificationType,
   }),
 
-  // Transactions
+  // Transaction notifications
+  transactionCompleted: (amount: number, description: string) => ({
+    title: "Transaction Completed",
+    message: `Your transaction of $${amount.toFixed(2)} for ${description} has been completed successfully.`,
+    type: "success" as NotificationType,
+  }),
+
+  transactionPending: (amount: number, description: string) => ({
+    title: "Transaction Pending",
+    message: `Your transaction of $${amount.toFixed(2)} for ${description} is being processed.`,
+    type: "pending" as NotificationType,
+  }),
+
+  transactionFailed: (amount: number, description: string) => ({
+    title: "Transaction Failed",
+    message: `Your transaction of $${amount.toFixed(2)} for ${description} could not be completed.`,
+    type: "error" as NotificationType,
+  }),
+
+  transactionRejected: (amount: number, type: string) => ({
+    title: "Transaction Rejected",
+    message: `Your ${type} transaction of $${amount.toFixed(2)} was rejected. Please contact support if you have questions.`,
+    type: "error" as NotificationType,
+  }),
+
   depositReceived: (amount: number, accountNumber: string) => ({
     title: "Deposit Received",
     message: `$${amount.toFixed(2)} has been deposited into your account ending in ${accountNumber.slice(-4)}.`,
+    type: "success" as NotificationType,
+  }),
+
+  withdrawalProcessed: (amount: number) => ({
+    title: "Withdrawal Processed",
+    message: `Your withdrawal of $${amount.toFixed(2)} has been processed successfully.`,
     type: "success" as NotificationType,
   }),
 
@@ -77,16 +107,62 @@ export const NotificationTemplates = {
     type: "error" as NotificationType,
   }),
 
-  withdrawalProcessed: (amount: number) => ({
-    title: "Withdrawal Processed",
-    message: `Your withdrawal of $${amount.toFixed(2)} has been processed successfully.`,
-    type: "success" as NotificationType,
-  }),
-
   largeTransaction: (amount: number, type: string) => ({
     title: "Large Transaction Alert",
     message: `A ${type} of $${amount.toFixed(2)} has been processed on your account.`,
     type: "info" as NotificationType,
+  }),
+
+  // Account Application notifications
+  accountApplicationApproved: () => ({
+    title: "Account Application Approved",
+    message: "Congratulations! Your account application has been approved. You can now access all banking features.",
+    type: "success" as NotificationType,
+  }),
+
+  accountApplicationRejected: () => ({
+    title: "Account Application Rejected",
+    message: "Unfortunately, your account application was not approved at this time. Please contact support for more information.",
+    type: "error" as NotificationType,
+  }),
+
+  // Account Request notifications
+  accountRequestApproved: (accountType: string) => ({
+    title: "Account Request Approved",
+    message: `Your ${accountType} account request has been approved. Your new account is now active.`,
+    type: "success" as NotificationType,
+  }),
+
+  accountRequestRejected: (accountType: string) => ({
+    title: "Account Request Rejected",
+    message: `Your ${accountType} account request was not approved. Contact support for details.`,
+    type: "error" as NotificationType,
+  }),
+
+  // Card Application notifications
+  cardApplicationApproved: (cardType: string) => ({
+    title: "Card Application Approved",
+    message: `Your ${cardType} card application has been approved. Your card will arrive in 7-10 business days.`,
+    type: "success" as NotificationType,
+  }),
+
+  cardApplicationRejected: (cardType: string) => ({
+    title: "Card Application Rejected",
+    message: `Your ${cardType} card application was not approved at this time.`,
+    type: "error" as NotificationType,
+  }),
+
+  // Loan Application notifications
+  loanApplicationApproved: (amount: number, loanType: string) => ({
+    title: "Loan Application Approved",
+    message: `Your ${loanType} loan application for $${amount.toFixed(2)} has been approved. Funds will be disbursed shortly.`,
+    type: "success" as NotificationType,
+  }),
+
+  loanApplicationRejected: (loanType: string) => ({
+    title: "Loan Application Rejected",
+    message: `Your ${loanType} loan application was not approved. Please contact support for more information.`,
+    type: "error" as NotificationType,
   }),
 
   // Security

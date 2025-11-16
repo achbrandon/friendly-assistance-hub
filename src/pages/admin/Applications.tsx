@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
 import { CheckCircle, XCircle, Clock, FileText, CreditCard, Eye, Trash2 } from "lucide-react";
+import { createNotification, NotificationTemplates } from "@/lib/notifications";
 import {
   Table,
   TableBody,
@@ -121,6 +122,8 @@ export default function AdminApplications() {
 
   const handleApproveAccount = async (appId: string) => {
     try {
+      const app = accountApps.find(a => a.id === appId);
+      
       // Get current admin user ID
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("Not authenticated");
@@ -137,6 +140,15 @@ export default function AdminApplications() {
 
       if (!data.success) {
         throw new Error(data.error || "Failed to approve application");
+      }
+
+      // Send notification to user
+      if (app) {
+        const notification = NotificationTemplates.accountApplicationApproved();
+        await createNotification({
+          userId: app.user_id,
+          ...notification,
+        });
       }
 
       toast.success("Account created and approval email sent!");
@@ -158,6 +170,13 @@ export default function AdminApplications() {
         .eq("id", appId);
 
       if (error) throw error;
+
+      // Send notification to user
+      const notification = NotificationTemplates.accountApplicationRejected();
+      await createNotification({
+        userId: app.user_id,
+        ...notification,
+      });
 
       // Send rejection email
       await supabase.functions.invoke("send-application-decision", {
@@ -207,6 +226,13 @@ export default function AdminApplications() {
 
       if (error) throw error;
 
+      // Send notification to user
+      const notification = NotificationTemplates.accountRequestApproved(request.account_type);
+      await createNotification({
+        userId: request.user_id,
+        ...notification,
+      });
+
       // Send approval email
       await supabase.functions.invoke("send-application-decision", {
         body: {
@@ -237,6 +263,13 @@ export default function AdminApplications() {
         .eq("id", requestId);
 
       if (error) throw error;
+
+      // Send notification to user
+      const notification = NotificationTemplates.accountRequestRejected(request.account_type);
+      await createNotification({
+        userId: request.user_id,
+        ...notification,
+      });
 
       // Send rejection email
       await supabase.functions.invoke("send-application-decision", {
@@ -269,6 +302,13 @@ export default function AdminApplications() {
 
       if (error) throw error;
 
+      // Send notification to user
+      const notification = NotificationTemplates.cardApplicationApproved(app.card_type);
+      await createNotification({
+        userId: app.user_id,
+        ...notification,
+      });
+
       // Send approval email
       await supabase.functions.invoke("send-application-decision", {
         body: {
@@ -299,6 +339,13 @@ export default function AdminApplications() {
         .eq("id", appId);
 
       if (error) throw error;
+
+      // Send notification to user
+      const notification = NotificationTemplates.cardApplicationRejected(app.card_type);
+      await createNotification({
+        userId: app.user_id,
+        ...notification,
+      });
 
       // Send rejection email
       await supabase.functions.invoke("send-application-decision", {
@@ -331,6 +378,13 @@ export default function AdminApplications() {
 
       if (error) throw error;
 
+      // Send notification to user
+      const notification = NotificationTemplates.loanApplicationApproved(app.amount, app.loan_type);
+      await createNotification({
+        userId: app.user_id,
+        ...notification,
+      });
+
       // Send approval email
       await supabase.functions.invoke("send-application-decision", {
         body: {
@@ -361,6 +415,13 @@ export default function AdminApplications() {
         .eq("id", appId);
 
       if (error) throw error;
+
+      // Send notification to user
+      const notification = NotificationTemplates.loanApplicationRejected(app.loan_type);
+      await createNotification({
+        userId: app.user_id,
+        ...notification,
+      });
 
       // Send rejection email
       await supabase.functions.invoke("send-application-decision", {

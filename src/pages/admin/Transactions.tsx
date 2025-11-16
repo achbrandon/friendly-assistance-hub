@@ -7,6 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Check, X, Clock, TrendingUp, CreditCard, ExternalLink } from "lucide-react";
 import { toast } from "sonner";
 import { CreateTransactionForm } from "@/components/admin/CreateTransactionForm";
+import { createNotification, NotificationTemplates } from "@/lib/notifications";
 
 export default function AdminTransactions() {
   const [transactions, setTransactions] = useState<any[]>([]);
@@ -62,6 +63,16 @@ export default function AdminTransactions() {
 
       if (error) throw error;
 
+      // Send notification to user
+      const notification = NotificationTemplates.transactionCompleted(
+        Math.abs(transaction.amount),
+        transaction.description || transaction.type
+      );
+      await createNotification({
+        userId: transaction.user_id,
+        ...notification,
+      });
+
       toast.success("Transaction approved successfully");
       fetchData();
     } catch (error) {
@@ -78,6 +89,16 @@ export default function AdminTransactions() {
         .eq("id", transaction.id);
 
       if (error) throw error;
+
+      // Send notification to user
+      const notification = NotificationTemplates.transactionRejected(
+        Math.abs(transaction.amount),
+        transaction.type
+      );
+      await createNotification({
+        userId: transaction.user_id,
+        ...notification,
+      });
 
       toast.success("Transaction rejected");
       fetchData();
