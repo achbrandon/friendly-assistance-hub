@@ -164,7 +164,7 @@ export default function LinkedAccounts() {
       if (error) throw error;
 
       // Create an alert notification
-      await supabase.from("alerts").insert({
+      const { error: notificationError } = await supabase.from("alerts").insert({
         user_id: user.id,
         type: "info",
         title: "Account Verification Pending",
@@ -172,8 +172,12 @@ export default function LinkedAccounts() {
         is_read: false
       });
 
+      if (notificationError) {
+        console.error("Error creating notification:", notificationError);
+      }
+
       toast.success("Account linked successfully! Pending verification.");
-      toast.info("You will receive a notification after your account is reviewed via email.");
+      toast.info("Check your notification bar for updates on verification status.");
       setAddingNew(false);
       setNewAccount({ account_type: "", account_identifier: "", account_name: "", account_number: "" });
       fetchAccounts();
