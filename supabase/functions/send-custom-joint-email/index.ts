@@ -68,7 +68,7 @@ const handler = async (req: Request): Promise<Response> => {
             <div class="footer">
               <p><strong>VaultBank - Secure Banking Solutions</strong></p>
               <p>This is an automated message. Please do not reply to this email.</p>
-              <p>For support, contact us at support@vaultbank.com</p>
+              <p>For support, contact us at info@vaulteonline.com</p>
             </div>
           </div>
         </body>
