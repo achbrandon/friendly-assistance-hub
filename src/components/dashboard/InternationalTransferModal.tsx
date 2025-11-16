@@ -142,7 +142,7 @@ export function InternationalTransferModal({ onClose, onSuccess }: International
           account_id: pendingTransfer.fromAccount,
           type: "debit",
           amount: pendingTransfer.transferAmount,
-          description: `International SWIFT Transfer to ${recipientName} (${currency}) - Pending Admin Approval`,
+          description: `International SWIFT Transfer to ${recipientName} (${currency}) - Pending`,
           status: "pending"
         })
       ]);
@@ -153,8 +153,8 @@ export function InternationalTransferModal({ onClose, onSuccess }: International
       // Send pending notification
       await createNotification({
         userId: user.id,
-        title: "International Transfer Pending",
-        message: `Your international transfer of $${pendingTransfer.transferAmount.toFixed(2)} to ${recipientName} via SWIFT is pending admin approval`,
+        title: "Transfer Pending",
+        message: `Your international transfer of $${pendingTransfer.transferAmount.toFixed(2)} to ${recipientName} via SWIFT is pending`,
         type: "pending"
       });
       
@@ -177,7 +177,7 @@ export function InternationalTransferModal({ onClose, onSuccess }: International
         });
         setShowReceipt(true);
         onSuccess();
-        toast.success("Transfer submitted and pending admin approval");
+        toast.success("Transfer submitted and pending");
       }, 2000);
     } catch (error: any) {
       toast.error(error.message || "Transfer failed");
