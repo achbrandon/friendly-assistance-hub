@@ -1,13 +1,16 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { Bell, X, CheckCircle, AlertCircle, Info, Clock, Wallet, ArrowLeftRight, Shield, Gift, FileText, CreditCard, Filter } from "lucide-react";
+import { Bell, X, CheckCircle, AlertCircle, Info, Clock, Wallet, ArrowLeftRight, Shield, Gift, FileText, CreditCard, Filter, Search, Calendar } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { formatDistanceToNow } from "date-fns";
+import { Input } from "@/components/ui/input";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Calendar as CalendarComponent } from "@/components/ui/calendar";
+import { formatDistanceToNow, format } from "date-fns";
 
 interface Notification {
   id: string;
@@ -68,6 +71,12 @@ export default function NotificationBar() {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const [activeCategory, setActiveCategory] = useState<NotificationCategory>('all');
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedCategories, setSelectedCategories] = useState<NotificationCategory[]>(['all']);
+  const [dateRange, setDateRange] = useState<{ from: Date | undefined; to: Date | undefined }>({
+    from: undefined,
+    to: undefined,
+  });
 
   useEffect(() => {
     fetchNotifications();
@@ -210,9 +219,50 @@ export default function NotificationBar() {
     return NOTIFICATION_CATEGORIES[category as keyof typeof NOTIFICATION_CATEGORIES]?.icon || Info;
   };
 
+  const toggleCategory = (category: NotificationCategory) => {
+    if (category === 'all') {
+      setSelectedCategories(['all']);
+      setActiveCategory('all');
+    } else {
+      const newCategories = selectedCategories.includes(category)
+        ? selectedCategories.filter(c => c !== category)
+        : [...selectedCategories.filter(c => c !== 'all'), category];
+      
+      setSelectedCategories(newCategories.length === 0 ? ['all'] : newCategories);
+      setActiveCategory(newCategories[0] || 'all');
+    }
+  };
+
   const getFilteredNotifications = () => {
-    if (activeCategory === 'all') return notifications;
-    return notifications.filter(n => categorizeNotification(n) === activeCategory);
+    let filtered = notifications;
+
+    // Apply search filter
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase();
+      filtered = filtered.filter(n => 
+        n.title.toLowerCase().includes(query) || 
+        n.message.toLowerCase().includes(query)
+      );
+    }
+
+    // Apply date range filter
+    if (dateRange.from) {
+      filtered = filtered.filter(n => {
+        const notifDate = new Date(n.created_at);
+        const from = dateRange.from!;
+        const to = dateRange.to || new Date();
+        return notifDate >= from && notifDate <= to;
+      });
+    }
+
+    // Apply category filter
+    if (!selectedCategories.includes('all')) {
+      filtered = filtered.filter(n => 
+        selectedCategories.includes(categorizeNotification(n))
+      );
+    }
+
+    return filtered;
   };
 
   const getCategoryCount = (category: NotificationCategory) => {
@@ -285,69 +335,86 @@ export default function NotificationBar() {
           </div>
         </SheetHeader>
 
-        <Tabs value={activeCategory} onValueChange={(v) => setActiveCategory(v as NotificationCategory)} className="flex-1 flex flex-col mt-4">
-          <TabsList className="grid w-full grid-cols-3 mb-4">
-            <TabsTrigger value="all" className="text-xs sm:text-sm">
-              <Filter className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
-              All
-              {getCategoryUnreadCount('all') > 0 && (
-                <Badge variant="destructive" className="ml-1 h-4 w-4 p-0 text-[10px]">
-                  {getCategoryUnreadCount('all')}
-                </Badge>
-              )}
-            </TabsTrigger>
-            <TabsTrigger value="account" className="text-xs sm:text-sm">
-              <Wallet className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
-              <span className="hidden sm:inline">Account</span>
-              {getCategoryUnreadCount('account') > 0 && (
-                <Badge variant="destructive" className="ml-1 h-4 w-4 p-0 text-[10px]">
-                  {getCategoryUnreadCount('account')}
-                </Badge>
-              )}
-            </TabsTrigger>
-            <TabsTrigger value="transaction" className="text-xs sm:text-sm">
-              <ArrowLeftRight className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
-              <span className="hidden sm:inline">Transactions</span>
-              {getCategoryUnreadCount('transaction') > 0 && (
-                <Badge variant="destructive" className="ml-1 h-4 w-4 p-0 text-[10px]">
-                  {getCategoryUnreadCount('transaction')}
-                </Badge>
-              )}
-            </TabsTrigger>
-          </TabsList>
-
-          <div className="grid grid-cols-2 gap-2 mb-4">
-            <Button
-              variant={activeCategory === 'security' ? 'default' : 'outline'}
-              size="sm"
-              onClick={() => setActiveCategory('security')}
-              className="text-xs"
-            >
-              <Shield className="w-3 h-3 mr-1" />
-              Security
-              {getCategoryUnreadCount('security') > 0 && (
-                <Badge variant="destructive" className="ml-1 h-4 w-4 p-0 text-[10px]">
-                  {getCategoryUnreadCount('security')}
-                </Badge>
-              )}
-            </Button>
-            <Button
-              variant={activeCategory === 'payment' ? 'default' : 'outline'}
-              size="sm"
-              onClick={() => setActiveCategory('payment')}
-              className="text-xs"
-            >
-              <CreditCard className="w-3 h-3 mr-1" />
-              Payments
-              {getCategoryUnreadCount('payment') > 0 && (
-                <Badge variant="destructive" className="ml-1 h-4 w-4 p-0 text-[10px]">
-                  {getCategoryUnreadCount('payment')}
-                </Badge>
-              )}
-            </Button>
+        <div className="space-y-3 mt-4">
+          {/* Search */}
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Search notifications..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-9"
+            />
           </div>
 
-          <ScrollArea className="flex-1">
+          {/* Date Range Filter */}
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button variant="outline" className="w-full justify-start text-left font-normal">
+                <Calendar className="mr-2 h-4 w-4" />
+                {dateRange.from ? (
+                  dateRange.to ? (
+                    <>
+                      {format(dateRange.from, "MMM dd, yyyy")} - {format(dateRange.to, "MMM dd, yyyy")}
+                    </>
+                  ) : (
+                    format(dateRange.from, "MMM dd, yyyy")
+                  )
+                ) : (
+                  "Filter by date"
+                )}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0" align="start">
+              <CalendarComponent
+                mode="range"
+                selected={{ from: dateRange.from, to: dateRange.to }}
+                onSelect={(range) => setDateRange({ from: range?.from, to: range?.to })}
+                numberOfMonths={1}
+              />
+              <div className="p-3 border-t">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setDateRange({ from: undefined, to: undefined })}
+                  className="w-full"
+                >
+                  Clear dates
+                </Button>
+              </div>
+            </PopoverContent>
+          </Popover>
+
+          {/* Category Multi-Select */}
+          <div className="flex flex-wrap gap-2">
+            {Object.entries(NOTIFICATION_CATEGORIES).map(([key, config]) => {
+              const category = key as NotificationCategory;
+              const isSelected = selectedCategories.includes(category) || selectedCategories.includes('all');
+              const CategoryIcon = config.icon;
+              const count = getCategoryUnreadCount(category);
+
+              return (
+                <Button
+                  key={key}
+                  variant={isSelected ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => toggleCategory(category)}
+                  className="text-xs"
+                >
+                  <CategoryIcon className="w-3 h-3 mr-1" />
+                  {config.label}
+                  {count > 0 && (
+                    <Badge variant="destructive" className="ml-1 h-4 w-4 p-0 text-[10px]">
+                      {count}
+                    </Badge>
+                  )}
+                </Button>
+              );
+            })}
+          </div>
+        </div>
+
+        <ScrollArea className="flex-1 mt-4">
             {loading ? (
               <div className="flex items-center justify-center py-8">
                 <p className="text-muted-foreground">Loading notifications...</p>
@@ -437,8 +504,7 @@ export default function NotificationBar() {
                 ))}
               </div>
             )}
-          </ScrollArea>
-        </Tabs>
+        </ScrollArea>
       </SheetContent>
     </Sheet>
   );
