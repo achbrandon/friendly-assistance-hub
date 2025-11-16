@@ -8,6 +8,7 @@ import { Upload, AlertTriangle, CheckCircle2, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
+import { createNotification } from "@/lib/notifications";
 
 interface AddJointHolderDialogProps {
   open: boolean;
@@ -127,6 +128,14 @@ export function AddJointHolderDialog({ open, onOpenChange, account, onSuccess }:
       await supabase.from("admin_notifications").insert({
         notification_type: "joint_account_request",
         message: `New joint account holder request from ${formData.partnerFullName}`,
+      });
+
+      // Create user notification
+      await createNotification({
+        userId: account.user_id,
+        title: "Joint Account Request Submitted",
+        message: `Your joint account request for ${formData.partnerFullName} has been submitted and is pending admin approval.`,
+        type: "pending",
       });
 
       setStep("success");
