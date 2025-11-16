@@ -48,6 +48,7 @@ import AccountDetails from "./pages/dashboard/AccountDetails";
 import StatementGenerator from "./pages/dashboard/StatementGenerator";
 import LoanApplication from "./pages/dashboard/LoanApplication";
 import AdminSupport from "./pages/dashboard/AdminSupport";
+import JointAccountStatus from "./pages/dashboard/JointAccountStatus";
 import RequestAccount from "./pages/dashboard/RequestAccount";
 import Analytics from "./pages/dashboard/Analytics";
 import LiveSupport from "./pages/admin/LiveSupport";
@@ -143,6 +144,7 @@ function AppRoutes() {
       <Route path="/dashboard/generate-statement" element={<StatementGenerator />} />
       <Route path="/dashboard/loan-application" element={<LoanApplication />} />
       <Route path="/dashboard/admin-support" element={<AdminSupport />} />
+      <Route path="/dashboard/joint-account-status" element={<JointAccountStatus />} />
       <Route path="/dashboard/request-account" element={<RequestAccount />} />
       <Route path="/dashboard/analytics" element={<Analytics />} />
       <Route path="/dashboard/login-history" element={<LoginHistory />} />
