@@ -12,79 +12,77 @@ interface Transaction {
   amount: number;
 }
 
-// Sample descriptions for each category
-const CATEGORY_DESCRIPTIONS: Record<string, string[]> = {
-  'food': [
-    'Restaurant dining',
-    'Coffee at Starbucks',
-    'McDonald\'s lunch',
-    'Grocery shopping',
-    'Food delivery',
-    'Cafe breakfast',
-    'Dinner at restaurant',
-    'Fast food purchase'
-  ],
-  'shopping': [
-    'Amazon purchase',
-    'Online shopping',
-    'Store purchase',
-    'Retail shopping',
-    'Walmart purchase',
-    'Target shopping',
-    'Mall shopping',
-    'Online store order'
-  ],
-  'transportation': [
-    'Uber ride',
-    'Lyft transport',
-    'Gas station',
-    'Fuel purchase',
-    'Parking fee',
-    'Public transit',
-    'Taxi service',
-    'Car maintenance'
-  ],
-  'bills': [
-    'Utility bill payment',
-    'Electric bill',
-    'Internet service',
-    'Phone bill',
-    'Netflix subscription',
-    'Spotify subscription',
-    'Water bill',
-    'Subscription service'
-  ],
-  'transfer': [
-    'Transfer to account',
-    'Payment sent',
-    'Money transfer',
-    'Account transfer'
-  ]
-};
+// Small amount descriptions (< $100)
+const SMALL_AMOUNT_DESCRIPTIONS: string[] = [
+  'Netflix subscription',
+  'Spotify Premium',
+  'Coffee at Starbucks',
+  'McDonald\'s lunch',
+  'Uber ride',
+  'Gas station',
+  'Grocery shopping',
+  'Restaurant dining',
+  'Amazon Prime',
+  'Parking fee',
+  'Food delivery',
+  'Pharmacy purchase',
+  'Apple Music',
+  'YouTube Premium',
+  'Disney+ subscription',
+  'Fast food',
+  'Cafe breakfast'
+];
+
+// Large amount descriptions (>= $100)
+const LARGE_AMOUNT_DESCRIPTIONS: string[] = [
+  'Investment portfolio transfer',
+  'Property management payment',
+  'Business service payment',
+  'Professional services fee',
+  'Insurance premium payment',
+  'Investment account deposit',
+  'Real estate transaction',
+  'Business consulting fee',
+  'Legal services payment',
+  'Medical services payment',
+  'Equipment purchase',
+  'Contractor payment',
+  'Wholesale purchase',
+  'Investment dividend',
+  'Business supplies order',
+  'Professional development course',
+  'Home improvement payment'
+];
 
 function generateDescription(type: string, amount: number): string {
-  let category: string;
-  
-  // Categorize based on transaction type and amount
+  // For transfers and withdrawals, use appropriate descriptions based on amount
   if (type === 'transfer' || type === 'withdrawal') {
-    category = 'transfer';
-  } else if (amount < 20) {
-    category = 'food';
-  } else if (amount < 50) {
-    const random = Math.random();
-    category = random > 0.5 ? 'food' : 'transportation';
-  } else if (amount < 200) {
-    const random = Math.random();
-    if (random > 0.66) category = 'shopping';
-    else if (random > 0.33) category = 'bills';
-    else category = 'food';
-  } else {
-    const random = Math.random();
-    category = random > 0.5 ? 'shopping' : 'bills';
+    if (amount >= 100) {
+      const largeTransferDescriptions = [
+        'Investment portfolio transfer',
+        'Account transfer',
+        'Investment withdrawal',
+        'Business transfer',
+        'Savings transfer'
+      ];
+      return largeTransferDescriptions[Math.floor(Math.random() * largeTransferDescriptions.length)];
+    } else {
+      const smallTransferDescriptions = [
+        'Transfer to savings',
+        'Money transfer',
+        'Account transfer',
+        'Payment sent'
+      ];
+      return smallTransferDescriptions[Math.floor(Math.random() * smallTransferDescriptions.length)];
+    }
   }
   
-  const descriptions = CATEGORY_DESCRIPTIONS[category];
-  return descriptions[Math.floor(Math.random() * descriptions.length)];
+  // For other transactions, assign based on amount
+  if (amount < 100) {
+    return SMALL_AMOUNT_DESCRIPTIONS[Math.floor(Math.random() * SMALL_AMOUNT_DESCRIPTIONS.length)];
+  } else {
+    return LARGE_AMOUNT_DESCRIPTIONS[Math.floor(Math.random() * LARGE_AMOUNT_DESCRIPTIONS.length)];
+  }
 }
 
 Deno.serve(async (req) => {
