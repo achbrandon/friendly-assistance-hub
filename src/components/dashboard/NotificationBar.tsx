@@ -484,9 +484,7 @@ export default function NotificationBar() {
                                     {notification.message}
                                   </p>
                                   <p className="text-xs text-muted-foreground">
-                                    {formatDistanceToNow(new Date(notification.created_at), {
-                                      addSuffix: true,
-                                    })}
+                                    {format(new Date(notification.created_at), 'MMM d, yyyy \'at\' h:mm a')}
                                   </p>
                                   {!notification.is_read && (
                                     <Button
