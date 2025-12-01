@@ -66,7 +66,7 @@ const Crypto = () => {
             Seamlessly buy, sell, and manage cryptocurrency alongside your checking and savings accounts
           </p>
           <Button size="lg" asChild>
-            <Link to="/open-account">Open Account</Link>
+            <Link to="/bank/open-account">Open Account</Link>
           </Button>
         </div>
       </section>
@@ -286,10 +286,10 @@ const Crypto = () => {
           </p>
           <div className="flex gap-4 justify-center flex-wrap">
             <Button size="lg" variant="secondary" asChild>
-              <Link to="/open-account">Open Account</Link>
+              <Link to="/bank/open-account">Open Account</Link>
             </Button>
             <Button size="lg" variant="outline" asChild>
-              <Link to="/checking">View Checking Accounts</Link>
+              <Link to="/bank/checking">View Checking Accounts</Link>
             </Button>
           </div>
         </section>

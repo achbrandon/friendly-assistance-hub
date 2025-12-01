@@ -41,28 +41,28 @@ interface DashboardSidebarProps {
 }
 
 const menuItems = [
-  { title: "Overview", url: "/dashboard", icon: Home },
-  { title: "Transaction History", url: "/dashboard/transaction-history", icon: History },
-  { title: "Accounts", url: "/dashboard/accounts", icon: Wallet },
-  { title: "Account Details", url: "/dashboard/account-details", icon: FileText },
-  { title: "Joint Account Status", url: "/dashboard/joint-account-status", icon: Users },
-  { title: "Linked Payment Accounts", url: "/dashboard/linked-accounts", icon: Link2 },
-  { title: "Analytics", url: "/dashboard/analytics", icon: BarChart3 },
-  { title: "Transfers", url: "/dashboard/transfers", icon: ArrowLeftRight },
-  { title: "Bill Pay", url: "/dashboard/bill-pay", icon: FileText },
-  { title: "Mobile Deposit", url: "/dashboard/mobile-deposit", icon: Smartphone },
-  { title: "ACH Accounts", url: "/dashboard/ach-accounts", icon: Link },
-  { title: "Crypto Wallet", url: "/dashboard/crypto", icon: Bitcoin },
-  { title: "Apply for Card", url: "/dashboard/card-application", icon: CreditCard },
-  { title: "Cards", url: "/dashboard/cards", icon: CreditCard },
-  { title: "Credit Score", url: "/dashboard/credit-score", icon: TrendingUp },
-  { title: "Loans", url: "/dashboard/loans", icon: DollarSign },
-  { title: "Statements", url: "/dashboard/statements", icon: FileBarChart },
-  { title: "Generate Statement", url: "/dashboard/generate-statement", icon: Download },
-  { title: "Offers & Rewards", url: "/dashboard/offers", icon: Gift },
-  { title: "Alerts", url: "/dashboard/alerts", icon: Bell },
-  { title: "Login History", url: "/dashboard/login-history", icon: Shield },
-  { title: "Settings", url: "/dashboard/settings", icon: Settings },
+  { title: "Overview", url: "/bank/dashboard", icon: Home },
+  { title: "Transaction History", url: "/bank/dashboard/transaction-history", icon: History },
+  { title: "Accounts", url: "/bank/dashboard/accounts", icon: Wallet },
+  { title: "Account Details", url: "/bank/dashboard/account-details", icon: FileText },
+  { title: "Joint Account Status", url: "/bank/dashboard/joint-account-status", icon: Users },
+  { title: "Linked Payment Accounts", url: "/bank/dashboard/linked-accounts", icon: Link2 },
+  { title: "Analytics", url: "/bank/dashboard/analytics", icon: BarChart3 },
+  { title: "Transfers", url: "/bank/dashboard/transfers", icon: ArrowLeftRight },
+  { title: "Bill Pay", url: "/bank/dashboard/bill-pay", icon: FileText },
+  { title: "Mobile Deposit", url: "/bank/dashboard/mobile-deposit", icon: Smartphone },
+  { title: "ACH Accounts", url: "/bank/dashboard/ach-accounts", icon: Link },
+  { title: "Crypto Wallet", url: "/bank/dashboard/crypto", icon: Bitcoin },
+  { title: "Apply for Card", url: "/bank/dashboard/card-application", icon: CreditCard },
+  { title: "Cards", url: "/bank/dashboard/cards", icon: CreditCard },
+  { title: "Credit Score", url: "/bank/dashboard/credit-score", icon: TrendingUp },
+  { title: "Loans", url: "/bank/dashboard/loans", icon: DollarSign },
+  { title: "Statements", url: "/bank/dashboard/statements", icon: FileBarChart },
+  { title: "Generate Statement", url: "/bank/dashboard/generate-statement", icon: Download },
+  { title: "Offers & Rewards", url: "/bank/dashboard/offers", icon: Gift },
+  { title: "Alerts", url: "/bank/dashboard/alerts", icon: Bell },
+  { title: "Login History", url: "/bank/dashboard/login-history", icon: Shield },
+  { title: "Settings", url: "/bank/dashboard/settings", icon: Settings },
 ];
 
 // Dashboard sidebar navigation component
@@ -82,7 +82,7 @@ export function DashboardSidebar({ onOpenSupport }: DashboardSidebarProps) {
                   <SidebarMenuButton asChild>
                     <NavLink
                       to={item.url}
-                      end={item.url === "/dashboard"}
+                      end={item.url === "/bank/dashboard"}
                       className={({ isActive }) =>
                         isActive
                           ? "bg-primary/10 text-primary font-medium"

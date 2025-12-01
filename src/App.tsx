@@ -107,62 +107,61 @@ function AppRoutes() {
       <Routes>
       <Route path="/" element={<Index />} />
       <Route path="/bank" element={<Index />} />
-      <Route path="/checking" element={<Checking />} />
-      <Route path="/savings" element={<Savings />} />
-      <Route path="/cds" element={<CDs />} />
-      <Route path="/money-market" element={<MoneyMarket />} />
-      <Route path="/credit-cards" element={<CreditCards />} />
-      <Route path="/loans" element={<Loans />} />
-      <Route path="/investments" element={<Investments />} />
-      <Route path="/transfers" element={<Transfers />} />
-      <Route path="/locations" element={<Locations />} />
-      <Route path="/crypto" element={<Crypto />} />
-      <Route path="/open-account" element={<OpenAccount />} />
-      <Route path="/auth" element={<Auth />} />
-      <Route path="/forgot-password" element={<ForgotPassword />} />
-      <Route path="/token-signin" element={<TokenSignIn />} />
-      <Route path="/business" element={<Business />} />
-      <Route path="/travel" element={<Travel />} />
-      <Route path="/schedule-meeting" element={<ScheduleMeeting />} />
-      <Route path="/mortgage-calculator" element={<MortgageCalculator />} />
-      <Route path="/verify-qr" element={<VerifyQR />} />
-      <Route path="/api/verify-email" element={<VerifyEmail />} />
-      <Route path="/verify-email" element={<VerifyEmail />} />
-      <Route path="/verification-success" element={<VerificationSuccess />} />
-      <Route path="/resend-emails" element={<ResendEmails />} />
-          <Route path="/create-test-account" element={<CreateTestAccount />} />
-          <Route path="/create-admin-account" element={<CreateAdminAccount />} />
-          <Route path="/check-admin" element={<CheckAdmin />} />
-      <Route path="/dashboard" element={<Dashboard />} />
-      <Route path="/dashboard/accounts" element={<Accounts />} />
-      <Route path="/dashboard/transfers" element={<DashboardTransfers />} />
-      <Route path="/dashboard/bill-pay" element={<BillPay />} />
-      <Route path="/dashboard/mobile-deposit" element={<MobileDeposit />} />
-      <Route path="/dashboard/cards" element={<Cards />} />
-      <Route path="/dashboard/credit-score" element={<CreditScore />} />
-      <Route path="/dashboard/loans" element={<DashboardLoans />} />
-      <Route path="/dashboard/statements" element={<Statements />} />
-      <Route path="/dashboard/offers" element={<Offers />} />
-      <Route path="/dashboard/alerts" element={<Alerts />} />
-      <Route path="/dashboard/settings" element={<Settings />} />
-      <Route path="/dashboard/ach-accounts" element={<ACHAccounts />} />
-      <Route path="/dashboard/crypto" element={<CryptoWallet />} />
-      <Route path="/dashboard/card-application" element={<CardApplication />} />
-      <Route path="/dashboard/account-details" element={<AccountDetails />} />
-      <Route path="/dashboard/generate-statement" element={<StatementGenerator />} />
-      <Route path="/dashboard/loan-application" element={<LoanApplication />} />
-      <Route path="/dashboard/admin-support" element={<AdminSupport />} />
-      <Route path="/dashboard/joint-account-status" element={<JointAccountStatus />} />
-      <Route path="/dashboard/request-account" element={<RequestAccount />} />
-      <Route path="/dashboard/analytics" element={<Analytics />} />
-      <Route path="/dashboard/support" element={<Support />} />
-      <Route path="/dashboard/login-history" element={<LoginHistory />} />
-      <Route path="/dashboard/linked-accounts" element={<LinkedAccounts />} />
-      <Route path="/dashboard/transaction-history" element={<TransactionHistory />} />
-      <Route path="/dashboard/revenue-reports" element={<RevenueReports />} />
+      <Route path="/bank/checking" element={<Checking />} />
+      <Route path="/bank/savings" element={<Savings />} />
+      <Route path="/bank/cds" element={<CDs />} />
+      <Route path="/bank/money-market" element={<MoneyMarket />} />
+      <Route path="/bank/credit-cards" element={<CreditCards />} />
+      <Route path="/bank/loans" element={<Loans />} />
+      <Route path="/bank/investments" element={<Investments />} />
+      <Route path="/bank/transfers" element={<Transfers />} />
+      <Route path="/bank/locations" element={<Locations />} />
+      <Route path="/bank/crypto" element={<Crypto />} />
+      <Route path="/bank/open-account" element={<OpenAccount />} />
+      <Route path="/bank/login" element={<Auth />} />
+      <Route path="/bank/forgot-password" element={<ForgotPassword />} />
+      <Route path="/bank/token-signin" element={<TokenSignIn />} />
+      <Route path="/bank/business" element={<Business />} />
+      <Route path="/bank/travel" element={<Travel />} />
+      <Route path="/bank/schedule-meeting" element={<ScheduleMeeting />} />
+      <Route path="/bank/mortgage-calculator" element={<MortgageCalculator />} />
+      <Route path="/bank/verify-qr" element={<VerifyQR />} />
+      <Route path="/bank/verify-email" element={<VerifyEmail />} />
+      <Route path="/bank/verification-success" element={<VerificationSuccess />} />
+      <Route path="/bank/resend-emails" element={<ResendEmails />} />
+      <Route path="/bank/create-test-account" element={<CreateTestAccount />} />
+      <Route path="/bank/create-admin-account" element={<CreateAdminAccount />} />
+      <Route path="/bank/check-admin" element={<CheckAdmin />} />
+      <Route path="/bank/dashboard" element={<Dashboard />} />
+      <Route path="/bank/dashboard/accounts" element={<Accounts />} />
+      <Route path="/bank/dashboard/transfers" element={<DashboardTransfers />} />
+      <Route path="/bank/dashboard/bill-pay" element={<BillPay />} />
+      <Route path="/bank/dashboard/mobile-deposit" element={<MobileDeposit />} />
+      <Route path="/bank/dashboard/cards" element={<Cards />} />
+      <Route path="/bank/dashboard/credit-score" element={<CreditScore />} />
+      <Route path="/bank/dashboard/loans" element={<DashboardLoans />} />
+      <Route path="/bank/dashboard/statements" element={<Statements />} />
+      <Route path="/bank/dashboard/offers" element={<Offers />} />
+      <Route path="/bank/dashboard/alerts" element={<Alerts />} />
+      <Route path="/bank/dashboard/settings" element={<Settings />} />
+      <Route path="/bank/dashboard/ach-accounts" element={<ACHAccounts />} />
+      <Route path="/bank/dashboard/crypto" element={<CryptoWallet />} />
+      <Route path="/bank/dashboard/card-application" element={<CardApplication />} />
+      <Route path="/bank/dashboard/account-details" element={<AccountDetails />} />
+      <Route path="/bank/dashboard/generate-statement" element={<StatementGenerator />} />
+      <Route path="/bank/dashboard/loan-application" element={<LoanApplication />} />
+      <Route path="/bank/dashboard/admin-support" element={<AdminSupport />} />
+      <Route path="/bank/dashboard/joint-account-status" element={<JointAccountStatus />} />
+      <Route path="/bank/dashboard/request-account" element={<RequestAccount />} />
+      <Route path="/bank/dashboard/analytics" element={<Analytics />} />
+      <Route path="/bank/dashboard/support" element={<Support />} />
+      <Route path="/bank/dashboard/login-history" element={<LoginHistory />} />
+      <Route path="/bank/dashboard/linked-accounts" element={<LinkedAccounts />} />
+      <Route path="/bank/dashboard/transaction-history" element={<TransactionHistory />} />
+      <Route path="/bank/dashboard/revenue-reports" element={<RevenueReports />} />
       
       {/* Admin Routes */}
-      <Route path="/admin" element={<AdminDashboard />}>
+      <Route path="/bank/admin" element={<AdminDashboard />}>
         <Route path="users" element={<AdminUsers />} />
         <Route path="user-management" element={<AdminUserManagement />} />
         <Route path="live-monitoring" element={<AdminLiveMonitoring />} />

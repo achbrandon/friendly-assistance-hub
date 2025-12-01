@@ -68,7 +68,7 @@ export const AuthDialog = ({ open, onOpenChange }: AuthDialogProps) => {
         if (profile?.can_transact && profile?.qr_verified) {
           toast.success("Signed in successfully!");
           onOpenChange(false);
-          navigate("/dashboard");
+          navigate("/bank/dashboard");
           return;
         }
 
@@ -96,7 +96,7 @@ export const AuthDialog = ({ open, onOpenChange }: AuthDialogProps) => {
         if (application?.status === 'approved' && !profile?.qr_verified) {
           toast.info("Please complete QR verification to access your account");
           onOpenChange(false);
-          navigate("/verify-qr");
+          navigate("/bank/verify-qr");
           return;
         }
 
@@ -117,7 +117,7 @@ export const AuthDialog = ({ open, onOpenChange }: AuthDialogProps) => {
         // For now, proceed to dashboard
         toast.success("Signed in successfully!");
         onOpenChange(false);
-        navigate("/dashboard");
+        navigate("/bank/dashboard");
       }
     } catch (error: any) {
       console.error("Sign in error:", error);
@@ -192,7 +192,7 @@ export const AuthDialog = ({ open, onOpenChange }: AuthDialogProps) => {
                 </label>
               </div>
               <Link 
-                to="/open-account" 
+                to="/bank/open-account" 
                 className="text-[hsl(210,100%,50%)] font-semibold text-sm hover:underline flex items-center gap-1 hover-scale transition-all duration-200"
                 onClick={() => onOpenChange(false)}
               >
@@ -211,14 +211,14 @@ export const AuthDialog = ({ open, onOpenChange }: AuthDialogProps) => {
               
               <div className="flex flex-col gap-1.5 justify-center">
                 <Link 
-                  to="/open-account" 
+                  to="/bank/open-account" 
                   className="text-[hsl(210,100%,50%)] font-semibold text-xs hover:underline flex items-center gap-1 whitespace-nowrap group transition-all duration-200"
                   onClick={() => onOpenChange(false)}
                 >
                   Forgot username/password <ChevronRight className="w-3 h-3 transition-transform duration-200 group-hover:translate-x-1" />
                 </Link>
                 <Link 
-                  to="/open-account" 
+                  to="/bank/open-account" 
                   className="text-[hsl(210,100%,50%)] font-semibold text-xs hover:underline flex items-center gap-1 whitespace-nowrap group transition-all duration-200"
                   onClick={() => onOpenChange(false)}
                 >

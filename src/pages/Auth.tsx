@@ -53,7 +53,7 @@ const Auth = () => {
       if (session?.user && !isRedirecting.current) {
         // User is already logged in, redirect to dashboard
         isRedirecting.current = true;
-        navigate("/dashboard", { replace: true });
+        navigate("/bank/dashboard", { replace: true });
         return;
       }
     });
@@ -81,7 +81,7 @@ const Auth = () => {
       // Bypass all verification for test accounts
       if (user.email === 'ambaheu@gmail.com' || user.email === 'test@vaultbank.com') {
         toast.success("Signed in successfully!");
-        navigate("/dashboard", { replace: true });
+        navigate("/bank/dashboard", { replace: true });
         return;
       }
 
@@ -95,7 +95,7 @@ const Auth = () => {
       // If user can transact and is verified, allow access (skip email check if QR verified)
       if (profile?.can_transact && profile?.qr_verified) {
         toast.success("Signed in successfully!");
-        navigate("/dashboard", { replace: true });
+        navigate("/bank/dashboard", { replace: true });
         return;
       }
 
@@ -112,14 +112,14 @@ const Auth = () => {
           "🔍 Your account is under review. Please wait for approval.",
           { duration: 6000 }
         );
-        navigate("/", { replace: true });
+        navigate("/bank", { replace: true });
         return;
       }
 
       // If account is approved but QR not verified
       if (application?.status === 'approved' && !profile?.qr_verified) {
         toast.info("Please complete QR verification");
-        navigate("/verify-qr", { replace: true });
+        navigate("/bank/verify-qr", { replace: true });
         return;
       }
 
@@ -129,13 +129,13 @@ const Auth = () => {
           "Your account application was rejected. Please contact support.",
           { duration: 6000 }
         );
-        navigate("/", { replace: true });
+        navigate("/bank", { replace: true });
         return;
       }
 
       // Default: allow access if no blocking issues
       toast.success("Signed in successfully!");
-      navigate("/dashboard", { replace: true });
+      navigate("/bank/dashboard", { replace: true });
     } catch (error) {
       console.error("Redirect error:", error);
     }
@@ -289,7 +289,7 @@ const Auth = () => {
           setLoading(false);
           setShowLoadingSpinner(false);
           isLoggingIn.current = false;
-          navigate("/verify-qr");
+          navigate("/bank/verify-qr");
           return;
         }
 
