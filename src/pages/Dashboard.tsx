@@ -165,7 +165,7 @@ const Dashboard = () => {
       await supabase.auth.signOut();
       sessionStorage.clear();
       toast.error("Please complete the full authentication process (Email → PIN → OTP)");
-      navigate("/auth", { replace: true });
+      navigate("/bank/login", { replace: true });
       return;
     }
 
@@ -173,7 +173,7 @@ const Dashboard = () => {
     
     if (!user) {
       toast.error("Please sign in to access your dashboard");
-      navigate("/auth");
+      navigate("/bank/login");
       return;
     }
 
@@ -216,13 +216,13 @@ const Dashboard = () => {
         "🔍 Your account is under review. Please wait for approval.",
         { duration: 6000 }
       );
-      navigate("/");
+      navigate("/bank");
       return;
     }
 
     // If account is approved but QR not verified
     if (application?.status === 'approved' && !profileData?.qr_verified) {
-      navigate("/verify-qr");
+      navigate("/bank/verify-qr");
       return;
     }
 
@@ -232,7 +232,7 @@ const Dashboard = () => {
         "Your account application was rejected. Please contact support.",
         { duration: 6000 }
       );
-      navigate("/");
+      navigate("/bank");
       return;
     }
 
@@ -269,14 +269,14 @@ const Dashboard = () => {
   const handleSignOut = async () => {
     sessionStorage.removeItem('auth_verification_completed');
     await supabase.auth.signOut();
-    navigate("/auth");
+    navigate("/bank/login");
   };
 
   if (loading) {
     return <div className="flex items-center justify-center h-screen">Loading...</div>;
   }
 
-  const isDashboardHome = location.pathname === '/dashboard';
+  const isDashboardHome = location.pathname === '/bank/dashboard';
 
   return (
     <SidebarProvider>
@@ -380,7 +380,7 @@ const Dashboard = () => {
                     <Button 
                       size="sm" 
                       className="h-9 sm:h-10 text-xs sm:text-sm mobile-button" 
-                      onClick={() => navigate("/dashboard/request-account")}
+                      onClick={() => navigate("/bank/dashboard/request-account")}
                     >
                       <Plus className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
                       <span className="hidden sm:inline">Add Account</span>

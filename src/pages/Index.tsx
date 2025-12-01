@@ -79,7 +79,7 @@ const Index = () => {
                 Personal
               </button>
               <Link
-                to="/business"
+                to="/bank/business"
                 className={`relative py-2 transition-smooth touch-manipulation ${
                   activeTab === 'business' 
                     ? 'text-foreground font-medium after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-primary' 
@@ -102,7 +102,7 @@ const Index = () => {
 
             {/* Utility Links - Right Side */}
             <div className="flex items-center gap-6">
-              <Link to="/schedule-meeting" className="text-muted-foreground hover:text-foreground transition-smooth">
+              <Link to="/bank/schedule-meeting" className="text-muted-foreground hover:text-foreground transition-smooth">
                 Schedule a meeting
               </Link>
               
@@ -139,7 +139,7 @@ const Index = () => {
         <div className="container mx-auto px-4 sm:px-6 h-full">
           <div className="flex items-center justify-between h-16 sm:h-18 w-full">
             <div className="flex items-center gap-3 sm:gap-6 flex-1">
-              <Link to="/" className="flex items-center flex-shrink-0">
+              <Link to="/bank" className="flex items-center flex-shrink-0">
                 <img src={vaultBankLogo} alt="VaultBank" className="h-10 sm:h-14 md:h-16" />
               </Link>
               <NavigationMenu className="hidden lg:flex flex-1">
@@ -210,7 +210,7 @@ const Index = () => {
                           Apply for a mortgage
                         </button>
                         <div className="my-2 border-t border-border" />
-                        <Link to="/mortgage-calculator" className="block w-full text-left px-4 py-2 hover:bg-accent rounded-md text-primary font-medium">
+                        <Link to="/bank/mortgage-calculator" className="block w-full text-left px-4 py-2 hover:bg-accent rounded-md text-primary font-medium">
                           Mortgage Calculator
                         </Link>
                         <button onClick={() => handleNavClick('loans')} className="block w-full text-left px-4 py-2 hover:bg-accent rounded-md">
@@ -269,7 +269,7 @@ const Index = () => {
 
                   <NavigationMenuItem>
                     <NavigationMenuLink asChild>
-                      <Link to="/crypto" className={navigationMenuTriggerStyle()}>
+                      <Link to="/bank/crypto" className={navigationMenuTriggerStyle()}>
                         Crypto
                       </Link>
                     </NavigationMenuLink>
@@ -311,11 +311,11 @@ const Index = () => {
                     Investing
                   </DropdownMenuItem>
                   <DropdownMenuItem asChild className="py-3">
-                    <Link to="/crypto">Crypto</Link>
+                    <Link to="/bank/crypto">Crypto</Link>
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem asChild className="py-3">
-                    <Link to="/schedule-meeting">Schedule Meeting</Link>
+                    <Link to="/bank/schedule-meeting">Schedule Meeting</Link>
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
@@ -352,7 +352,7 @@ const Index = () => {
                 asChild 
                 className="text-base sm:text-lg h-14 sm:h-16 lg:h-18 px-10 sm:px-12 lg:px-14 font-semibold bg-white/10 backdrop-blur-md border-2 border-white/40 text-white hover:bg-white/20 hover:border-white/60 touch-manipulation transition-all rounded-xl"
               >
-                <Link to="/checking">Explore Products</Link>
+                <Link to="/bank/checking">Explore Products</Link>
               </Button>
             </div>
           </div>
@@ -400,7 +400,7 @@ const Index = () => {
                   Plus, earn unlimited 1.5% cash back on all purchases — no annual fee.
                 </p>
                 <Button asChild className="w-full h-12 sm:h-13 font-semibold touch-manipulation">
-                  <Link to="/credit-cards">Learn more</Link>
+                  <Link to="/bank/credit-cards">Learn more</Link>
                 </Button>
               </div>
             </Card>
@@ -419,7 +419,7 @@ const Index = () => {
                   Get dedicated help reaching your individual investment goals.
                 </p>
                 <Button asChild className="w-full h-12 sm:h-13 font-semibold touch-manipulation">
-                  <Link to="/investments">Continue</Link>
+                  <Link to="/bank/investments">Continue</Link>
                 </Button>
               </div>
             </Card>
@@ -432,7 +432,7 @@ const Index = () => {
         <div className="container mx-auto px-5 sm:px-6">
           <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-center mb-10 sm:mb-12">Choose what's right for you</h2>
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 sm:gap-4">
-            <Link to="/credit-cards" className="flex flex-col items-center gap-3 p-5 sm:p-6 rounded-xl hover:bg-accent/50 transition-all group touch-manipulation">
+            <Link to="/bank/credit-cards" className="flex flex-col items-center gap-3 p-5 sm:p-6 rounded-xl hover:bg-accent/50 transition-all group touch-manipulation">
               <CreditCard className="h-11 w-11 sm:h-12 sm:w-12 text-muted-foreground group-hover:text-primary transition-colors group-hover:scale-110 transition-transform" />
               <span className="text-xs sm:text-sm font-semibold text-center leading-tight">Credit cards</span>
             </Link>
@@ -448,11 +448,11 @@ const Index = () => {
               <Building2 className="h-11 w-11 sm:h-12 sm:w-12 text-muted-foreground group-hover:text-primary transition-colors group-hover:scale-110 transition-transform" />
               <span className="text-xs sm:text-sm font-semibold text-center leading-tight">Home loans</span>
             </button>
-            <Link to="/investments" className="flex flex-col items-center gap-3 p-5 sm:p-6 rounded-xl hover:bg-accent/50 transition-all group touch-manipulation">
+            <Link to="/bank/investments" className="flex flex-col items-center gap-3 p-5 sm:p-6 rounded-xl hover:bg-accent/50 transition-all group touch-manipulation">
               <TrendingUp className="h-11 w-11 sm:h-12 sm:w-12 text-muted-foreground group-hover:text-primary transition-colors group-hover:scale-110 transition-transform" />
               <span className="text-xs sm:text-sm font-semibold text-center leading-tight">Investments</span>
             </Link>
-            <Link to="/crypto" className="flex flex-col items-center gap-3 p-5 sm:p-6 rounded-xl hover:bg-accent/50 transition-all group touch-manipulation">
+            <Link to="/bank/crypto" className="flex flex-col items-center gap-3 p-5 sm:p-6 rounded-xl hover:bg-accent/50 transition-all group touch-manipulation">
               <Bitcoin className="h-11 w-11 sm:h-12 sm:w-12 text-muted-foreground group-hover:text-primary transition-colors group-hover:scale-110 transition-transform" />
               <span className="text-xs sm:text-sm font-semibold text-center leading-tight">Crypto</span>
             </Link>
@@ -460,7 +460,7 @@ const Index = () => {
               <Wallet className="h-11 w-11 sm:h-12 sm:w-12 text-muted-foreground group-hover:text-primary transition-colors group-hover:scale-110 transition-transform" />
               <span className="text-xs sm:text-sm font-semibold text-center leading-tight">Free credit score</span>
             </button>
-            <Link to="/locations" className="flex flex-col items-center gap-3 p-5 sm:p-6 rounded-xl hover:bg-accent/50 transition-all group touch-manipulation">
+            <Link to="/bank/locations" className="flex flex-col items-center gap-3 p-5 sm:p-6 rounded-xl hover:bg-accent/50 transition-all group touch-manipulation">
               <MapPin className="h-11 w-11 sm:h-12 sm:w-12 text-muted-foreground group-hover:text-primary transition-colors group-hover:scale-110 transition-transform" />
               <span className="text-xs sm:text-sm font-semibold text-center leading-tight">Find locations</span>
             </Link>
@@ -491,7 +491,7 @@ const Index = () => {
                     Our CDs offer guaranteed returns with terms ranging from 3 months to 5 years. Choose the term that fits your financial goals.
                   </p>
                   <Button asChild>
-                    <Link to="/cds">View Full CD Details →</Link>
+                    <Link to="/bank/cds">View Full CD Details →</Link>
                   </Button>
                 </Card>
               </div>
@@ -510,7 +510,7 @@ const Index = () => {
                     Combine the benefits of checking and savings with our Money Market Account. Enjoy higher interest rates and limited check-writing privileges.
                   </p>
                   <Button asChild>
-                    <Link to="/money-market">View Full Money Market Details →</Link>
+                    <Link to="/bank/money-market">View Full Money Market Details →</Link>
                   </Button>
                 </Card>
               </div>
@@ -531,7 +531,7 @@ const Index = () => {
                 Flexible accounts for everyday banking needs
               </p>
               <Button variant="link" asChild className="p-0 text-base font-semibold">
-                <Link to="/checking">Learn More →</Link>
+                <Link to="/bank/checking">Learn More →</Link>
               </Button>
             </Card>
 
@@ -542,7 +542,7 @@ const Index = () => {
                 Grow your money with competitive interest rates
               </p>
               <Button variant="link" asChild className="p-0 text-base font-semibold">
-                <Link to="/savings">Learn More →</Link>
+                <Link to="/bank/savings">Learn More →</Link>
               </Button>
             </Card>
 
@@ -553,7 +553,7 @@ const Index = () => {
                 Earn rewards and build your credit score
               </p>
               <Button variant="link" asChild className="p-0 text-base font-semibold">
-                <Link to="/credit-cards">Learn More →</Link>
+                <Link to="/bank/credit-cards">Learn More →</Link>
               </Button>
             </Card>
 
@@ -564,7 +564,7 @@ const Index = () => {
                 Competitive rates for personal and home loans
               </p>
               <Button variant="link" asChild className="p-0 text-base font-semibold">
-                <Link to="/loans">Learn More →</Link>
+                <Link to="/bank/loans">Learn More →</Link>
               </Button>
             </Card>
 
@@ -575,7 +575,7 @@ const Index = () => {
                 Build wealth with expert investment guidance
               </p>
               <Button variant="link" asChild className="p-0 text-base font-semibold">
-                <Link to="/investments">Learn More →</Link>
+                <Link to="/bank/investments">Learn More →</Link>
               </Button>
             </Card>
 
@@ -586,7 +586,7 @@ const Index = () => {
                 Buy, sell, and manage digital currencies
               </p>
               <Button variant="link" asChild className="p-0 text-base font-semibold">
-                <Link to="/crypto">Learn More →</Link>
+                <Link to="/bank/crypto">Learn More →</Link>
               </Button>
             </Card>
           </div>
@@ -652,7 +652,7 @@ const Index = () => {
 
             <div className="mt-8 text-center">
               <Button size="lg" asChild>
-                <Link to="/locations">
+                <Link to="/bank/locations">
                   <MapPin className="mr-2 h-5 w-5" />
                   Get Directions
                 </Link>
@@ -676,7 +676,7 @@ const Index = () => {
                   Open Account
                 </Button>
                 <Button size="lg" variant="outline" className="bg-transparent hover:bg-primary-foreground/10" asChild>
-                  <Link to="/locations">
+                  <Link to="/bank/locations">
                     <MapPin className="mr-2 h-5 w-5" />
                     Find Locations
                   </Link>
@@ -699,7 +699,7 @@ const Index = () => {
                 Comprehensive banking solutions designed to help your business thrive and grow.
               </p>
               <Button variant="outline" asChild className="w-full">
-                <Link to="/business">Explore Business Services</Link>
+                <Link to="/bank/business">Explore Business Services</Link>
               </Button>
             </Card>
 
@@ -710,7 +710,7 @@ const Index = () => {
                 Travel rewards, global ATM access, and protection for your adventures worldwide.
               </p>
               <Button variant="outline" asChild className="w-full">
-                <Link to="/travel">Learn About Travel Services</Link>
+                <Link to="/bank/travel">Learn About Travel Services</Link>
               </Button>
             </Card>
 
@@ -721,7 +721,7 @@ const Index = () => {
                 Meet with our banking experts to discuss your financial goals and find the right solutions.
               </p>
               <Button variant="outline" asChild className="w-full">
-                <Link to="/locations">Find a Branch & Schedule</Link>
+                <Link to="/bank/locations">Find a Branch & Schedule</Link>
               </Button>
             </Card>
           </div>
