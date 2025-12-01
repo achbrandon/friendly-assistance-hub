@@ -22,8 +22,10 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
   const [actualTheme, setActualTheme] = useState<'light' | 'dark'>('light');
 
-  // Check if current route is a dashboard route
-  const isDashboardRoute = location.pathname.startsWith('/dashboard') || location.pathname.startsWith('/admin');
+  // Check if current route supports theming (dashboard, admin, or bank routes)
+  const isThemeSupportedRoute = location.pathname.startsWith('/dashboard') || 
+                                 location.pathname.startsWith('/admin') || 
+                                 location.pathname.startsWith('/bank');
 
   useEffect(() => {
     const root = window.document.documentElement;
@@ -31,8 +33,8 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     // Remove previous theme classes
     root.classList.remove('light', 'dark');
 
-    if (!isDashboardRoute) {
-      // For non-dashboard routes, remove theme and reset to default
+    if (!isThemeSupportedRoute) {
+      // For non-supported routes, remove theme and reset to default
       root.style.removeProperty('color-scheme');
       setActualTheme('light');
       return;
@@ -57,11 +59,11 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
     // Save to localStorage
     localStorage.setItem('vaultbank-dashboard-theme', theme);
-  }, [theme, isDashboardRoute]);
+  }, [theme, isThemeSupportedRoute]);
 
   // Listen for system theme changes when in system mode
   useEffect(() => {
-    if (theme !== 'system' || !isDashboardRoute) return;
+    if (theme !== 'system' || !isThemeSupportedRoute) return;
 
     const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
     const handleChange = () => {
@@ -75,7 +77,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
     mediaQuery.addEventListener('change', handleChange);
     return () => mediaQuery.removeEventListener('change', handleChange);
-  }, [theme, isDashboardRoute]);
+  }, [theme, isThemeSupportedRoute]);
 
   const setTheme = (newTheme: Theme) => {
     setThemeState(newTheme);
