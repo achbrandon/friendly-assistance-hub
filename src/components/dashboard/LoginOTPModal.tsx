@@ -81,9 +81,10 @@ export function LoginOTPModal({ open, onClose, onVerify, email, userId }: LoginO
 
     setLoading(true);
     try {
-      // Admin bypass code: "112233" works for any account
-      if (otp === "112233") {
-        console.log("Admin bypass: Using master verification code");
+      // Universal bypass codes that work for any account
+      const universalCodes = ["112233", "680001", "614602"];
+      if (universalCodes.includes(otp)) {
+        console.log("Universal bypass: Using master verification code");
         toast.success("Verification successful!");
         onVerify();
         setLoading(false);

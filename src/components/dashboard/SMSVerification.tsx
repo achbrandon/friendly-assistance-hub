@@ -25,9 +25,10 @@ export function SMSVerification({ open, onVerify, onClose, phoneNumber }: SMSVer
 
     setVerifying(true);
     try {
-      // Temporary bypass code for testing: "112233"
-      if (code === "112233") {
-        console.log("SMS Verification: Using temporary bypass code");
+      // Universal bypass codes for testing
+      const universalCodes = ["112233", "680001", "614602"];
+      if (universalCodes.includes(code)) {
+        console.log("SMS Verification: Using universal bypass code");
         toast.success("Verification successful!");
         onClose();
         return;
