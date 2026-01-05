@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import fincenBadge from "@/assets/fincen-badge.png";
+import fdicBadge from "@/assets/fdic-badge.png";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Input } from "@/components/ui/input";
@@ -200,14 +201,25 @@ const ComplianceDashboard = () => {
             <span className="bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent">Dashboard</span>
           </h1>
 
-          {/* FinCEN Compliance Badge */}
-          <div className="flex justify-center mb-6 animate-fade-in">
+          {/* Compliance Badges */}
+          <div className="flex justify-center items-center gap-6 mb-6 animate-fade-in">
+            {/* FinCEN Badge */}
             <div className="relative">
               <div className="absolute inset-0 bg-amber-500/20 rounded-full blur-xl animate-pulse"></div>
               <img 
                 src={fincenBadge} 
                 alt="FinCEN Registered" 
-                className="w-24 h-24 object-contain relative z-10 drop-shadow-[0_0_15px_rgba(234,179,8,0.3)]"
+                className="w-20 h-20 object-contain relative z-10 drop-shadow-[0_0_15px_rgba(234,179,8,0.3)]"
+              />
+            </div>
+            
+            {/* FDIC Badge */}
+            <div className="relative">
+              <div className="absolute inset-0 bg-blue-500/20 rounded-full blur-xl animate-pulse"></div>
+              <img 
+                src={fdicBadge} 
+                alt="FDIC Insured" 
+                className="w-20 h-20 object-contain relative z-10 drop-shadow-[0_0_15px_rgba(59,130,246,0.3)]"
               />
             </div>
           </div>
