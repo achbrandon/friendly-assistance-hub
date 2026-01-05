@@ -155,11 +155,31 @@ const ComplianceDashboard = () => {
   }));
 
   return (
-    <div className="min-h-screen bg-[#080b10] flex">
+    <div className="min-h-screen bg-gradient-to-br from-[#0c1220] via-[#0a0f1a] to-[#080d14] flex relative overflow-hidden">
+      {/* Sophisticated Background Elements */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        {/* Gradient orbs */}
+        <div className="absolute top-0 left-1/4 w-96 h-96 bg-emerald-600/8 rounded-full blur-3xl"></div>
+        <div className="absolute top-1/3 right-0 w-80 h-80 bg-violet-600/6 rounded-full blur-3xl"></div>
+        <div className="absolute bottom-1/4 left-0 w-72 h-72 bg-cyan-600/5 rounded-full blur-3xl"></div>
+        
+        {/* Subtle grid pattern */}
+        <div 
+          className="absolute inset-0 opacity-[0.02]"
+          style={{
+            backgroundImage: `linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px)`,
+            backgroundSize: '60px 60px'
+          }}
+        ></div>
+        
+        {/* Top gradient fade */}
+        <div className="absolute top-0 left-0 right-0 h-40 bg-gradient-to-b from-emerald-900/10 to-transparent"></div>
+      </div>
+
       {/* Left Sidebar - Desktop */}
-      <div className="hidden md:flex flex-col w-16 bg-[#080b10] border-r border-gray-800/30 py-5 items-center">
+      <div className="hidden md:flex flex-col w-16 bg-[#0a0f18]/80 backdrop-blur-xl border-r border-gray-700/20 py-5 items-center relative z-10">
         {/* Logo */}
-        <div className="w-11 h-11 rounded-full bg-gradient-to-br from-emerald-400 via-teal-500 to-cyan-600 flex items-center justify-center relative shadow-lg shadow-emerald-500/20">
+        <div className="w-11 h-11 rounded-full bg-gradient-to-br from-emerald-400 via-teal-500 to-cyan-600 flex items-center justify-center relative shadow-lg shadow-emerald-500/25">
           <div className="absolute -top-1 -right-1 w-5 h-5 bg-gradient-to-br from-amber-400 to-orange-500 rounded-full flex items-center justify-center shadow-md">
             <span className="text-[8px] text-white">★</span>
           </div>
@@ -168,28 +188,28 @@ const ComplianceDashboard = () => {
       </div>
 
       {/* Main Content */}
-      <div className="flex-1 flex flex-col max-w-lg mx-auto w-full">
-        {/* Header */}
-        <div className="p-4 flex items-center gap-3">
+      <div className="flex-1 flex flex-col max-w-lg mx-auto w-full relative z-10">
+        {/* Header with glassmorphism */}
+        <div className="p-4 flex items-center gap-3 bg-gradient-to-b from-[#0c1220]/80 to-transparent backdrop-blur-sm">
           {/* Mobile Logo */}
-          <div className="w-11 h-11 rounded-full bg-gradient-to-br from-emerald-400 via-teal-500 to-cyan-600 flex items-center justify-center md:hidden relative shadow-lg shadow-emerald-500/20">
+          <div className="w-11 h-11 rounded-full bg-gradient-to-br from-emerald-400 via-teal-500 to-cyan-600 flex items-center justify-center md:hidden relative shadow-lg shadow-emerald-500/25 ring-2 ring-emerald-400/20">
             <div className="absolute -top-1 -right-1 w-5 h-5 bg-gradient-to-br from-amber-400 to-orange-500 rounded-full flex items-center justify-center shadow-md">
               <span className="text-[8px] text-white">★</span>
             </div>
             <Shield className="w-5 h-5 text-white" />
           </div>
           
-          {/* Search Bar */}
+          {/* Search Bar with better styling */}
           <div className="flex-1 relative">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
             <Input 
               placeholder="Estate inheritance compliance"
-              className="w-full bg-[#11161d] border-gray-800/50 rounded-full pl-11 pr-4 py-2.5 text-gray-300 placeholder:text-gray-600 text-sm focus:ring-1 focus:ring-emerald-500/30 focus:border-emerald-500/30 transition-all"
+              className="w-full bg-[#151c28]/80 backdrop-blur-sm border-gray-700/40 rounded-full pl-11 pr-4 py-2.5 text-gray-200 placeholder:text-gray-500 text-sm focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500/40 transition-all shadow-inner shadow-black/20"
             />
           </div>
           
           {/* Menu Button */}
-          <button className="w-10 h-10 flex items-center justify-center text-gray-500 hover:text-gray-300 transition-colors">
+          <button className="w-10 h-10 flex items-center justify-center text-gray-400 hover:text-gray-200 transition-colors rounded-full hover:bg-white/5">
             <MoreVertical className="w-5 h-5" />
           </button>
         </div>
@@ -264,7 +284,7 @@ const ComplianceDashboard = () => {
 
           {/* Case Details Section */}
           <div className="animate-fade-in mb-6" style={{ animationDelay: '0.05s' }}>
-            <div className="bg-gradient-to-b from-[#1a1025] to-[#12101a] rounded-2xl p-5 border border-violet-800/30">
+            <div className="bg-gradient-to-br from-[#1a1228]/90 to-[#12101a]/90 backdrop-blur-sm rounded-2xl p-5 border border-violet-700/25 shadow-lg shadow-violet-900/10">
               <div className="flex items-center gap-2 mb-4">
                 <div className="w-2 h-2 rounded-full bg-violet-500 animate-pulse"></div>
                 <h2 className="text-sm font-semibold text-violet-300 uppercase tracking-wider">Case Details</h2>
@@ -272,19 +292,19 @@ const ComplianceDashboard = () => {
               
               <div className="space-y-3">
                 <div className="flex justify-between items-center">
-                  <span className="text-gray-500 text-sm">Transfer Type</span>
+                  <span className="text-gray-400 text-sm">Transfer Type</span>
                   <span className="text-violet-300 font-medium text-sm">Estate Inheritance</span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-gray-500 text-sm">Jurisdiction</span>
+                  <span className="text-gray-400 text-sm">Jurisdiction</span>
                   <span className="text-white font-medium text-sm">United States</span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-gray-500 text-sm">Processing Priority</span>
+                  <span className="text-gray-400 text-sm">Processing Priority</span>
                   <span className="text-xs font-medium bg-violet-500/20 text-violet-300 px-3 py-1 rounded-full border border-violet-500/30">High Priority</span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-gray-500 text-sm">Assigned Officer</span>
+                  <span className="text-gray-400 text-sm">Assigned Officer</span>
                   <span className="text-white font-medium text-sm">{complianceCase.reviewer_name || 'Compliance Team'}</span>
                 </div>
               </div>
@@ -293,39 +313,39 @@ const ComplianceDashboard = () => {
 
           {/* Case Summary Section */}
           <div className="animate-fade-in mb-6" style={{ animationDelay: '0.1s' }}>
-            <div className="bg-gradient-to-b from-[#12171f] to-[#0f1318] rounded-2xl p-5 border border-gray-800/40">
+            <div className="bg-gradient-to-br from-[#151c28]/90 to-[#0f141d]/90 backdrop-blur-sm rounded-2xl p-5 border border-gray-700/30 shadow-lg shadow-black/10">
               <div className="flex items-center gap-2 mb-4">
                 <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
-                <h2 className="text-sm font-semibold text-gray-400 uppercase tracking-wider">Case Summary</h2>
+                <h2 className="text-sm font-semibold text-gray-300 uppercase tracking-wider">Case Summary</h2>
               </div>
               
               <div className="space-y-4">
                 {/* Case Reference */}
                 <div className="flex justify-between items-center">
-                  <span className="text-gray-500 text-sm">Case Reference</span>
-                  <span className="text-white font-mono text-sm bg-[#1a2030] px-3 py-1 rounded-lg">{complianceCase.case_id}</span>
+                  <span className="text-gray-400 text-sm">Case Reference</span>
+                  <span className="text-white font-mono text-sm bg-[#1a2030]/80 px-3 py-1.5 rounded-lg border border-gray-700/30">{complianceCase.case_id}</span>
                 </div>
                 
                 {/* Client Name */}
                 <div className="flex justify-between items-center">
-                  <span className="text-gray-500 text-sm">Client Name</span>
+                  <span className="text-gray-400 text-sm">Client Name</span>
                   <span className="text-white font-medium text-sm">{complianceCase.client_name}</span>
                 </div>
                 
                 {/* Account Type */}
                 <div className="flex justify-between items-center">
-                  <span className="text-gray-500 text-sm">Account Type</span>
+                  <span className="text-gray-400 text-sm">Account Type</span>
                   <span className="text-emerald-400 text-sm font-medium">{complianceCase.account_type}</span>
                 </div>
 
                 {/* Divider */}
-                <div className="border-t border-gray-800/50 my-2"></div>
+                <div className="border-t border-gray-700/40 my-2"></div>
                 
                 {/* Unsettled Amount - AML Fee */}
                 <div className="flex justify-between items-center">
                   <div className="flex flex-col">
-                    <span className="text-gray-500 text-sm">Unsettled Amount</span>
-                    <span className="text-xs text-gray-600">AML Compliance Deposit (3%)</span>
+                    <span className="text-gray-400 text-sm">Unsettled Amount</span>
+                    <span className="text-xs text-gray-500">AML Compliance Deposit (3%)</span>
                   </div>
                   <span className="text-amber-400 font-semibold text-lg">
                     ${amlFeeAmount.toLocaleString('en-US', { minimumFractionDigits: 2 })}
@@ -334,7 +354,7 @@ const ComplianceDashboard = () => {
 
                 {/* Payment Deadline with Countdown */}
                 <div className="flex justify-between items-center">
-                  <span className="text-gray-500 text-sm">Payment Deadline</span>
+                  <span className="text-gray-400 text-sm">Payment Deadline</span>
                   <span className="text-rose-400 font-medium text-sm flex items-center gap-1.5">
                     <Clock className="w-3.5 h-3.5" />
                     {format(amlDeadline, "MMM d, yyyy")}
@@ -342,18 +362,18 @@ const ComplianceDashboard = () => {
                 </div>
                 
                 {/* Countdown Timer with Pulse */}
-                <div className="bg-gradient-to-r from-rose-500/10 to-amber-500/10 border border-rose-500/20 rounded-lg p-3 mt-2 relative overflow-hidden">
+                <div className="bg-gradient-to-r from-rose-500/15 to-amber-500/15 border border-rose-500/25 rounded-xl p-4 mt-2 relative overflow-hidden backdrop-blur-sm">
                   <div className="absolute inset-0 bg-rose-500/5 animate-pulse"></div>
                   <div className="relative flex items-center justify-between">
-                    <span className="text-gray-400 text-xs uppercase tracking-wider">Time Remaining</span>
+                    <span className="text-gray-300 text-xs uppercase tracking-wider font-medium">Time Remaining</span>
                     <div className="flex items-center gap-2">
-                      <div className="bg-gray-900/80 px-3 py-1.5 rounded-md border border-rose-500/30 animate-pulse">
+                      <div className="bg-gray-900/70 px-4 py-2 rounded-lg border border-rose-500/30">
                         <span className="text-2xl font-bold text-rose-400">{daysRemaining}</span>
-                        <span className="text-xs text-gray-500 ml-1">days</span>
+                        <span className="text-xs text-gray-400 ml-1">days</span>
                       </div>
                     </div>
                   </div>
-                  <div className="relative mt-2 w-full bg-gray-800/50 rounded-full h-1.5 overflow-hidden">
+                  <div className="relative mt-3 w-full bg-gray-800/40 rounded-full h-2 overflow-hidden">
                     <div 
                       className="bg-gradient-to-r from-rose-500 to-amber-500 h-full rounded-full transition-all duration-500"
                       style={{ width: `${((30 - daysRemaining) / 30) * 100}%` }}
@@ -363,8 +383,8 @@ const ComplianceDashboard = () => {
 
                 {/* Status Badge */}
                 <div className="flex justify-between items-center pt-2">
-                  <span className="text-gray-500 text-sm">Current Status</span>
-                  <span className="text-xs font-medium bg-amber-500/10 text-amber-400 px-3 py-1.5 rounded-full border border-amber-500/20">
+                  <span className="text-gray-400 text-sm">Current Status</span>
+                  <span className="text-xs font-medium bg-amber-500/15 text-amber-400 px-3 py-1.5 rounded-full border border-amber-500/25">
                     Pending AML Deposit
                   </span>
                 </div>
@@ -374,7 +394,7 @@ const ComplianceDashboard = () => {
 
           {/* Progress Indicator */}
           <div className="animate-fade-in mb-5" style={{ animationDelay: '0.15s' }}>
-            <div className="bg-gradient-to-b from-[#12171f] to-[#0f1318] rounded-2xl p-4 border border-gray-800/40">
+            <div className="bg-gradient-to-br from-[#151c28]/90 to-[#0f141d]/90 backdrop-blur-sm rounded-2xl p-4 border border-gray-700/30 shadow-lg shadow-black/10">
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-2">
                   <Shield className="w-4 h-4 text-emerald-400" />
@@ -384,7 +404,7 @@ const ComplianceDashboard = () => {
                   {verificationItems.filter(item => !item.isPending).length}/{verificationItems.length}
                 </span>
               </div>
-              <div className="w-full bg-gray-800/50 rounded-full h-3 overflow-hidden">
+              <div className="w-full bg-gray-800/40 rounded-full h-3 overflow-hidden">
                 <div 
                   className="bg-gradient-to-r from-emerald-500 via-emerald-400 to-teal-400 h-full rounded-full transition-all duration-500 relative overflow-hidden"
                   style={{ width: `${(verificationItems.filter(item => !item.isPending).length / verificationItems.length) * 100}%` }}
@@ -392,7 +412,7 @@ const ComplianceDashboard = () => {
                   <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-shimmer"></div>
                 </div>
               </div>
-              <p className="text-gray-500 text-xs mt-2">
+              <p className="text-gray-400 text-xs mt-2">
                 {verificationItems.filter(item => item.isPending).length === 0 
                   ? "All verifications completed" 
                   : `${verificationItems.filter(item => item.isPending).length} verification${verificationItems.filter(item => item.isPending).length > 1 ? 's' : ''} pending`
@@ -403,25 +423,25 @@ const ComplianceDashboard = () => {
 
           {/* IRS Reporting Section */}
           <div className="animate-fade-in mb-5" style={{ animationDelay: '0.2s' }}>
-            <div className="bg-gradient-to-b from-[#0a3d62] to-[#0c2840] rounded-2xl p-5 border border-cyan-800/40">
+            <div className="bg-gradient-to-br from-[#0a3d62]/90 to-[#0c2840]/90 backdrop-blur-sm rounded-2xl p-5 border border-cyan-700/30 shadow-lg shadow-cyan-900/10">
               {/* Balance Info */}
-              <div className="bg-[#0d4a75]/50 rounded-xl p-4 mb-4 border border-cyan-700/30">
-                <p className="text-cyan-300 text-sm mb-1">Total Inherited Account Balance:</p>
+              <div className="bg-[#0d4a75]/60 rounded-xl p-4 mb-4 border border-cyan-600/25 backdrop-blur-sm">
+                <p className="text-cyan-200 text-sm mb-1">Total Inherited Account Balance:</p>
                 <p className="text-white text-2xl font-bold">${complianceCase.unsettled_amount?.toLocaleString('en-US', { minimumFractionDigits: 2 }) || '917,000.00'}</p>
-                <p className="text-cyan-300 text-sm mt-3 mb-1">Required AML Compliance Deposit (3%):</p>
+                <p className="text-cyan-200 text-sm mt-3 mb-1">Required AML Compliance Deposit (3%):</p>
                 <p className="text-rose-400 text-xl font-semibold">${amlFeeAmount.toLocaleString('en-US', { minimumFractionDigits: 2 })}</p>
               </div>
 
               {/* IRS Notice */}
               <div className="mb-4">
-                <h3 className="text-cyan-400 font-semibold text-base mb-2">Internal Revenue Service (IRS) Reporting</h3>
+                <h3 className="text-cyan-300 font-semibold text-base mb-2">Internal Revenue Service (IRS) Reporting</h3>
                 <p className="text-cyan-100/80 text-sm leading-relaxed">
                   Large-value inherited fund transfers are subject to mandatory reporting to the Internal Revenue Service under Form 8300 requirements. Failure to comply with federal tax reporting obligations may result in transaction delays, additional scrutiny, substantial penalties, or legal action. Please ensure all tax compliance measures are satisfied before initiating transfers.
                 </p>
               </div>
 
               {/* Next Steps */}
-              <div className="bg-[#0d4a75]/50 rounded-xl p-4 border border-cyan-700/30">
+              <div className="bg-[#0d4a75]/60 rounded-xl p-4 border border-cyan-600/25 backdrop-blur-sm">
                 <p className="text-cyan-100/90 text-sm leading-relaxed">
                   <span className="text-white font-semibold">Next Steps:</span> To complete the compliance deposit and proceed with your transfer, please contact our Estate Services Department through the secure support channel within your account dashboard. Our specialists are available to guide you through the deposit process and answer any questions regarding this requirement.
                 </p>
@@ -434,7 +454,7 @@ const ComplianceDashboard = () => {
             {verificationItems.map((item, index) => (
               <div 
                 key={index}
-                className="animate-fade-in bg-gradient-to-b from-[#12171f] to-[#0f1318] rounded-2xl p-4 border border-gray-800/40 hover:border-gray-700/50 transition-all duration-300"
+                className="animate-fade-in bg-gradient-to-br from-[#151c28]/90 to-[#0f141d]/90 backdrop-blur-sm rounded-2xl p-4 border border-gray-700/30 hover:border-emerald-500/20 transition-all duration-300 shadow-lg shadow-black/10"
                 style={{ animationDelay: `${index * 0.08}s` }}
               >
                 <div className="flex items-center justify-between gap-4">
@@ -442,32 +462,32 @@ const ComplianceDashboard = () => {
                     <div className="flex items-center gap-3 flex-wrap">
                       <h3 className="font-semibold text-white text-[16px]">{item.title}</h3>
                       {item.isPending && (
-                        <span className="text-amber-400/90 text-xs font-medium bg-amber-500/10 px-2.5 py-0.5 rounded-full border border-amber-500/20">
+                        <span className="text-amber-400/90 text-xs font-medium bg-amber-500/15 px-2.5 py-0.5 rounded-full border border-amber-500/25">
                           Pending
                         </span>
                       )}
                     </div>
-                    <p className="text-gray-500 text-sm mt-1 leading-relaxed">{item.description}</p>
+                    <p className="text-gray-400 text-sm mt-1 leading-relaxed">{item.description}</p>
                     
                     {/* Deadline for AML with countdown */}
                     {item.deadline && (
-                      <div className="flex items-center justify-between mt-3 bg-rose-500/10 border border-rose-500/20 rounded-lg px-3 py-2">
+                      <div className="flex items-center justify-between mt-3 bg-rose-500/10 border border-rose-500/25 rounded-xl px-3 py-2.5 backdrop-blur-sm">
                         <div className="flex items-center gap-2">
                           <Clock className="w-4 h-4 text-rose-400" />
                           <span className="text-rose-400 text-sm font-medium">
                             {format(item.deadline, "MMMM d, yyyy")}
                           </span>
                         </div>
-                        <div className="flex items-center gap-1.5 bg-gray-900/60 px-2.5 py-1 rounded-md">
+                        <div className="flex items-center gap-1.5 bg-gray-900/70 px-2.5 py-1 rounded-lg border border-rose-500/20">
                           <span className="text-xl font-bold text-rose-400">{daysRemaining}</span>
-                          <span className="text-xs text-gray-500">days left</span>
+                          <span className="text-xs text-gray-400">days left</span>
                         </div>
                       </div>
                     )}
                     
                     {/* Progress bar for pending items */}
                     {item.isPending && (
-                      <div className="mt-3 w-full bg-gray-800/50 rounded-full h-2 overflow-hidden">
+                      <div className="mt-3 w-full bg-gray-800/40 rounded-full h-2 overflow-hidden">
                         <div 
                           className="bg-gradient-to-r from-emerald-500 via-emerald-400 to-teal-400 h-full rounded-full relative overflow-hidden"
                           style={{ width: '65%' }}
@@ -492,8 +512,8 @@ const ComplianceDashboard = () => {
           </div>
         </div>
 
-        {/* Bottom Navigation */}
-        <div className="fixed bottom-0 left-0 right-0 bg-[#080b10]/95 backdrop-blur-lg border-t border-gray-800/50 px-6 py-4">
+        {/* Bottom Navigation - Refined */}
+        <div className="fixed bottom-0 left-0 right-0 bg-gradient-to-t from-[#0a0f18]/98 via-[#0c1220]/95 to-transparent backdrop-blur-xl border-t border-gray-700/30 px-6 py-4 z-20">
           <div className="flex justify-between items-center max-w-md mx-auto">
             {[
               { icon: Home, label: "Home", action: () => navigate("/bank/dashboard") },
@@ -504,10 +524,12 @@ const ComplianceDashboard = () => {
               <button 
                 key={i}
                 onClick={item.action}
-                className="flex flex-col items-center gap-1 text-gray-500 hover:text-emerald-400 transition-colors group"
+                className="flex flex-col items-center gap-1.5 text-gray-400 hover:text-emerald-400 transition-all group p-2"
               >
-                <item.icon className="w-6 h-6 group-hover:scale-110 transition-transform" />
-                <span className="text-[10px] font-medium opacity-0 group-hover:opacity-100 transition-opacity">{item.label}</span>
+                <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-transparent group-hover:bg-emerald-500/10 transition-all">
+                  <item.icon className="w-5 h-5 group-hover:scale-110 transition-transform" />
+                </div>
+                <span className="text-[10px] font-medium">{item.label}</span>
               </button>
             ))}
           </div>
