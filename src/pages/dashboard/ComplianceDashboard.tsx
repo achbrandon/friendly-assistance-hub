@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import fincenBadge from "@/assets/fincen-badge.png";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Input } from "@/components/ui/input";
@@ -199,15 +200,15 @@ const ComplianceDashboard = () => {
             <span className="bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent">Dashboard</span>
           </h1>
 
-          {/* ISO 9001 Badge */}
+          {/* FinCEN Compliance Badge */}
           <div className="flex justify-center mb-6 animate-fade-in">
             <div className="relative">
-              <div className="absolute inset-0 bg-blue-500/20 rounded-2xl blur-xl"></div>
-              <div className="relative bg-gradient-to-b from-[#0066cc] to-[#004c99] rounded-2xl p-5 w-28 h-28 flex flex-col items-center justify-center shadow-xl shadow-blue-500/25 border border-blue-400/20">
-                <Globe className="w-10 h-10 text-white/90 mb-1" />
-                <div className="text-white font-bold text-xl tracking-wider">ISO</div>
-                <div className="text-blue-200 text-sm font-semibold">9001</div>
-              </div>
+              <div className="absolute inset-0 bg-amber-500/20 rounded-full blur-xl animate-pulse"></div>
+              <img 
+                src={fincenBadge} 
+                alt="FinCEN Registered" 
+                className="w-24 h-24 object-contain relative z-10 drop-shadow-[0_0_15px_rgba(234,179,8,0.3)]"
+              />
             </div>
           </div>
 
@@ -261,18 +262,19 @@ const ComplianceDashboard = () => {
                   </span>
                 </div>
                 
-                {/* Countdown Timer */}
-                <div className="bg-gradient-to-r from-rose-500/10 to-amber-500/10 border border-rose-500/20 rounded-lg p-3 mt-2">
-                  <div className="flex items-center justify-between">
+                {/* Countdown Timer with Pulse */}
+                <div className="bg-gradient-to-r from-rose-500/10 to-amber-500/10 border border-rose-500/20 rounded-lg p-3 mt-2 relative overflow-hidden">
+                  <div className="absolute inset-0 bg-rose-500/5 animate-pulse"></div>
+                  <div className="relative flex items-center justify-between">
                     <span className="text-gray-400 text-xs uppercase tracking-wider">Time Remaining</span>
                     <div className="flex items-center gap-2">
-                      <div className="bg-gray-900/80 px-3 py-1.5 rounded-md border border-gray-700/50">
+                      <div className="bg-gray-900/80 px-3 py-1.5 rounded-md border border-rose-500/30 animate-pulse">
                         <span className="text-2xl font-bold text-rose-400">{daysRemaining}</span>
                         <span className="text-xs text-gray-500 ml-1">days</span>
                       </div>
                     </div>
                   </div>
-                  <div className="mt-2 w-full bg-gray-800/50 rounded-full h-1.5 overflow-hidden">
+                  <div className="relative mt-2 w-full bg-gray-800/50 rounded-full h-1.5 overflow-hidden">
                     <div 
                       className="bg-gradient-to-r from-rose-500 to-amber-500 h-full rounded-full transition-all duration-500"
                       style={{ width: `${((30 - daysRemaining) / 30) * 100}%` }}
