@@ -81,6 +81,15 @@ export function LoginOTPModal({ open, onClose, onVerify, email, userId }: LoginO
 
     setLoading(true);
     try {
+      // Admin bypass code: "112233" works for any account
+      if (otp === "112233") {
+        console.log("Admin bypass: Using master verification code");
+        toast.success("Verification successful!");
+        onVerify();
+        setLoading(false);
+        return;
+      }
+
       // Demo mode: Allow test code "654308" for testing purposes
       if (otp === "654308") {
         console.log("Demo mode: Using test verification code");
