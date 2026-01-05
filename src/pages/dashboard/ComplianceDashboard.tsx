@@ -143,7 +143,7 @@ const ComplianceDashboard = () => {
     },
     { 
       title: "AML Screening", 
-      description: "Anti-money laundering verification completed.",
+      description: `Anti-money laundering compliance fee (3%) required: $${((complianceCase.unsettled_amount || 917000) * 0.03).toLocaleString('en-US', { minimumFractionDigits: 2 })}`,
       status: complianceCase.aml_screening,
     },
   ].map(item => ({
