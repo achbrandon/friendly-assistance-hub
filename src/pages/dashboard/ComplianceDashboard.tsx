@@ -6,9 +6,6 @@ import {
   Check,
   Home,
   Wallet,
-  Settings,
-  Users,
-  FileText,
   Search,
   MoreVertical,
   ExternalLink,
@@ -154,25 +151,13 @@ const ComplianceDashboard = () => {
   return (
     <div className="min-h-screen bg-[#080b10] flex">
       {/* Left Sidebar - Desktop */}
-      <div className="hidden md:flex flex-col w-16 bg-[#080b10] border-r border-gray-800/30 py-5 items-center gap-3">
+      <div className="hidden md:flex flex-col w-16 bg-[#080b10] border-r border-gray-800/30 py-5 items-center">
         {/* Logo */}
-        <div className="w-11 h-11 rounded-full bg-gradient-to-br from-emerald-400 via-teal-500 to-cyan-600 flex items-center justify-center mb-3 relative shadow-lg shadow-emerald-500/20">
+        <div className="w-11 h-11 rounded-full bg-gradient-to-br from-emerald-400 via-teal-500 to-cyan-600 flex items-center justify-center relative shadow-lg shadow-emerald-500/20">
           <div className="absolute -top-1 -right-1 w-5 h-5 bg-gradient-to-br from-amber-400 to-orange-500 rounded-full flex items-center justify-center shadow-md">
             <span className="text-[8px] text-white">★</span>
           </div>
           <Shield className="w-5 h-5 text-white" />
-        </div>
-        
-        {/* Sidebar Icons */}
-        <div className="flex flex-col gap-2 mt-2">
-          {[Wallet, Settings, Users, FileText, FileText].map((Icon, i) => (
-            <button 
-              key={i}
-              className="w-11 h-11 rounded-xl bg-[#11161d] flex items-center justify-center text-gray-500 hover:text-emerald-400 hover:bg-[#151c25] transition-all duration-200"
-            >
-              <Icon className="w-5 h-5" />
-            </button>
-          ))}
         </div>
       </div>
 
