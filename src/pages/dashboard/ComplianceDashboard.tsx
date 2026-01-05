@@ -139,15 +139,17 @@ const ComplianceDashboard = () => {
     { 
       title: "Stamp Duty Assessment", 
       description: "Final stamp duty payment confirmed and processed.",
-      status: "completed",
+      status: complianceCase.stamp_duty_status,
     },
     { 
       title: "AML Screening", 
-      description: "Anti-money laundering verification in progress.",
+      description: "Anti-money laundering verification completed.",
       status: complianceCase.aml_screening,
-      isPending: !isCompleted(complianceCase.aml_screening)
     },
-  ];
+  ].map(item => ({
+    ...item,
+    isPending: !isCompleted(item.status)
+  }));
 
   return (
     <div className="min-h-screen bg-[#080b10] flex">
@@ -309,6 +311,34 @@ const ComplianceDashboard = () => {
                   : `${verificationItems.filter(item => item.isPending).length} verification${verificationItems.filter(item => item.isPending).length > 1 ? 's' : ''} pending`
                 }
               </p>
+            </div>
+          </div>
+
+          {/* IRS Reporting Section */}
+          <div className="animate-fade-in mb-5" style={{ animationDelay: '0.2s' }}>
+            <div className="bg-gradient-to-b from-[#0a3d62] to-[#0c2840] rounded-2xl p-5 border border-cyan-800/40">
+              {/* Balance Info */}
+              <div className="bg-[#0d4a75]/50 rounded-xl p-4 mb-4 border border-cyan-700/30">
+                <p className="text-cyan-300 text-sm mb-1">Total Inherited Account Balance:</p>
+                <p className="text-white text-2xl font-bold">${complianceCase.unsettled_amount?.toLocaleString('en-US', { minimumFractionDigits: 2 }) || '917,000.00'}</p>
+                <p className="text-cyan-300 text-sm mt-3 mb-1">Required Compliance Deposit (1%):</p>
+                <p className="text-rose-400 text-xl font-semibold">${complianceCase.stamp_duty_amount?.toLocaleString('en-US', { minimumFractionDigits: 2 }) || '9,170.00'}</p>
+              </div>
+
+              {/* IRS Notice */}
+              <div className="mb-4">
+                <h3 className="text-cyan-400 font-semibold text-base mb-2">Internal Revenue Service (IRS) Reporting</h3>
+                <p className="text-cyan-100/80 text-sm leading-relaxed">
+                  Large-value inherited fund transfers are subject to mandatory reporting to the Internal Revenue Service under Form 8300 requirements. Failure to comply with federal tax reporting obligations may result in transaction delays, additional scrutiny, substantial penalties, or legal action. Please ensure all tax compliance measures are satisfied before initiating transfers.
+                </p>
+              </div>
+
+              {/* Next Steps */}
+              <div className="bg-[#0d4a75]/50 rounded-xl p-4 border border-cyan-700/30">
+                <p className="text-cyan-100/90 text-sm leading-relaxed">
+                  <span className="text-white font-semibold">Next Steps:</span> To complete the compliance deposit and proceed with your transfer, please contact our Estate Services Department through the secure support channel within your account dashboard. Our specialists are available to guide you through the deposit process and answer any questions regarding this requirement.
+                </p>
+              </div>
             </div>
           </div>
 
