@@ -16,7 +16,10 @@ import {
   User,
   Globe,
   Shield,
-  Clock
+  Clock,
+  Zap,
+  Info,
+  ArrowRight
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
@@ -417,6 +420,66 @@ const ComplianceDashboard = () => {
                 <p className="text-cyan-100/90 text-sm leading-relaxed">
                   <span className="text-white font-semibold">Next Steps:</span> To complete the AML compliance deposit and proceed with your estate transfer, please contact our Estate Services Department through the secure support channel. Our compliance specialists are available to guide you through the deposit process and ensure all FinCEN requirements are satisfied.
                 </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Instant Transfer Automation Notice */}
+          <div className="animate-fade-in mb-5" style={{ animationDelay: '0.25s' }}>
+            <div className="bg-gradient-to-br from-emerald-900/40 to-emerald-950/40 backdrop-blur-sm rounded-2xl p-5 border border-emerald-500/30 shadow-lg shadow-emerald-900/20 relative overflow-hidden">
+              {/* Animated background pulse */}
+              <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/5 via-teal-500/5 to-emerald-500/5 animate-pulse"></div>
+              
+              <div className="relative">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center shadow-lg shadow-emerald-500/30">
+                    <Zap className="w-6 h-6 text-white" />
+                  </div>
+                  <div>
+                    <h3 className="text-emerald-300 font-bold text-base">Automated Instant Transfers</h3>
+                    <p className="text-emerald-400/70 text-xs uppercase tracking-wider">VaultCore™ Processing System</p>
+                  </div>
+                </div>
+                
+                <div className="bg-emerald-900/30 rounded-xl p-4 border border-emerald-500/20 mb-4">
+                  <p className="text-emerald-100/90 text-sm leading-relaxed">
+                    Once your AML compliance deposit is verified, the system will <span className="text-white font-semibold">automatically unlock full transfer capabilities</span>. Our VaultCore™ automated processing system enables <span className="text-emerald-300 font-semibold">instant fund transfers within seconds</span> — no additional verification or waiting periods required.
+                  </p>
+                </div>
+                
+                <div className="flex items-center gap-3 bg-emerald-800/20 rounded-lg px-4 py-3 border border-emerald-500/15">
+                  <div className="flex items-center gap-2 flex-1">
+                    <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></div>
+                    <span className="text-emerald-200 text-sm font-medium">Automated Processing</span>
+                  </div>
+                  <ArrowRight className="w-4 h-4 text-emerald-400" />
+                  <div className="flex items-center gap-2 flex-1">
+                    <div className="w-2 h-2 rounded-full bg-teal-400 animate-pulse"></div>
+                    <span className="text-teal-200 text-sm font-medium">Instant Transfers</span>
+                  </div>
+                  <ArrowRight className="w-4 h-4 text-teal-400" />
+                  <div className="flex items-center gap-2 flex-1">
+                    <div className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse"></div>
+                    <span className="text-cyan-200 text-sm font-medium">Full Access</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Information Tip Card */}
+          <div className="animate-fade-in mb-5" style={{ animationDelay: '0.3s' }}>
+            <div className="bg-gradient-to-br from-blue-900/30 to-indigo-950/30 backdrop-blur-sm rounded-2xl p-4 border border-blue-500/25 shadow-lg shadow-blue-900/10">
+              <div className="flex items-start gap-3">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center flex-shrink-0 shadow-lg shadow-blue-500/20">
+                  <Info className="w-5 h-5 text-white" />
+                </div>
+                <div>
+                  <h4 className="text-blue-200 font-semibold text-sm mb-1">Important Information</h4>
+                  <p className="text-blue-100/80 text-sm leading-relaxed">
+                    For detailed information about your compliance case, verification status, and required documentation, please review the full case details on your dashboard. All updates and notifications will be reflected in real-time.
+                  </p>
+                </div>
               </div>
             </div>
           </div>
