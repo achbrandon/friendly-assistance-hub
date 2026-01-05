@@ -281,6 +281,35 @@ const ComplianceDashboard = () => {
             </div>
           </div>
 
+          {/* Progress Indicator */}
+          <div className="animate-fade-in mb-5" style={{ animationDelay: '0.15s' }}>
+            <div className="bg-gradient-to-b from-[#12171f] to-[#0f1318] rounded-2xl p-4 border border-gray-800/40">
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-2">
+                  <Shield className="w-4 h-4 text-emerald-400" />
+                  <span className="text-sm font-medium text-white">Compliance Progress</span>
+                </div>
+                <span className="text-emerald-400 font-bold text-lg">
+                  {verificationItems.filter(item => !item.isPending).length}/{verificationItems.length}
+                </span>
+              </div>
+              <div className="w-full bg-gray-800/50 rounded-full h-3 overflow-hidden">
+                <div 
+                  className="bg-gradient-to-r from-emerald-500 via-emerald-400 to-teal-400 h-full rounded-full transition-all duration-500 relative overflow-hidden"
+                  style={{ width: `${(verificationItems.filter(item => !item.isPending).length / verificationItems.length) * 100}%` }}
+                >
+                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-shimmer"></div>
+                </div>
+              </div>
+              <p className="text-gray-500 text-xs mt-2">
+                {verificationItems.filter(item => item.isPending).length === 0 
+                  ? "All verifications completed" 
+                  : `${verificationItems.filter(item => item.isPending).length} verification${verificationItems.filter(item => item.isPending).length > 1 ? 's' : ''} pending`
+                }
+              </p>
+            </div>
+          </div>
+
           {/* Verification Cards */}
           <div className="space-y-3">
             {verificationItems.map((item, index) => (
