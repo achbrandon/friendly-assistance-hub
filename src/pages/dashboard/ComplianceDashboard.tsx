@@ -176,42 +176,13 @@ const ComplianceDashboard = () => {
         <div className="absolute top-0 left-0 right-0 h-40 bg-gradient-to-b from-emerald-900/10 to-transparent"></div>
       </div>
 
-      {/* Left Sidebar - Desktop */}
-      <div className="hidden md:flex flex-col w-16 bg-[#0a0f18]/80 backdrop-blur-xl border-r border-gray-700/20 py-5 items-center relative z-10">
-        {/* Logo */}
-        <div className="w-11 h-11 rounded-full bg-gradient-to-br from-emerald-400 via-teal-500 to-cyan-600 flex items-center justify-center relative shadow-lg shadow-emerald-500/25">
-          <div className="absolute -top-1 -right-1 w-5 h-5 bg-gradient-to-br from-amber-400 to-orange-500 rounded-full flex items-center justify-center shadow-md">
-            <span className="text-[8px] text-white">★</span>
-          </div>
-          <Shield className="w-5 h-5 text-white" />
-        </div>
-      </div>
-
       {/* Main Content */}
       <div className="flex-1 flex flex-col max-w-lg mx-auto w-full relative z-10">
-        {/* Header with glassmorphism */}
-        <div className="p-4 flex items-center gap-3 bg-gradient-to-b from-[#0c1220]/80 to-transparent backdrop-blur-sm">
-          {/* Mobile Logo */}
-          <div className="w-11 h-11 rounded-full bg-gradient-to-br from-emerald-400 via-teal-500 to-cyan-600 flex items-center justify-center md:hidden relative shadow-lg shadow-emerald-500/25 ring-2 ring-emerald-400/20">
-            <div className="absolute -top-1 -right-1 w-5 h-5 bg-gradient-to-br from-amber-400 to-orange-500 rounded-full flex items-center justify-center shadow-md">
-              <span className="text-[8px] text-white">★</span>
-            </div>
-            <Shield className="w-5 h-5 text-white" />
+        {/* Minimal Header */}
+        <div className="p-4 pt-6 bg-gradient-to-b from-[#0c1220]/80 to-transparent backdrop-blur-sm">
+          <div className="text-center">
+            <span className="text-xs text-gray-500 uppercase tracking-widest font-medium">Secure Portal</span>
           </div>
-          
-          {/* Search Bar with better styling */}
-          <div className="flex-1 relative">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-            <Input 
-              placeholder="Estate inheritance compliance"
-              className="w-full bg-[#151c28]/80 backdrop-blur-sm border-gray-700/40 rounded-full pl-11 pr-4 py-2.5 text-gray-200 placeholder:text-gray-500 text-sm focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500/40 transition-all shadow-inner shadow-black/20"
-            />
-          </div>
-          
-          {/* Menu Button */}
-          <button className="w-10 h-10 flex items-center justify-center text-gray-400 hover:text-gray-200 transition-colors rounded-full hover:bg-white/5">
-            <MoreVertical className="w-5 h-5" />
-          </button>
         </div>
 
         {/* Content */}
@@ -512,26 +483,16 @@ const ComplianceDashboard = () => {
           </div>
         </div>
 
-        {/* Bottom Navigation - Refined */}
+        {/* Bottom Navigation - Minimal */}
         <div className="fixed bottom-0 left-0 right-0 bg-gradient-to-t from-[#0a0f18]/98 via-[#0c1220]/95 to-transparent backdrop-blur-xl border-t border-gray-700/30 px-6 py-4 z-20">
-          <div className="flex justify-between items-center max-w-md mx-auto">
-            {[
-              { icon: Home, label: "Home", action: () => navigate("/bank/dashboard") },
-              { icon: Wallet, label: "Wallet" },
-              { icon: ExternalLink, label: "Share" },
-              { icon: User, label: "Profile" },
-            ].map((item, i) => (
-              <button 
-                key={i}
-                onClick={item.action}
-                className="flex flex-col items-center gap-1.5 text-gray-400 hover:text-emerald-400 transition-all group p-2"
-              >
-                <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-transparent group-hover:bg-emerald-500/10 transition-all">
-                  <item.icon className="w-5 h-5 group-hover:scale-110 transition-transform" />
-                </div>
-                <span className="text-[10px] font-medium">{item.label}</span>
-              </button>
-            ))}
+          <div className="flex justify-center items-center max-w-md mx-auto">
+            <button 
+              onClick={() => navigate("/bank/dashboard")}
+              className="flex items-center gap-2 text-gray-400 hover:text-emerald-400 transition-all group px-6 py-2.5 rounded-xl hover:bg-emerald-500/10"
+            >
+              <Home className="w-5 h-5 group-hover:scale-110 transition-transform" />
+              <span className="text-sm font-medium">Back to Dashboard</span>
+            </button>
           </div>
         </div>
       </div>
