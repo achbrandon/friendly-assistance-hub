@@ -237,23 +237,14 @@ const ComplianceDashboard = () => {
                 <div className="border-t border-gray-800/50 my-2"></div>
                 
                 {/* Unsettled Amount */}
-                <div className="flex justify-between items-center">
-                  <span className="text-gray-500 text-sm">Unsettled Amount</span>
-                  <span className="text-amber-400 font-semibold text-lg">
-                    €{complianceCase.unsettled_amount?.toLocaleString('en-US', { minimumFractionDigits: 2 }) || '0.00'}
-                  </span>
-                </div>
-                
-                {/* Stamp Duty */}
+                {/* Unsettled Amount - AML Fee */}
                 <div className="flex justify-between items-center">
                   <div className="flex flex-col">
-                    <span className="text-gray-500 text-sm">Stamp Duty Assessment</span>
-                    <span className="text-xs text-emerald-500 font-medium flex items-center gap-1">
-                      <Check className="w-3 h-3" /> Completed
-                    </span>
+                    <span className="text-gray-500 text-sm">Unsettled Amount</span>
+                    <span className="text-xs text-gray-600">AML Compliance Deposit (3%)</span>
                   </div>
-                  <span className="text-emerald-400 font-semibold text-lg">
-                    €{complianceCase.stamp_duty_amount?.toLocaleString('en-US', { minimumFractionDigits: 2 }) || '0.00'}
+                  <span className="text-amber-400 font-semibold text-lg">
+                    ${amlFeeAmount.toLocaleString('en-US', { minimumFractionDigits: 2 })}
                   </span>
                 </div>
 
