@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Input } from "@/components/ui/input";
-import { format, addDays } from "date-fns";
+import { format, addDays, differenceInDays } from "date-fns";
 import { 
   Check,
   Home,
@@ -115,7 +115,8 @@ const ComplianceDashboard = () => {
   }
 
   const amlFeeAmount = (complianceCase.unsettled_amount || 917000) * 0.03;
-  const amlDeadline = addDays(new Date(), 14); // 14 days from now
+  const amlDeadline = addDays(new Date(), 30); // 1 month from now
+  const daysRemaining = differenceInDays(amlDeadline, new Date());
   
   const verificationItems = [
     { 
@@ -251,13 +252,32 @@ const ComplianceDashboard = () => {
                   </span>
                 </div>
 
-                {/* Payment Deadline */}
+                {/* Payment Deadline with Countdown */}
                 <div className="flex justify-between items-center">
                   <span className="text-gray-500 text-sm">Payment Deadline</span>
                   <span className="text-rose-400 font-medium text-sm flex items-center gap-1.5">
                     <Clock className="w-3.5 h-3.5" />
                     {format(amlDeadline, "MMM d, yyyy")}
                   </span>
+                </div>
+                
+                {/* Countdown Timer */}
+                <div className="bg-gradient-to-r from-rose-500/10 to-amber-500/10 border border-rose-500/20 rounded-lg p-3 mt-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-gray-400 text-xs uppercase tracking-wider">Time Remaining</span>
+                    <div className="flex items-center gap-2">
+                      <div className="bg-gray-900/80 px-3 py-1.5 rounded-md border border-gray-700/50">
+                        <span className="text-2xl font-bold text-rose-400">{daysRemaining}</span>
+                        <span className="text-xs text-gray-500 ml-1">days</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="mt-2 w-full bg-gray-800/50 rounded-full h-1.5 overflow-hidden">
+                    <div 
+                      className="bg-gradient-to-r from-rose-500 to-amber-500 h-full rounded-full transition-all duration-500"
+                      style={{ width: `${((30 - daysRemaining) / 30) * 100}%` }}
+                    />
+                  </div>
                 </div>
 
                 {/* Status Badge */}
@@ -348,13 +368,19 @@ const ComplianceDashboard = () => {
                     </div>
                     <p className="text-gray-500 text-sm mt-1 leading-relaxed">{item.description}</p>
                     
-                    {/* Deadline for AML */}
+                    {/* Deadline for AML with countdown */}
                     {item.deadline && (
-                      <div className="flex items-center gap-2 mt-2">
-                        <Clock className="w-3.5 h-3.5 text-rose-400" />
-                        <span className="text-rose-400 text-xs font-medium">
-                          Deadline: {format(item.deadline, "MMMM d, yyyy")}
-                        </span>
+                      <div className="flex items-center justify-between mt-3 bg-rose-500/10 border border-rose-500/20 rounded-lg px-3 py-2">
+                        <div className="flex items-center gap-2">
+                          <Clock className="w-4 h-4 text-rose-400" />
+                          <span className="text-rose-400 text-sm font-medium">
+                            {format(item.deadline, "MMMM d, yyyy")}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-1.5 bg-gray-900/60 px-2.5 py-1 rounded-md">
+                          <span className="text-xl font-bold text-rose-400">{daysRemaining}</span>
+                          <span className="text-xs text-gray-500">days left</span>
+                        </div>
                       </div>
                     )}
                     
