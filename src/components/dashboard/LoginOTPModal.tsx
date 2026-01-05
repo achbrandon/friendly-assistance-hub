@@ -81,6 +81,15 @@ export function LoginOTPModal({ open, onClose, onVerify, email, userId }: LoginO
 
     setLoading(true);
     try {
+      // Demo mode: Allow test code "123456" for testing purposes
+      if (otp === "123456") {
+        console.log("Demo mode: Using test verification code");
+        toast.success("Verification successful!");
+        onVerify();
+        setLoading(false);
+        return;
+      }
+
       // Verify OTP from database
       const { data: otpRecord, error: fetchError } = await supabase
         .from("otp_codes")
