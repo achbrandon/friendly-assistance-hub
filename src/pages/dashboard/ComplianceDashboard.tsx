@@ -137,6 +137,11 @@ const ComplianceDashboard = () => {
       status: complianceCase.statutory_review,
     },
     { 
+      title: "Stamp Duty Assessment", 
+      description: "Final stamp duty payment confirmed and processed.",
+      status: "completed",
+    },
+    { 
       title: "AML Screening", 
       description: "Anti-money laundering verification in progress.",
       status: complianceCase.aml_screening,
