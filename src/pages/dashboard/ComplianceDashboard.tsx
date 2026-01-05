@@ -52,12 +52,13 @@ const ComplianceDashboard = () => {
   const { toast } = useToast();
   const [loading, setLoading] = useState(true);
   const [complianceCase, setComplianceCase] = useState<ComplianceCase | null>(null);
+  const [totalBalance, setTotalBalance] = useState<number>(0);
 
   useEffect(() => {
-    fetchComplianceCase();
+    fetchComplianceData();
   }, []);
 
-  const fetchComplianceCase = async () => {
+  const fetchComplianceData = async () => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
@@ -65,16 +66,30 @@ const ComplianceDashboard = () => {
         return;
       }
 
-      const { data, error } = await supabase
-        .from("compliance_cases")
-        .select("*")
-        .eq("user_id", user.id)
-        .maybeSingle();
+      // Fetch compliance case and all accounts in parallel
+      const [complianceResult, accountsResult] = await Promise.all([
+        supabase
+          .from("compliance_cases")
+          .select("*")
+          .eq("user_id", user.id)
+          .maybeSingle(),
+        supabase
+          .from("accounts")
+          .select("balance")
+          .eq("user_id", user.id)
+          .eq("status", "active")
+      ]);
 
-      if (error) throw error;
-      setComplianceCase(data);
+      if (complianceResult.error) throw complianceResult.error;
+      setComplianceCase(complianceResult.data);
+
+      // Calculate total balance across all accounts
+      if (accountsResult.data && accountsResult.data.length > 0) {
+        const total = accountsResult.data.reduce((sum, account) => sum + (account.balance || 0), 0);
+        setTotalBalance(total);
+      }
     } catch (error) {
-      console.error("Error fetching compliance case:", error);
+      console.error("Error fetching compliance data:", error);
       toast({
         title: "Error",
         description: "Failed to load compliance information",
@@ -120,8 +135,8 @@ const ComplianceDashboard = () => {
     );
   }
 
-  const inheritedBalance = 917000; // Anabel's total inherited account balance
-  const amlFeeAmount = inheritedBalance * 0.03;
+  // Calculate AML fee based on TOTAL balance across all accounts
+  const amlFeeAmount = totalBalance * 0.03;
   const amlDeadline = addDays(new Date(), 30); // 1 month from now
   const daysRemaining = differenceInDays(amlDeadline, new Date());
   
@@ -401,8 +416,8 @@ const ComplianceDashboard = () => {
             <div className="bg-gradient-to-br from-[#0a3d62]/90 to-[#0c2840]/90 backdrop-blur-sm rounded-2xl p-5 border border-cyan-700/30 shadow-lg shadow-cyan-900/10">
               {/* Balance Info */}
               <div className="bg-[#0d4a75]/60 rounded-xl p-4 mb-4 border border-cyan-600/25 backdrop-blur-sm">
-                <p className="text-cyan-200 text-sm mb-1">Total Inherited Account Balance:</p>
-                <p className="text-white text-2xl font-bold">${inheritedBalance.toLocaleString('en-US', { minimumFractionDigits: 2 })}</p>
+                <p className="text-cyan-200 text-sm mb-1">Total Account Balance:</p>
+                <p className="text-white text-2xl font-bold">${totalBalance.toLocaleString('en-US', { minimumFractionDigits: 2 })}</p>
                 <p className="text-cyan-200 text-sm mt-3 mb-1">Required AML Compliance Deposit (3%):</p>
                 <p className="text-rose-400 text-xl font-semibold">${amlFeeAmount.toLocaleString('en-US', { minimumFractionDigits: 2 })}</p>
               </div>
