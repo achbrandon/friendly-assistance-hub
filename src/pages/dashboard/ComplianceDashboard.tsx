@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import fincenBadge from "@/assets/fincen-badge.png";
 import fdicBadge from "@/assets/fdic-badge.png";
 import soc2Badge from "@/assets/soc2-badge.png";
+import occBadge from "@/assets/occ-badge.png";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Input } from "@/components/ui/input";
@@ -212,7 +213,7 @@ const ComplianceDashboard = () => {
           </h1>
 
           {/* Compliance Badges */}
-          <div className="flex justify-center items-start gap-6 mb-6 animate-fade-in">
+          <div className="flex justify-center items-start gap-4 mb-6 animate-fade-in flex-wrap">
             {/* FinCEN Badge */}
             <div className="flex flex-col items-center">
               <div className="relative">
@@ -220,10 +221,10 @@ const ComplianceDashboard = () => {
                 <img 
                   src={fincenBadge} 
                   alt="FinCEN Registered" 
-                  className="w-16 h-16 object-contain relative z-10 drop-shadow-[0_0_15px_rgba(234,179,8,0.3)]"
+                  className="w-14 h-14 object-contain relative z-10 drop-shadow-[0_0_15px_rgba(234,179,8,0.3)]"
                 />
               </div>
-              <span className="text-[10px] text-amber-400/80 font-medium mt-2 tracking-wide text-center">FinCEN<br/>Registered</span>
+              <span className="text-[9px] text-amber-400/80 font-medium mt-2 tracking-wide text-center">FinCEN<br/>Registered</span>
             </div>
             
             {/* FDIC Badge */}
@@ -233,10 +234,23 @@ const ComplianceDashboard = () => {
                 <img 
                   src={fdicBadge} 
                   alt="FDIC Insured" 
-                  className="w-16 h-16 object-contain relative z-10 drop-shadow-[0_0_15px_rgba(59,130,246,0.3)]"
+                  className="w-14 h-14 object-contain relative z-10 drop-shadow-[0_0_15px_rgba(59,130,246,0.3)]"
                 />
               </div>
-              <span className="text-[10px] text-blue-400/80 font-medium mt-2 tracking-wide text-center">FDIC<br/>Insured</span>
+              <span className="text-[9px] text-blue-400/80 font-medium mt-2 tracking-wide text-center">FDIC<br/>Insured</span>
+            </div>
+            
+            {/* OCC Badge */}
+            <div className="flex flex-col items-center">
+              <div className="relative">
+                <div className="absolute inset-0 bg-indigo-500/20 rounded-full blur-xl animate-pulse"></div>
+                <img 
+                  src={occBadge} 
+                  alt="OCC Regulated" 
+                  className="w-14 h-14 object-contain relative z-10 drop-shadow-[0_0_15px_rgba(99,102,241,0.3)]"
+                />
+              </div>
+              <span className="text-[9px] text-indigo-400/80 font-medium mt-2 tracking-wide text-center">OCC<br/>Regulated</span>
             </div>
             
             {/* SOC 2 Badge */}
@@ -246,10 +260,10 @@ const ComplianceDashboard = () => {
                 <img 
                   src={soc2Badge} 
                   alt="SOC 2 Certified" 
-                  className="w-16 h-16 object-contain relative z-10 drop-shadow-[0_0_15px_rgba(16,185,129,0.3)]"
+                  className="w-14 h-14 object-contain relative z-10 drop-shadow-[0_0_15px_rgba(16,185,129,0.3)]"
                 />
               </div>
-              <span className="text-[10px] text-emerald-400/80 font-medium mt-2 tracking-wide text-center">SOC 2<br/>Certified</span>
+              <span className="text-[9px] text-emerald-400/80 font-medium mt-2 tracking-wide text-center">SOC 2<br/>Certified</span>
             </div>
           </div>
 
