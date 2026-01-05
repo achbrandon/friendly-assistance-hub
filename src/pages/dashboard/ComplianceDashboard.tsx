@@ -5,15 +5,16 @@ import { Input } from "@/components/ui/input";
 import { 
   Check,
   Home,
-  Package,
+  Wallet,
   Settings,
   Users,
-  Clock,
+  FileText,
   Search,
   MoreVertical,
-  Share2,
+  ExternalLink,
   User,
-  Globe
+  Globe,
+  Shield
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
@@ -86,10 +87,13 @@ const ComplianceDashboard = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#0a0e14] flex items-center justify-center">
+      <div className="min-h-screen bg-[#080b10] flex items-center justify-center">
         <div className="flex flex-col items-center gap-4">
-          <div className="animate-spin rounded-full h-12 w-12 border-4 border-blue-500 border-t-transparent"></div>
-          <p className="text-gray-400">Loading compliance data...</p>
+          <div className="relative w-16 h-16">
+            <div className="absolute inset-0 rounded-full border-4 border-emerald-500/20"></div>
+            <div className="absolute inset-0 rounded-full border-4 border-transparent border-t-emerald-500 animate-spin"></div>
+          </div>
+          <p className="text-gray-400 text-sm font-medium">Loading compliance data...</p>
         </div>
       </div>
     );
@@ -97,14 +101,14 @@ const ComplianceDashboard = () => {
 
   if (!complianceCase) {
     return (
-      <div className="min-h-screen bg-[#0a0e14] p-4">
+      <div className="min-h-screen bg-[#080b10] p-4">
         <div className="max-w-md mx-auto pt-20">
-          <div className="bg-[#151c28] rounded-2xl py-16 text-center px-6">
-            <div className="w-20 h-20 rounded-full bg-[#1e2836] mx-auto mb-6 flex items-center justify-center">
-              <Package className="h-10 w-10 text-gray-500" />
+          <div className="bg-gradient-to-b from-[#12171f] to-[#0d1117] rounded-3xl py-16 text-center px-6 border border-gray-800/50">
+            <div className="w-20 h-20 rounded-full bg-gradient-to-br from-gray-800 to-gray-900 mx-auto mb-6 flex items-center justify-center ring-1 ring-gray-700/50">
+              <Shield className="h-10 w-10 text-gray-500" />
             </div>
-            <h2 className="text-xl font-bold text-white mb-3">No Active Compliance Cases</h2>
-            <p className="text-gray-400">You currently do not have any compliance cases associated with your account.</p>
+            <h2 className="text-xl font-semibold text-white mb-3">No Active Cases</h2>
+            <p className="text-gray-500 text-sm leading-relaxed">You currently do not have any compliance cases associated with your account.</p>
           </div>
         </div>
       </div>
@@ -114,63 +118,54 @@ const ComplianceDashboard = () => {
   const verificationItems = [
     { 
       title: "KYC Verification", 
-      description: "Veric verify testate inheritance details.",
+      description: "Identity verification and document validation completed.",
       status: complianceCase.kyc_verification,
     },
     { 
       title: "Beneficiary Confirmation", 
-      description: "Veric verify testate inheritance details.",
+      description: "Beneficiary details verified and confirmed.",
       status: complianceCase.beneficiary_confirmation,
     },
     { 
       title: "Legal Documentation", 
-      description: "Veric verify testate inheritance details.",
+      description: "All required legal documents have been reviewed.",
       status: complianceCase.account_documentation,
     },
     { 
       title: "Tax Compliance", 
-      description: "Veric verify testate inheritance details.",
+      description: "Tax clearance and statutory requirements verified.",
       status: complianceCase.statutory_review,
     },
     { 
       title: "AML Screening", 
-      description: "Perify yoursis roa ğ Inheritaess.",
+      description: "Anti-money laundering verification in progress.",
       status: complianceCase.aml_screening,
       isPending: !isCompleted(complianceCase.aml_screening)
     },
   ];
 
   return (
-    <div className="min-h-screen bg-[#0a0e14] flex">
+    <div className="min-h-screen bg-[#080b10] flex">
       {/* Left Sidebar - Desktop */}
-      <div className="hidden md:flex flex-col w-14 bg-[#0a0e14] py-4 items-center gap-4">
+      <div className="hidden md:flex flex-col w-16 bg-[#080b10] border-r border-gray-800/30 py-5 items-center gap-3">
         {/* Logo */}
-        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-green-400 via-green-500 to-blue-500 flex items-center justify-center mb-2 relative">
-          <div className="absolute -top-1 -right-1 w-5 h-5 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-full flex items-center justify-center">
-            <span className="text-[8px]">★</span>
+        <div className="w-11 h-11 rounded-full bg-gradient-to-br from-emerald-400 via-teal-500 to-cyan-600 flex items-center justify-center mb-3 relative shadow-lg shadow-emerald-500/20">
+          <div className="absolute -top-1 -right-1 w-5 h-5 bg-gradient-to-br from-amber-400 to-orange-500 rounded-full flex items-center justify-center shadow-md">
+            <span className="text-[8px] text-white">★</span>
           </div>
-          <div className="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center">
-            <div className="w-4 h-4 rounded-full border-2 border-white" />
-          </div>
+          <Shield className="w-5 h-5 text-white" />
         </div>
         
         {/* Sidebar Icons */}
-        <div className="flex flex-col gap-3 mt-2">
-          <button className="w-10 h-10 rounded-xl bg-[#151c28] flex items-center justify-center text-gray-500 hover:text-white transition-colors">
-            <Package className="w-5 h-5" />
-          </button>
-          <button className="w-10 h-10 rounded-xl bg-[#151c28] flex items-center justify-center text-gray-500 hover:text-white transition-colors">
-            <Settings className="w-5 h-5" />
-          </button>
-          <button className="w-10 h-10 rounded-xl bg-[#151c28] flex items-center justify-center text-gray-500 hover:text-white transition-colors">
-            <Users className="w-5 h-5" />
-          </button>
-          <button className="w-10 h-10 rounded-xl bg-[#151c28] flex items-center justify-center text-gray-500 hover:text-white transition-colors">
-            <Clock className="w-5 h-5" />
-          </button>
-          <button className="w-10 h-10 rounded-xl bg-[#151c28] flex items-center justify-center text-gray-500 hover:text-white transition-colors">
-            <Clock className="w-5 h-5" />
-          </button>
+        <div className="flex flex-col gap-2 mt-2">
+          {[Wallet, Settings, Users, FileText, FileText].map((Icon, i) => (
+            <button 
+              key={i}
+              className="w-11 h-11 rounded-xl bg-[#11161d] flex items-center justify-center text-gray-500 hover:text-emerald-400 hover:bg-[#151c25] transition-all duration-200"
+            >
+              <Icon className="w-5 h-5" />
+            </button>
+          ))}
         </div>
       </div>
 
@@ -179,13 +174,11 @@ const ComplianceDashboard = () => {
         {/* Header */}
         <div className="p-4 flex items-center gap-3">
           {/* Mobile Logo */}
-          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-green-400 via-green-500 to-blue-500 flex items-center justify-center md:hidden relative">
-            <div className="absolute -top-1 -right-1 w-4 h-4 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-full flex items-center justify-center">
-              <span className="text-[6px]">★</span>
+          <div className="w-11 h-11 rounded-full bg-gradient-to-br from-emerald-400 via-teal-500 to-cyan-600 flex items-center justify-center md:hidden relative shadow-lg shadow-emerald-500/20">
+            <div className="absolute -top-1 -right-1 w-5 h-5 bg-gradient-to-br from-amber-400 to-orange-500 rounded-full flex items-center justify-center shadow-md">
+              <span className="text-[8px] text-white">★</span>
             </div>
-            <div className="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center">
-              <div className="w-4 h-4 rounded-full border-2 border-white" />
-            </div>
+            <Shield className="w-5 h-5 text-white" />
           </div>
           
           {/* Search Bar */}
@@ -193,29 +186,33 @@ const ComplianceDashboard = () => {
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
             <Input 
               placeholder="Estate inheritance compliance"
-              className="w-full bg-[#151c28] border-0 rounded-full pl-11 pr-4 py-2.5 text-gray-300 placeholder:text-gray-500 text-sm"
+              className="w-full bg-[#11161d] border-gray-800/50 rounded-full pl-11 pr-4 py-2.5 text-gray-300 placeholder:text-gray-600 text-sm focus:ring-1 focus:ring-emerald-500/30 focus:border-emerald-500/30 transition-all"
             />
           </div>
           
           {/* Menu Button */}
-          <button className="w-10 h-10 flex items-center justify-center text-gray-400">
+          <button className="w-10 h-10 flex items-center justify-center text-gray-500 hover:text-gray-300 transition-colors">
             <MoreVertical className="w-5 h-5" />
           </button>
         </div>
 
         {/* Content */}
-        <div className="flex-1 px-4 pb-24 overflow-auto">
+        <div className="flex-1 px-4 pb-28 overflow-auto">
           {/* Title */}
-          <h1 className="text-[28px] font-bold text-white leading-tight mb-6">
-            Estate Inheritance<br />Dashboard
+          <h1 className="text-[26px] font-bold text-white leading-tight mb-6 tracking-tight">
+            Estate Inheritance<br />
+            <span className="bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent">Dashboard</span>
           </h1>
 
           {/* ISO 9001 Badge */}
-          <div className="flex justify-center mb-8">
-            <div className="bg-[#0066cc] rounded-2xl p-5 w-28 h-28 flex flex-col items-center justify-center shadow-lg shadow-blue-500/20">
-              <Globe className="w-12 h-12 text-white mb-1" />
-              <div className="text-white font-bold text-xl tracking-wide">ISO</div>
-              <div className="text-white text-sm font-medium">9001</div>
+          <div className="flex justify-center mb-8 animate-fade-in">
+            <div className="relative">
+              <div className="absolute inset-0 bg-blue-500/20 rounded-2xl blur-xl"></div>
+              <div className="relative bg-gradient-to-b from-[#0066cc] to-[#004c99] rounded-2xl p-5 w-28 h-28 flex flex-col items-center justify-center shadow-xl shadow-blue-500/25 border border-blue-400/20">
+                <Globe className="w-10 h-10 text-white/90 mb-1" />
+                <div className="text-white font-bold text-xl tracking-wider">ISO</div>
+                <div className="text-blue-200 text-sm font-semibold">9001</div>
+              </div>
             </div>
           </div>
 
@@ -224,34 +221,39 @@ const ComplianceDashboard = () => {
             {verificationItems.map((item, index) => (
               <div 
                 key={index}
-                className="bg-[#151c28] rounded-2xl p-4"
+                className="animate-fade-in bg-gradient-to-b from-[#12171f] to-[#0f1318] rounded-2xl p-4 border border-gray-800/40 hover:border-gray-700/50 transition-all duration-300"
+                style={{ animationDelay: `${index * 0.08}s` }}
               >
-                <div className="flex items-center justify-between">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-3">
-                      <h3 className="font-semibold text-white text-[17px]">{item.title}</h3>
+                <div className="flex items-center justify-between gap-4">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-3 flex-wrap">
+                      <h3 className="font-semibold text-white text-[16px]">{item.title}</h3>
                       {item.isPending && (
-                        <span className="text-gray-400 text-sm font-medium">Pending</span>
+                        <span className="text-amber-400/90 text-xs font-medium bg-amber-500/10 px-2.5 py-0.5 rounded-full border border-amber-500/20">
+                          Pending
+                        </span>
                       )}
                     </div>
-                    <p className="text-gray-500 text-sm mt-0.5">{item.description}</p>
+                    <p className="text-gray-500 text-sm mt-1 leading-relaxed">{item.description}</p>
                     
                     {/* Progress bar for pending items */}
                     {item.isPending && (
-                      <div className="mt-3 w-full bg-gray-700/50 rounded-full h-2 overflow-hidden">
+                      <div className="mt-3 w-full bg-gray-800/50 rounded-full h-2 overflow-hidden">
                         <div 
-                          className="bg-gradient-to-r from-green-500 to-green-400 h-full rounded-full"
+                          className="bg-gradient-to-r from-emerald-500 via-emerald-400 to-teal-400 h-full rounded-full relative overflow-hidden"
                           style={{ width: '65%' }}
-                        />
+                        >
+                          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-[shimmer_2s_infinite] -translate-x-full"></div>
+                        </div>
                       </div>
                     )}
                   </div>
                   
                   {/* Status Icon - Green Checkmark */}
                   {!item.isPending && (
-                    <div className="ml-4 flex-shrink-0">
-                      <div className="w-11 h-11 rounded-full bg-green-500 flex items-center justify-center shadow-lg shadow-green-500/30">
-                        <Check className="w-6 h-6 text-white stroke-[3]" />
+                    <div className="flex-shrink-0">
+                      <div className="w-11 h-11 rounded-full bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center shadow-lg shadow-emerald-500/30 ring-2 ring-emerald-400/20">
+                        <Check className="w-5 h-5 text-white stroke-[3]" />
                       </div>
                     </div>
                   )}
@@ -262,23 +264,23 @@ const ComplianceDashboard = () => {
         </div>
 
         {/* Bottom Navigation */}
-        <div className="fixed bottom-0 left-0 right-0 bg-[#0a0e14] border-t border-gray-800/50 px-6 py-4 safe-area-inset-bottom">
+        <div className="fixed bottom-0 left-0 right-0 bg-[#080b10]/95 backdrop-blur-lg border-t border-gray-800/50 px-6 py-4">
           <div className="flex justify-between items-center max-w-md mx-auto">
-            <button 
-              onClick={() => navigate("/bank/dashboard")}
-              className="flex flex-col items-center gap-1 text-gray-500 hover:text-white transition-colors"
-            >
-              <Home className="w-6 h-6" />
-            </button>
-            <button className="flex flex-col items-center gap-1 text-gray-500 hover:text-white transition-colors">
-              <Package className="w-6 h-6" />
-            </button>
-            <button className="flex flex-col items-center gap-1 text-gray-500 hover:text-white transition-colors">
-              <Share2 className="w-6 h-6" />
-            </button>
-            <button className="flex flex-col items-center gap-1 text-gray-500 hover:text-white transition-colors">
-              <User className="w-6 h-6" />
-            </button>
+            {[
+              { icon: Home, label: "Home", action: () => navigate("/bank/dashboard") },
+              { icon: Wallet, label: "Wallet" },
+              { icon: ExternalLink, label: "Share" },
+              { icon: User, label: "Profile" },
+            ].map((item, i) => (
+              <button 
+                key={i}
+                onClick={item.action}
+                className="flex flex-col items-center gap-1 text-gray-500 hover:text-emerald-400 transition-colors group"
+              >
+                <item.icon className="w-6 h-6 group-hover:scale-110 transition-transform" />
+                <span className="text-[10px] font-medium opacity-0 group-hover:opacity-100 transition-opacity">{item.label}</span>
+              </button>
+            ))}
           </div>
         </div>
       </div>
