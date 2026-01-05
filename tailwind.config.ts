@@ -139,8 +139,8 @@ export default {
           },
         },
         "shimmer": {
-          "0%": { backgroundPosition: "-1000px 0" },
-          "100%": { backgroundPosition: "1000px 0" },
+          "0%": { transform: "translateX(-100%)" },
+          "100%": { transform: "translateX(200%)" },
         },
         "float": {
           "0%, 100%": { transform: "translateY(0px)" },
