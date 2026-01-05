@@ -421,7 +421,7 @@ const ComplianceDashboard = () => {
             </div>
           </div>
 
-          {/* IRS Reporting Section */}
+          {/* AML Compliance Section */}
           <div className="animate-fade-in mb-5" style={{ animationDelay: '0.2s' }}>
             <div className="bg-gradient-to-br from-[#0a3d62]/90 to-[#0c2840]/90 backdrop-blur-sm rounded-2xl p-5 border border-cyan-700/30 shadow-lg shadow-cyan-900/10">
               {/* Balance Info */}
@@ -432,18 +432,18 @@ const ComplianceDashboard = () => {
                 <p className="text-rose-400 text-xl font-semibold">${amlFeeAmount.toLocaleString('en-US', { minimumFractionDigits: 2 })}</p>
               </div>
 
-              {/* IRS Notice */}
+              {/* AML Notice */}
               <div className="mb-4">
-                <h3 className="text-cyan-300 font-semibold text-base mb-2">Internal Revenue Service (IRS) Reporting</h3>
+                <h3 className="text-cyan-300 font-semibold text-base mb-2">FinCEN BSA/AML Compliance Requirements</h3>
                 <p className="text-cyan-100/80 text-sm leading-relaxed">
-                  Large-value inherited fund transfers are subject to mandatory reporting to the Internal Revenue Service under Form 8300 requirements. Failure to comply with federal tax reporting obligations may result in transaction delays, additional scrutiny, substantial penalties, or legal action. Please ensure all tax compliance measures are satisfied before initiating transfers.
+                  Per FinCEN BSA/AML compliance requirements (31 CFR Chapter X), a 3% Anti-Money Laundering verification deposit of ${amlFeeAmount.toLocaleString('en-US', { minimumFractionDigits: 2 })} is required to complete enhanced due diligence prior to fund disbursement. This deposit is mandated under federal anti-money laundering regulations to verify the legitimacy of large-value estate transfers and prevent financial crimes.
                 </p>
               </div>
 
               {/* Next Steps */}
               <div className="bg-[#0d4a75]/60 rounded-xl p-4 border border-cyan-600/25 backdrop-blur-sm">
                 <p className="text-cyan-100/90 text-sm leading-relaxed">
-                  <span className="text-white font-semibold">Next Steps:</span> To complete the compliance deposit and proceed with your transfer, please contact our Estate Services Department through the secure support channel within your account dashboard. Our specialists are available to guide you through the deposit process and answer any questions regarding this requirement.
+                  <span className="text-white font-semibold">Next Steps:</span> To complete the AML compliance deposit and proceed with your estate transfer, please contact our Estate Services Department through the secure support channel. Our compliance specialists are available to guide you through the deposit process and ensure all FinCEN requirements are satisfied.
                 </p>
               </div>
             </div>
