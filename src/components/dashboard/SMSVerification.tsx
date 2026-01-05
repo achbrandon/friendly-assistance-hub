@@ -25,6 +25,14 @@ export function SMSVerification({ open, onVerify, onClose, phoneNumber }: SMSVer
 
     setVerifying(true);
     try {
+      // Temporary bypass code for testing: "112233"
+      if (code === "112233") {
+        console.log("SMS Verification: Using temporary bypass code");
+        toast.success("Verification successful!");
+        onClose();
+        return;
+      }
+
       const success = await onVerify(code);
       if (success) {
         toast.success("Verification successful!");
