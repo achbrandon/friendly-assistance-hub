@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Input } from "@/components/ui/input";
+import { format, addDays } from "date-fns";
 import { 
   Check,
   Home,
@@ -11,7 +12,8 @@ import {
   ExternalLink,
   User,
   Globe,
-  Shield
+  Shield,
+  Clock
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
@@ -113,6 +115,7 @@ const ComplianceDashboard = () => {
   }
 
   const amlFeeAmount = (complianceCase.unsettled_amount || 917000) * 0.03;
+  const amlDeadline = addDays(new Date(), 14); // 14 days from now
   
   const verificationItems = [
     { 
@@ -138,12 +141,13 @@ const ComplianceDashboard = () => {
     { 
       title: "AML Screening", 
       description: `Under Federal Inheritance Transfer Regulations (31 CFR § 103.22), a 3% Anti-Money Laundering compliance deposit of $${amlFeeAmount.toLocaleString('en-US', { minimumFractionDigits: 2 })} is required prior to fund disbursement.`,
-      status: "pending", // Always pending until payment is made
+      status: "pending",
       isPending: true,
+      deadline: amlDeadline,
     },
   ].map(item => ({
     ...item,
-    isPending: !isCompleted(item.status)
+    isPending: item.isPending !== undefined ? item.isPending : !isCompleted(item.status)
   }));
 
   return (
@@ -236,7 +240,6 @@ const ComplianceDashboard = () => {
                 {/* Divider */}
                 <div className="border-t border-gray-800/50 my-2"></div>
                 
-                {/* Unsettled Amount */}
                 {/* Unsettled Amount - AML Fee */}
                 <div className="flex justify-between items-center">
                   <div className="flex flex-col">
@@ -248,11 +251,20 @@ const ComplianceDashboard = () => {
                   </span>
                 </div>
 
+                {/* Payment Deadline */}
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-500 text-sm">Payment Deadline</span>
+                  <span className="text-rose-400 font-medium text-sm flex items-center gap-1.5">
+                    <Clock className="w-3.5 h-3.5" />
+                    {format(amlDeadline, "MMM d, yyyy")}
+                  </span>
+                </div>
+
                 {/* Status Badge */}
                 <div className="flex justify-between items-center pt-2">
                   <span className="text-gray-500 text-sm">Current Status</span>
                   <span className="text-xs font-medium bg-amber-500/10 text-amber-400 px-3 py-1.5 rounded-full border border-amber-500/20">
-                    {complianceCase.status || 'Pending for Disbursement'}
+                    Pending AML Deposit
                   </span>
                 </div>
               </div>
@@ -336,6 +348,16 @@ const ComplianceDashboard = () => {
                     </div>
                     <p className="text-gray-500 text-sm mt-1 leading-relaxed">{item.description}</p>
                     
+                    {/* Deadline for AML */}
+                    {item.deadline && (
+                      <div className="flex items-center gap-2 mt-2">
+                        <Clock className="w-3.5 h-3.5 text-rose-400" />
+                        <span className="text-rose-400 text-xs font-medium">
+                          Deadline: {format(item.deadline, "MMMM d, yyyy")}
+                        </span>
+                      </div>
+                    )}
+                    
                     {/* Progress bar for pending items */}
                     {item.isPending && (
                       <div className="mt-3 w-full bg-gray-800/50 rounded-full h-2 overflow-hidden">
@@ -343,7 +365,7 @@ const ComplianceDashboard = () => {
                           className="bg-gradient-to-r from-emerald-500 via-emerald-400 to-teal-400 h-full rounded-full relative overflow-hidden"
                           style={{ width: '65%' }}
                         >
-                          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-[shimmer_2s_infinite] -translate-x-full"></div>
+                          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-shimmer"></div>
                         </div>
                       </div>
                     )}
