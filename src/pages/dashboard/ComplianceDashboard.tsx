@@ -53,6 +53,7 @@ const ComplianceDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [complianceCase, setComplianceCase] = useState<ComplianceCase | null>(null);
   const [totalBalance, setTotalBalance] = useState<number>(0);
+  const [accountBreakdown, setAccountBreakdown] = useState<{ account_type: string; balance: number }[]>([]);
 
   useEffect(() => {
     fetchComplianceData();
@@ -75,7 +76,7 @@ const ComplianceDashboard = () => {
           .maybeSingle(),
         supabase
           .from("accounts")
-          .select("balance")
+          .select("account_type, balance")
           .eq("user_id", user.id)
           .eq("status", "active")
       ]);
@@ -83,10 +84,11 @@ const ComplianceDashboard = () => {
       if (complianceResult.error) throw complianceResult.error;
       setComplianceCase(complianceResult.data);
 
-      // Calculate total balance across all accounts
+      // Calculate total balance across all accounts and store breakdown
       if (accountsResult.data && accountsResult.data.length > 0) {
         const total = accountsResult.data.reduce((sum, account) => sum + (account.balance || 0), 0);
         setTotalBalance(total);
+        setAccountBreakdown(accountsResult.data);
       }
     } catch (error) {
       console.error("Error fetching compliance data:", error);
@@ -414,12 +416,43 @@ const ComplianceDashboard = () => {
           {/* AML Compliance Section */}
           <div className="animate-fade-in mb-5" style={{ animationDelay: '0.2s' }}>
             <div className="bg-gradient-to-br from-[#0a3d62]/90 to-[#0c2840]/90 backdrop-blur-sm rounded-2xl p-5 border border-cyan-700/30 shadow-lg shadow-cyan-900/10">
-              {/* Balance Info */}
+              {/* Balance Breakdown */}
               <div className="bg-[#0d4a75]/60 rounded-xl p-4 mb-4 border border-cyan-600/25 backdrop-blur-sm">
-                <p className="text-cyan-200 text-sm mb-1">Total Account Balance:</p>
-                <p className="text-white text-2xl font-bold">${totalBalance.toLocaleString('en-US', { minimumFractionDigits: 2 })}</p>
-                <p className="text-cyan-200 text-sm mt-3 mb-1">Required AML Compliance Deposit (3%):</p>
-                <p className="text-rose-400 text-xl font-semibold">${amlFeeAmount.toLocaleString('en-US', { minimumFractionDigits: 2 })}</p>
+                <p className="text-cyan-200 text-xs uppercase tracking-wider mb-3 font-medium">Account Breakdown</p>
+                
+                {/* Individual Account Lines */}
+                <div className="space-y-2 mb-4">
+                  {accountBreakdown.map((account, index) => (
+                    <div key={index} className="flex justify-between items-center py-2 border-b border-cyan-700/20 last:border-0">
+                      <div className="flex items-center gap-2">
+                        <div className="w-2 h-2 rounded-full bg-cyan-400"></div>
+                        <span className="text-cyan-100 text-sm capitalize">{account.account_type?.replace(/_/g, ' ') || 'Account'}</span>
+                      </div>
+                      <span className="text-white font-medium text-sm">
+                        ${(account.balance || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+                
+                {/* Total Line */}
+                <div className="border-t border-cyan-500/30 pt-3 mt-3">
+                  <div className="flex justify-between items-center">
+                    <span className="text-cyan-200 text-sm font-semibold">Total Account Balance:</span>
+                    <span className="text-white text-xl font-bold">${totalBalance.toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
+                  </div>
+                </div>
+                
+                {/* AML Fee Calculation */}
+                <div className="bg-rose-500/10 rounded-lg p-3 mt-4 border border-rose-500/20">
+                  <div className="flex justify-between items-center">
+                    <div>
+                      <p className="text-cyan-200 text-xs uppercase tracking-wider mb-1">Required AML Deposit (3%)</p>
+                      <p className="text-gray-400 text-xs">3% × ${totalBalance.toLocaleString('en-US')}</p>
+                    </div>
+                    <span className="text-rose-400 text-xl font-bold">${amlFeeAmount.toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
+                  </div>
+                </div>
               </div>
 
               {/* AML Notice */}
