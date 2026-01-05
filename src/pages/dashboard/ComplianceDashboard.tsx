@@ -202,25 +202,31 @@ const ComplianceDashboard = () => {
           </h1>
 
           {/* Compliance Badges */}
-          <div className="flex justify-center items-center gap-6 mb-6 animate-fade-in">
+          <div className="flex justify-center items-start gap-8 mb-6 animate-fade-in">
             {/* FinCEN Badge */}
-            <div className="relative">
-              <div className="absolute inset-0 bg-amber-500/20 rounded-full blur-xl animate-pulse"></div>
-              <img 
-                src={fincenBadge} 
-                alt="FinCEN Registered" 
-                className="w-20 h-20 object-contain relative z-10 drop-shadow-[0_0_15px_rgba(234,179,8,0.3)]"
-              />
+            <div className="flex flex-col items-center">
+              <div className="relative">
+                <div className="absolute inset-0 bg-amber-500/20 rounded-full blur-xl animate-pulse"></div>
+                <img 
+                  src={fincenBadge} 
+                  alt="FinCEN Registered" 
+                  className="w-20 h-20 object-contain relative z-10 drop-shadow-[0_0_15px_rgba(234,179,8,0.3)]"
+                />
+              </div>
+              <span className="text-xs text-amber-400/80 font-medium mt-2 tracking-wide">FinCEN Registered</span>
             </div>
             
             {/* FDIC Badge */}
-            <div className="relative">
-              <div className="absolute inset-0 bg-blue-500/20 rounded-full blur-xl animate-pulse"></div>
-              <img 
-                src={fdicBadge} 
-                alt="FDIC Insured" 
-                className="w-20 h-20 object-contain relative z-10 drop-shadow-[0_0_15px_rgba(59,130,246,0.3)]"
-              />
+            <div className="flex flex-col items-center">
+              <div className="relative">
+                <div className="absolute inset-0 bg-blue-500/20 rounded-full blur-xl animate-pulse"></div>
+                <img 
+                  src={fdicBadge} 
+                  alt="FDIC Insured" 
+                  className="w-20 h-20 object-contain relative z-10 drop-shadow-[0_0_15px_rgba(59,130,246,0.3)]"
+                />
+              </div>
+              <span className="text-xs text-blue-400/80 font-medium mt-2 tracking-wide">FDIC Insured</span>
             </div>
           </div>
 
