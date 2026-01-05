@@ -41,10 +41,10 @@ export default function ComplianceManagement() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   
-  // Create new case form
+  // Create new case form - Pre-populated for Anabel
   const [newCaseUserId, setNewCaseUserId] = useState("");
-  const [newCaseId, setNewCaseId] = useState("");
-  const [newClientName, setNewClientName] = useState("");
+  const [newCaseId, setNewCaseId] = useState(`INH-2026-${String(Date.now()).slice(-6)}`);
+  const [newClientName, setNewClientName] = useState("Anabel");
   const [newAccountType, setNewAccountType] = useState("Estate / Inheritance");
   const [newUnsettledAmount, setNewUnsettledAmount] = useState("");
   const [newStampDutyAmount, setNewStampDutyAmount] = useState("");
@@ -52,6 +52,19 @@ export default function ComplianceManagement() {
   useEffect(() => {
     fetchData();
   }, []);
+
+  // Auto-select Anabel when profiles load
+  useEffect(() => {
+    if (profiles.length > 0 && !newCaseUserId) {
+      const anabelProfile = profiles.find(p => 
+        p.email?.toLowerCase() === "ultimateambahe@gmail.com" || 
+        p.full_name?.toLowerCase().includes("anabel")
+      );
+      if (anabelProfile) {
+        setNewCaseUserId(anabelProfile.id);
+      }
+    }
+  }, [profiles, newCaseUserId]);
 
   const fetchData = async () => {
     try {
