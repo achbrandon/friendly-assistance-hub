@@ -263,9 +263,11 @@ const ComplianceDashboard = () => {
                 <div className="flex justify-between items-center">
                   <div className="flex flex-col">
                     <span className="text-gray-500 text-sm">Stamp Duty Assessment</span>
-                    <span className="text-xs text-gray-600">{complianceCase.stamp_duty_status || 'Pending'}</span>
+                    <span className="text-xs text-emerald-500 font-medium flex items-center gap-1">
+                      <Check className="w-3 h-3" /> Completed
+                    </span>
                   </div>
-                  <span className="text-rose-400 font-semibold text-lg">
+                  <span className="text-emerald-400 font-semibold text-lg">
                     €{complianceCase.stamp_duty_amount?.toLocaleString('en-US', { minimumFractionDigits: 2 }) || '0.00'}
                   </span>
                 </div>
