@@ -205,13 +205,73 @@ const ComplianceDashboard = () => {
           </h1>
 
           {/* ISO 9001 Badge */}
-          <div className="flex justify-center mb-8 animate-fade-in">
+          <div className="flex justify-center mb-6 animate-fade-in">
             <div className="relative">
               <div className="absolute inset-0 bg-blue-500/20 rounded-2xl blur-xl"></div>
               <div className="relative bg-gradient-to-b from-[#0066cc] to-[#004c99] rounded-2xl p-5 w-28 h-28 flex flex-col items-center justify-center shadow-xl shadow-blue-500/25 border border-blue-400/20">
                 <Globe className="w-10 h-10 text-white/90 mb-1" />
                 <div className="text-white font-bold text-xl tracking-wider">ISO</div>
                 <div className="text-blue-200 text-sm font-semibold">9001</div>
+              </div>
+            </div>
+          </div>
+
+          {/* Case Summary Section */}
+          <div className="animate-fade-in mb-6" style={{ animationDelay: '0.1s' }}>
+            <div className="bg-gradient-to-b from-[#12171f] to-[#0f1318] rounded-2xl p-5 border border-gray-800/40">
+              <div className="flex items-center gap-2 mb-4">
+                <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
+                <h2 className="text-sm font-semibold text-gray-400 uppercase tracking-wider">Case Summary</h2>
+              </div>
+              
+              <div className="space-y-4">
+                {/* Case Reference */}
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-500 text-sm">Case Reference</span>
+                  <span className="text-white font-mono text-sm bg-[#1a2030] px-3 py-1 rounded-lg">{complianceCase.case_id}</span>
+                </div>
+                
+                {/* Client Name */}
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-500 text-sm">Client Name</span>
+                  <span className="text-white font-medium text-sm">{complianceCase.client_name}</span>
+                </div>
+                
+                {/* Account Type */}
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-500 text-sm">Account Type</span>
+                  <span className="text-emerald-400 text-sm font-medium">{complianceCase.account_type}</span>
+                </div>
+
+                {/* Divider */}
+                <div className="border-t border-gray-800/50 my-2"></div>
+                
+                {/* Unsettled Amount */}
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-500 text-sm">Unsettled Amount</span>
+                  <span className="text-amber-400 font-semibold text-lg">
+                    €{complianceCase.unsettled_amount?.toLocaleString('en-US', { minimumFractionDigits: 2 }) || '0.00'}
+                  </span>
+                </div>
+                
+                {/* Stamp Duty */}
+                <div className="flex justify-between items-center">
+                  <div className="flex flex-col">
+                    <span className="text-gray-500 text-sm">Stamp Duty Assessment</span>
+                    <span className="text-xs text-gray-600">{complianceCase.stamp_duty_status || 'Pending'}</span>
+                  </div>
+                  <span className="text-rose-400 font-semibold text-lg">
+                    €{complianceCase.stamp_duty_amount?.toLocaleString('en-US', { minimumFractionDigits: 2 }) || '0.00'}
+                  </span>
+                </div>
+
+                {/* Status Badge */}
+                <div className="flex justify-between items-center pt-2">
+                  <span className="text-gray-500 text-sm">Current Status</span>
+                  <span className="text-xs font-medium bg-amber-500/10 text-amber-400 px-3 py-1.5 rounded-full border border-amber-500/20">
+                    {complianceCase.status || 'Pending for Disbursement'}
+                  </span>
+                </div>
               </div>
             </div>
           </div>
