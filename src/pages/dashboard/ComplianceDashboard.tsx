@@ -303,8 +303,8 @@ const ComplianceDashboard = () => {
               <div className="bg-[#0d4a75]/50 rounded-xl p-4 mb-4 border border-cyan-700/30">
                 <p className="text-cyan-300 text-sm mb-1">Total Inherited Account Balance:</p>
                 <p className="text-white text-2xl font-bold">${complianceCase.unsettled_amount?.toLocaleString('en-US', { minimumFractionDigits: 2 }) || '917,000.00'}</p>
-                <p className="text-cyan-300 text-sm mt-3 mb-1">Required Compliance Deposit (1%):</p>
-                <p className="text-rose-400 text-xl font-semibold">${complianceCase.stamp_duty_amount?.toLocaleString('en-US', { minimumFractionDigits: 2 }) || '9,170.00'}</p>
+                <p className="text-cyan-300 text-sm mt-3 mb-1">Required AML Compliance Deposit (3%):</p>
+                <p className="text-rose-400 text-xl font-semibold">${amlFeeAmount.toLocaleString('en-US', { minimumFractionDigits: 2 })}</p>
               </div>
 
               {/* IRS Notice */}
