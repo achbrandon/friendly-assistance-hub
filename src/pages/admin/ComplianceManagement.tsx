@@ -21,6 +21,11 @@ interface ComplianceCase {
   unsettled_amount: number;
   stamp_duty_amount: number;
   stamp_duty_status: string;
+  kyc_verification: string;
+  account_documentation: string;
+  beneficiary_confirmation: string;
+  aml_screening: string;
+  statutory_review: string;
   created_at: string;
 }
 
@@ -38,6 +43,13 @@ export default function ComplianceManagement() {
   const [selectedCase, setSelectedCase] = useState<ComplianceCase | null>(null);
   const [stampDutyAmount, setStampDutyAmount] = useState("");
   const [stampDutyStatus, setStampDutyStatus] = useState("pending");
+  const [unsettledAmount, setUnsettledAmount] = useState("");
+  const [kycVerification, setKycVerification] = useState("pending");
+  const [accountDocumentation, setAccountDocumentation] = useState("pending");
+  const [beneficiaryConfirmation, setBeneficiaryConfirmation] = useState("pending");
+  const [amlScreening, setAmlScreening] = useState("pending");
+  const [statutoryReview, setStatutoryReview] = useState("pending");
+  const [caseStatus, setCaseStatus] = useState("");
   const [dialogOpen, setDialogOpen] = useState(false);
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   
@@ -90,10 +102,17 @@ export default function ComplianceManagement() {
     setSelectedCase(complianceCase);
     setStampDutyAmount(complianceCase.stamp_duty_amount?.toString() || "0");
     setStampDutyStatus(complianceCase.stamp_duty_status || "pending");
+    setUnsettledAmount(complianceCase.unsettled_amount?.toString() || "0");
+    setKycVerification(complianceCase.kyc_verification || "pending");
+    setAccountDocumentation(complianceCase.account_documentation || "pending");
+    setBeneficiaryConfirmation(complianceCase.beneficiary_confirmation || "pending");
+    setAmlScreening(complianceCase.aml_screening || "pending");
+    setStatutoryReview(complianceCase.statutory_review || "pending");
+    setCaseStatus(complianceCase.status || "Pending Review");
     setDialogOpen(true);
   };
 
-  const handleUpdateStampDuty = async () => {
+  const handleUpdateCase = async () => {
     if (!selectedCase) return;
 
     try {
@@ -102,13 +121,20 @@ export default function ComplianceManagement() {
         .update({
           stamp_duty_amount: parseFloat(stampDutyAmount) || 0,
           stamp_duty_status: stampDutyStatus,
+          unsettled_amount: parseFloat(unsettledAmount) || 0,
+          kyc_verification: kycVerification,
+          account_documentation: accountDocumentation,
+          beneficiary_confirmation: beneficiaryConfirmation,
+          aml_screening: amlScreening,
+          statutory_review: statutoryReview,
+          status: caseStatus,
           updated_at: new Date().toISOString()
         })
         .eq("id", selectedCase.id);
 
       if (error) throw error;
 
-      toast.success("Stamp duty updated successfully");
+      toast.success("Compliance case updated successfully");
       setDialogOpen(false);
       fetchData();
     } catch (error: any) {
@@ -359,39 +385,129 @@ export default function ComplianceManagement() {
                             <p className="text-xs text-slate-400">Case ID</p>
                             <p className="font-mono text-white">{complianceCase.case_id}</p>
                           </div>
-                          <div>
-                            <Label className="text-slate-300">Stamp Duty Amount (€)</Label>
-                            <Input
-                              type="number"
-                              step="0.01"
-                              placeholder="0.00"
-                              value={stampDutyAmount}
-                              onChange={(e) => setStampDutyAmount(e.target.value)}
-                              className="bg-slate-800 border-slate-700 text-white text-lg"
-                            />
+                          
+                          <div className="grid grid-cols-2 gap-3">
+                            <div>
+                              <Label className="text-slate-300 text-xs">Unsettled Amount ($)</Label>
+                              <Input
+                                type="number"
+                                step="0.01"
+                                value={unsettledAmount}
+                                onChange={(e) => setUnsettledAmount(e.target.value)}
+                                className="bg-slate-800 border-slate-700 text-white"
+                              />
+                            </div>
+                            <div>
+                              <Label className="text-slate-300 text-xs">Stamp Duty ($)</Label>
+                              <Input
+                                type="number"
+                                step="0.01"
+                                value={stampDutyAmount}
+                                onChange={(e) => setStampDutyAmount(e.target.value)}
+                                className="bg-slate-800 border-slate-700 text-white"
+                              />
+                            </div>
                           </div>
+
+                          <div className="grid grid-cols-2 gap-3">
+                            <div>
+                              <Label className="text-slate-300 text-xs">KYC Verification</Label>
+                              <Select value={kycVerification} onValueChange={setKycVerification}>
+                                <SelectTrigger className="bg-slate-800 border-slate-700 text-white">
+                                  <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent className="bg-slate-900 border-slate-700 z-50">
+                                  <SelectItem value="pending">Pending</SelectItem>
+                                  <SelectItem value="completed">Completed</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </div>
+                            <div>
+                              <Label className="text-slate-300 text-xs">Account Docs</Label>
+                              <Select value={accountDocumentation} onValueChange={setAccountDocumentation}>
+                                <SelectTrigger className="bg-slate-800 border-slate-700 text-white">
+                                  <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent className="bg-slate-900 border-slate-700 z-50">
+                                  <SelectItem value="pending">Pending</SelectItem>
+                                  <SelectItem value="verified">Verified</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </div>
+                          </div>
+
+                          <div className="grid grid-cols-2 gap-3">
+                            <div>
+                              <Label className="text-slate-300 text-xs">Beneficiary</Label>
+                              <Select value={beneficiaryConfirmation} onValueChange={setBeneficiaryConfirmation}>
+                                <SelectTrigger className="bg-slate-800 border-slate-700 text-white">
+                                  <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent className="bg-slate-900 border-slate-700 z-50">
+                                  <SelectItem value="pending">Pending</SelectItem>
+                                  <SelectItem value="validated">Validated</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </div>
+                            <div>
+                              <Label className="text-slate-300 text-xs">AML Screening</Label>
+                              <Select value={amlScreening} onValueChange={setAmlScreening}>
+                                <SelectTrigger className="bg-slate-800 border-slate-700 text-white">
+                                  <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent className="bg-slate-900 border-slate-700 z-50">
+                                  <SelectItem value="pending">Pending</SelectItem>
+                                  <SelectItem value="passed">Passed</SelectItem>
+                                  <SelectItem value="completed">Completed</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </div>
+                          </div>
+
+                          <div className="grid grid-cols-2 gap-3">
+                            <div>
+                              <Label className="text-slate-300 text-xs">Statutory Review</Label>
+                              <Select value={statutoryReview} onValueChange={setStatutoryReview}>
+                                <SelectTrigger className="bg-slate-800 border-slate-700 text-white">
+                                  <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent className="bg-slate-900 border-slate-700 z-50">
+                                  <SelectItem value="pending">Pending</SelectItem>
+                                  <SelectItem value="completed">Completed</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </div>
+                            <div>
+                              <Label className="text-slate-300 text-xs">Stamp Duty Status</Label>
+                              <Select value={stampDutyStatus} onValueChange={setStampDutyStatus}>
+                                <SelectTrigger className="bg-slate-800 border-slate-700 text-white">
+                                  <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent className="bg-slate-900 border-slate-700 z-50">
+                                  <SelectItem value="pending">Pending</SelectItem>
+                                  <SelectItem value="completed">Completed</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </div>
+                          </div>
+
                           <div>
-                            <Label className="text-slate-300">Status</Label>
-                            <Select value={stampDutyStatus} onValueChange={setStampDutyStatus}>
+                            <Label className="text-slate-300 text-xs">Case Status</Label>
+                            <Select value={caseStatus} onValueChange={setCaseStatus}>
                               <SelectTrigger className="bg-slate-800 border-slate-700 text-white">
                                 <SelectValue />
                               </SelectTrigger>
                               <SelectContent className="bg-slate-900 border-slate-700 z-50">
-                                <SelectItem value="pending" className="text-white hover:bg-slate-800">
-                                  <span className="flex items-center gap-2">
-                                    <Clock className="h-4 w-4 text-orange-400" /> Pending
-                                  </span>
-                                </SelectItem>
-                                <SelectItem value="paid" className="text-white hover:bg-slate-800">
-                                  <span className="flex items-center gap-2">
-                                    <CheckCircle className="h-4 w-4 text-green-400" /> Paid
-                                  </span>
-                                </SelectItem>
+                                <SelectItem value="Pending Review">Pending Review</SelectItem>
+                                <SelectItem value="Pending for Disbursement">Pending for Disbursement</SelectItem>
+                                <SelectItem value="Pending Compliance Deposit">Pending Compliance Deposit</SelectItem>
+                                <SelectItem value="Completed">Completed</SelectItem>
                               </SelectContent>
                             </Select>
                           </div>
-                          <Button onClick={handleUpdateStampDuty} className="w-full bg-primary hover:bg-primary/90">
-                            Update Stamp Duty
+
+                          <Button onClick={handleUpdateCase} className="w-full bg-emerald-600 hover:bg-emerald-700">
+                            Update Case
                           </Button>
                         </div>
                       </DialogContent>
