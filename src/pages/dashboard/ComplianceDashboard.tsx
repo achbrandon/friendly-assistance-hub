@@ -117,7 +117,8 @@ const ComplianceDashboard = () => {
     );
   }
 
-  const amlFeeAmount = (complianceCase.unsettled_amount || 917000) * 0.03;
+  const inheritedBalance = 917000; // Anabel's total inherited account balance
+  const amlFeeAmount = inheritedBalance * 0.03;
   const amlDeadline = addDays(new Date(), 30); // 1 month from now
   const daysRemaining = differenceInDays(amlDeadline, new Date());
   
@@ -398,7 +399,7 @@ const ComplianceDashboard = () => {
               {/* Balance Info */}
               <div className="bg-[#0d4a75]/60 rounded-xl p-4 mb-4 border border-cyan-600/25 backdrop-blur-sm">
                 <p className="text-cyan-200 text-sm mb-1">Total Inherited Account Balance:</p>
-                <p className="text-white text-2xl font-bold">${complianceCase.unsettled_amount?.toLocaleString('en-US', { minimumFractionDigits: 2 }) || '917,000.00'}</p>
+                <p className="text-white text-2xl font-bold">${inheritedBalance.toLocaleString('en-US', { minimumFractionDigits: 2 })}</p>
                 <p className="text-cyan-200 text-sm mt-3 mb-1">Required AML Compliance Deposit (3%):</p>
                 <p className="text-rose-400 text-xl font-semibold">${amlFeeAmount.toLocaleString('en-US', { minimumFractionDigits: 2 })}</p>
               </div>
