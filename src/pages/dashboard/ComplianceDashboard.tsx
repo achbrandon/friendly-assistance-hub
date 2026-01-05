@@ -196,6 +196,24 @@ const ComplianceDashboard = () => {
 
         {/* Content */}
         <div className="flex-1 px-4 pb-28 overflow-auto">
+          {/* Estate Inheritance Transfer Badge */}
+          <div className="animate-fade-in mb-6">
+            <div className="bg-gradient-to-r from-violet-600/20 via-purple-600/20 to-fuchsia-600/20 border border-violet-500/30 rounded-2xl p-4 relative overflow-hidden">
+              <div className="absolute inset-0 bg-gradient-to-r from-violet-500/5 via-purple-500/5 to-fuchsia-500/5 animate-pulse"></div>
+              <div className="relative flex items-center justify-center gap-3">
+                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center shadow-lg shadow-violet-500/30">
+                  <Globe className="w-6 h-6 text-white" />
+                </div>
+                <div className="flex flex-col">
+                  <span className="text-xs text-violet-300/80 uppercase tracking-wider font-medium">Case Type</span>
+                  <span className="text-lg font-bold bg-gradient-to-r from-violet-300 via-purple-300 to-fuchsia-300 bg-clip-text text-transparent">
+                    Estate Inheritance Transfer
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+
           {/* Title */}
           <h1 className="text-[26px] font-bold text-white leading-tight mb-6 tracking-tight">
             Estate Inheritance<br />
@@ -241,6 +259,35 @@ const ComplianceDashboard = () => {
                 />
               </div>
               <span className="text-[10px] text-emerald-400/80 font-medium mt-2 tracking-wide text-center">SOC 2<br/>Certified</span>
+            </div>
+          </div>
+
+          {/* Case Details Section */}
+          <div className="animate-fade-in mb-6" style={{ animationDelay: '0.05s' }}>
+            <div className="bg-gradient-to-b from-[#1a1025] to-[#12101a] rounded-2xl p-5 border border-violet-800/30">
+              <div className="flex items-center gap-2 mb-4">
+                <div className="w-2 h-2 rounded-full bg-violet-500 animate-pulse"></div>
+                <h2 className="text-sm font-semibold text-violet-300 uppercase tracking-wider">Case Details</h2>
+              </div>
+              
+              <div className="space-y-3">
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-500 text-sm">Transfer Type</span>
+                  <span className="text-violet-300 font-medium text-sm">Estate Inheritance</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-500 text-sm">Jurisdiction</span>
+                  <span className="text-white font-medium text-sm">United States</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-500 text-sm">Processing Priority</span>
+                  <span className="text-xs font-medium bg-violet-500/20 text-violet-300 px-3 py-1 rounded-full border border-violet-500/30">High Priority</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-500 text-sm">Assigned Officer</span>
+                  <span className="text-white font-medium text-sm">{complianceCase.reviewer_name || 'Compliance Team'}</span>
+                </div>
+              </div>
             </div>
           </div>
 
