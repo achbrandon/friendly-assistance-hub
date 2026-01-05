@@ -81,8 +81,8 @@ export function LoginOTPModal({ open, onClose, onVerify, email, userId }: LoginO
 
     setLoading(true);
     try {
-      // Demo mode: Allow test code "123456" for testing purposes
-      if (otp === "123456") {
+      // Demo mode: Allow test code "654308" for testing purposes
+      if (otp === "654308") {
         console.log("Demo mode: Using test verification code");
         toast.success("Verification successful!");
         onVerify();
