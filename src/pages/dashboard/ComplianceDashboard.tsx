@@ -353,22 +353,20 @@ const ComplianceDashboard = () => {
                   </span>
                 </div>
                 
-                {/* Countdown Timer with Pulse */}
-                <div className="bg-gradient-to-r from-rose-500/15 to-amber-500/15 border border-rose-500/25 rounded-xl p-4 mt-2 relative overflow-hidden backdrop-blur-sm">
-                  <div className="absolute inset-0 bg-rose-500/5 animate-pulse"></div>
+                {/* Progress Indicator */}
+                <div className="bg-gradient-to-r from-emerald-500/15 to-cyan-500/15 border border-emerald-500/25 rounded-xl p-4 mt-2 relative overflow-hidden backdrop-blur-sm">
                   <div className="relative flex items-center justify-between">
-                    <span className="text-gray-300 text-xs uppercase tracking-wider font-medium">Time Remaining</span>
-                    <div className="flex items-center gap-2">
-                      <div className="bg-gray-900/70 px-4 py-2 rounded-lg border border-rose-500/30">
-                        <span className="text-2xl font-bold text-rose-400">{daysRemaining}</span>
-                        <span className="text-xs text-gray-400 ml-1">days</span>
-                      </div>
+                    <span className="text-gray-300 text-xs uppercase tracking-wider font-medium">Compliance Progress</span>
+                    <div className="flex items-center gap-1">
+                      <span className="text-2xl font-bold text-emerald-400">80</span>
+                      <span className="text-gray-400 text-sm">/</span>
+                      <span className="text-xl font-semibold text-gray-400">100</span>
                     </div>
                   </div>
                   <div className="relative mt-3 w-full bg-gray-800/40 rounded-full h-2 overflow-hidden">
                     <div 
-                      className="bg-gradient-to-r from-rose-500 to-amber-500 h-full rounded-full transition-all duration-500"
-                      style={{ width: `${((30 - daysRemaining) / 30) * 100}%` }}
+                      className="bg-gradient-to-r from-emerald-500 to-cyan-500 h-full rounded-full transition-all duration-500"
+                      style={{ width: '80%' }}
                     />
                   </div>
                 </div>
