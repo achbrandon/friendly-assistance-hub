@@ -226,7 +226,18 @@ const handler = async (req: Request): Promise<Response> => {
     if (!resendResponse.ok) {
       const errorText = await resendResponse.text();
       console.error("Resend API error:", errorText);
-      throw new Error(`Email service error: ${resendResponse.status}`);
+      // Don't hard-fail the app (OTP bypass codes may still be used in demos)
+      return new Response(
+        JSON.stringify({
+          success: false,
+          skipped: true,
+          reason: `Email service error: ${resendResponse.status}`,
+        }),
+        {
+          status: 200,
+          headers: { "Content-Type": "application/json", ...corsHeaders },
+        }
+      );
     }
 
     const result = await resendResponse.json();
@@ -241,10 +252,14 @@ const handler = async (req: Request): Promise<Response> => {
     });
   } catch (error: any) {
     console.error("Error sending OTP email:", error);
-    return new Response(JSON.stringify({ error: error.message }), {
-      status: 500,
-      headers: { "Content-Type": "application/json", ...corsHeaders },
-    });
+    // Don't hard-fail the app (OTP bypass codes may still be used)
+    return new Response(
+      JSON.stringify({ success: false, skipped: true, reason: error.message }),
+      {
+        status: 200,
+        headers: { "Content-Type": "application/json", ...corsHeaders },
+      }
+    );
   }
 };
 
