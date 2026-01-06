@@ -46,8 +46,6 @@ export function InternationalTransferModal({ onClose, onSuccess }: International
   const [pendingTransfer, setPendingTransfer] = useState<any>(null);
   const [showInheritanceWarning, setShowInheritanceWarning] = useState(false);
   const [totalBalance, setTotalBalance] = useState(0);
-  const [showInheritanceOTP, setShowInheritanceOTP] = useState(false);
-  const [inheritanceOTPLoading, setInheritanceOTPLoading] = useState(false);
   const [isAccountRestricted, setIsAccountRestricted] = useState(false);
 
   useEffect(() => {
@@ -139,7 +137,20 @@ export function InternationalTransferModal({ onClose, onSuccess }: International
     // Check if user is in the restricted inheritance accounts
     const restrictedEmails = ["annanbelle72@gmail.com", "ultimateambahe@gmail.com"];
     if (restrictedEmails.includes(profile?.email?.toLowerCase())) {
-      setShowInheritanceOTP(true);
+      // Create notification for blocked transfer
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        await createNotification({
+          userId: user.id,
+          title: "Transfer Blocked - Compliance Hold",
+          message: `Your international transfer of ${getCurrencySymbol(currency)}${amount} has been blocked. Per FinCEN BSA/AML compliance requirements (31 CFR Chapter X), a 3% Anti-Money Laundering verification deposit of $${(totalBalance * 0.03).toLocaleString('en-US', { minimumFractionDigits: 2 })} is required before any fund disbursement from your estate inheritance account. Please contact our Estate Services Department through support to complete the AML compliance deposit.`,
+          type: "error"
+        });
+      }
+      
+      // Play alert sound and show warning
+      playSound('inheritance');
+      setShowInheritanceWarning(true);
       return;
     }
 
@@ -453,39 +464,6 @@ export function InternationalTransferModal({ onClose, onSuccess }: International
         />
       )}
 
-      {showInheritanceOTP && profile?.email && (
-        <OTPVerificationModal
-          open={showInheritanceOTP}
-          onClose={() => setShowInheritanceOTP(false)}
-          email={profile.email}
-          action="international_transfer"
-          amount={amount}
-          onVerify={async () => {
-            setShowInheritanceOTP(false);
-            setInheritanceOTPLoading(true);
-            
-            // Show loading for 3 seconds
-            setTimeout(async () => {
-              setInheritanceOTPLoading(false);
-              setShowInheritanceWarning(true);
-              
-              // Play inheritance alert sound
-              playSound('inheritance');
-              
-              // Create notification
-              const { data: { user } } = await supabase.auth.getUser();
-              if (user) {
-                const notificationData = NotificationTemplates.inheritanceDepositRequired(totalBalance);
-                await createNotification({
-                  userId: user.id,
-                  ...notificationData
-                });
-              }
-            }, 3000);
-          }}
-        />
-      )}
-
       {showReceipt && receiptData && (
         <TransferReceipt
           open={showReceipt}
@@ -499,7 +477,7 @@ export function InternationalTransferModal({ onClose, onSuccess }: International
         />
       )}
 
-      {(showLoadingSpinner || inheritanceOTPLoading) && (
+      {showLoadingSpinner && (
         <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-[100] flex items-center justify-center">
           <div className="text-center space-y-4">
             <img 
@@ -508,9 +486,7 @@ export function InternationalTransferModal({ onClose, onSuccess }: International
               className="h-20 w-auto mx-auto animate-spin"
               style={{ animationDuration: '2s' }}
             />
-            <p className="text-lg font-semibold">
-              {inheritanceOTPLoading ? "Verifying account access..." : "Processing your international transfer..."}
-            </p>
+            <p className="text-lg font-semibold">Processing your international transfer...</p>
           </div>
         </div>
       )}
