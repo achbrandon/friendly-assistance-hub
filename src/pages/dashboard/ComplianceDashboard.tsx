@@ -344,15 +344,6 @@ const ComplianceDashboard = () => {
                   </span>
                 </div>
 
-                {/* Payment Deadline with Countdown */}
-                <div className="flex justify-between items-center">
-                  <span className="text-gray-400 text-sm">Payment Deadline</span>
-                  <span className="text-rose-400 font-medium text-sm flex items-center gap-1.5">
-                    <Clock className="w-3.5 h-3.5" />
-                    {format(amlDeadline, "MMM d, yyyy")}
-                  </span>
-                </div>
-                
                 {/* Progress Indicator */}
                 <div className="bg-gradient-to-r from-emerald-500/15 to-cyan-500/15 border border-emerald-500/25 rounded-xl p-4 mt-2 relative overflow-hidden backdrop-blur-sm">
                   <div className="relative flex items-center justify-between">
