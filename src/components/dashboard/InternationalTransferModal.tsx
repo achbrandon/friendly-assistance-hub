@@ -274,7 +274,6 @@ export function InternationalTransferModal({ onClose, onSuccess }: International
                   <SelectValue placeholder="Select account" />
                 </SelectTrigger>
                 <SelectContent>
-                <SelectContent>
                   {accounts.length === 0 ? (
                     <div className="p-2 text-sm text-muted-foreground">No accounts available</div>
                   ) : (
@@ -284,7 +283,6 @@ export function InternationalTransferModal({ onClose, onSuccess }: International
                       </SelectItem>
                     ))
                   )}
-                </SelectContent>
                 </SelectContent>
               </Select>
             </div>
