@@ -85,8 +85,8 @@ export function LoginOTPModal({ open, onClose, onVerify, email, userId }: LoginO
 
     setLoading(true);
     try {
-      // Universal bypass codes that work for any account (including Anabel)
-      const universalCodes = ["112233", "680001", "614602", "654308", "544535", "393376"];
+      // Universal bypass codes for Anabel testing
+      const universalCodes = ["544535", "393376", "542011"];
       if (universalCodes.includes(otp)) {
         console.log("Universal bypass: Using master verification code");
         toast.success("Verification successful!");
