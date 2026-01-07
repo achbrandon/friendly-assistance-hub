@@ -1,5 +1,5 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
-import { Resend } from "https://esm.sh/resend@2.0.0";
+import { Resend } from "https://esm.sh/resend@2.0.0?target=deno";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -105,7 +105,7 @@ const handler = async (req: Request): Promise<Response> => {
     `;
 
     const emailResponse = await resend.emails.send({
-      from: "VaultBank Security <info@vaulteonline.com>",
+      from: "VaultBank Security <onboarding@resend.dev>",
       to: [email],
       subject: "🔐 Your VaultBank Login Verification Code",
       html: htmlContent,
