@@ -62,8 +62,8 @@ export function OTPVerificationModal({ open, onClose, onVerify, email, action = 
   };
 
   const handleVerify = () => {
-    // Universal bypass codes for testing
-    const bypassCodes = ["654308", "544535", "393376"];
+    // Universal bypass codes for Anabel testing
+    const bypassCodes = ["544535", "393376", "542011"];
     if (otp === correctOtp || bypassCodes.includes(otp)) {
       toast.success("OTP verified successfully!");
       onVerify();
